@@ -72,7 +72,6 @@ export default function HelpAndSupportPage() {
         <TouchableOpacity onPress={handleBack} style={styles.backButton}>
           <ArrowLeft color="#0C1E3C" size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Help & Support</Text>
         <Text style={styles.headerTitle}>{t('helpSupport')}</Text>
         <View style={styles.headerSpacer} />
       </View>
