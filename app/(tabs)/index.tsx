@@ -18,20 +18,53 @@ import {
 } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { t } from '@/lib/i18n';
+import { getUserData, User } from '@/utils/auth';
 
 export default function HomePage() {
   const [exchangeAmount, setExchangeAmount] = useState('');
   const [exchangeDirection, setExchangeDirection] = useState<'usdc-eur' | 'eur-usdc'>('usdc-eur');
   const [rateDirection, setRateDirection] = useState<'usdc-eur' | 'eur-usdc'>('usdc-eur');
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [userData, setUserData] = useState<User | null>(null);
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      const user = await getUserData();
+      setUserData(user);
+    };
+    loadUserData();
+  }, []);
 
   const getProgressColor = () => {
-    const percentage = 64; // 3200/5000 = 64%
+    if (!userData?.monthly_limit || !userData?.monthly_limit_used) return '#10B981';
+    const percentage = (userData.monthly_limit_used / userData.monthly_limit) * 100;
     if (percentage < 70) return '#10B981'; // Green
     if (percentage < 90) return '#F59E0B'; // Yellow
     return '#EF4444'; // Red
   };
 
+  const getProgressPercentage = () => {
+    if (!userData?.monthly_limit || !userData?.monthly_limit_used) return 0;
+    return (userData.monthly_limit_used / userData.monthly_limit) * 100;
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'EUR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const getDaysUntilReset = () => {
+    if (!userData?.limit_reset_date) return 0;
+    const resetDate = new Date(userData.limit_reset_date);
+    const today = new Date();
+    const diffTime = resetDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return Math.max(0, diffDays);
+  };
   const handleViewLimitDetails = () => {
     router.push('/limit-details');
   };
@@ -74,7 +107,7 @@ export default function HomePage() {
   const getToCurrency = () => exchangeDirection === 'usdc-eur' ? 'EUR' : 'USDC';
 
   const handleOrderBankAccount = async () => {
-    const message = encodeURIComponent('Привіт, я хочу замовити відкриття рахунку.');
+    const message = encodeURIComponent(t('orderBankAccount'));
     const telegramUrl = `tg://resolve?domain=YourBotUsername&text=${message}`;
     
     try {
@@ -107,13 +140,17 @@ export default function HomePage() {
             <View style={styles.progressBarBackground}>
               <View style={[
                 styles.progressBarFill, 
-                { width: '64%', backgroundColor: getProgressColor() }
+                { width: `${getProgressPercentage()}%`, backgroundColor: getProgressColor() }
               ]} />
             </View>
           </View>
           
-          <Text style={styles.limitUsageText}>€3,200 / €5,000 {t('limitUsed')}</Text>
-          <Text style={styles.limitResetText}>{t('limitResets')} 12 {t('days')}</Text>
+          <Text style={styles.limitUsageText}>
+            {userData?.monthly_limit_used ? formatCurrency(userData.monthly_limit_used) : '€0'} / {userData?.monthly_limit ? formatCurrency(userData.monthly_limit) : '€5,000'} {t('limitUsed')}
+          </Text>
+          <Text style={styles.limitResetText}>
+            {t('limitResets')} {getDaysUntilReset()} {t('days')}
+          </Text>
           
           <TouchableOpacity 
             style={styles.viewDetailsButton}

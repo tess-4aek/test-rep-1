@@ -12,8 +12,19 @@ import { ArrowLeft, Calendar, Clock, TrendingUp, MessageCircle } from 'lucide-re
 import { router } from 'expo-router';
 import { Linking } from 'react-native';
 import { t } from '@/lib/i18n';
+import { getUserData, User } from '@/utils/auth';
 
 export default function LimitDetailsPage() {
+  const [userData, setUserData] = React.useState<User | null>(null);
+
+  React.useEffect(() => {
+    const loadUserData = async () => {
+      const user = await getUserData();
+      setUserData(user);
+    };
+    loadUserData();
+  }, []);
+
   const handleBack = () => {
     router.back();
   };
@@ -29,6 +40,42 @@ export default function LimitDetailsPage() {
     }
   };
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'EUR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  const getMonthlyProgressPercentage = () => {
+    if (!userData?.monthly_limit || !userData?.monthly_limit_used) return 0;
+    return (userData.monthly_limit_used / userData.monthly_limit) * 100;
+  };
+
+  const getDailyProgressPercentage = () => {
+    if (!userData?.daily_limit || !userData?.daily_limit_used) return 0;
+    return (userData.daily_limit_used / userData.daily_limit) * 100;
+  };
+
+  const getDaysUntilReset = () => {
+    if (!userData?.limit_reset_date) return 0;
+    const resetDate = new Date(userData.limit_reset_date);
+    const today = new Date();
+    const diffTime = resetDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return Math.max(0, diffDays);
+  };
+
+  const getResetDateFormatted = () => {
+    if (!userData?.limit_reset_date) return 'January 1st';
+    const resetDate = new Date(userData.limit_reset_date);
+    return resetDate.toLocaleDateString('en-US', { 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
@@ -55,14 +102,16 @@ export default function LimitDetailsPage() {
           </View>
           
           <View style={styles.limitContainer}>
-            <Text style={styles.limitAmount}>€3,200 / €5,000</Text>
+            <Text style={styles.limitAmount}>
+              {userData?.monthly_limit_used ? formatCurrency(userData.monthly_limit_used) : '€0'} / {userData?.monthly_limit ? formatCurrency(userData.monthly_limit) : '€5,000'}
+            </Text>
             <View style={styles.progressBarContainer}>
               <View style={styles.progressBarBackground}>
-                <View style={[styles.progressBarFill, { width: '64%' }]} />
+                <View style={[styles.progressBarFill, { width: `${getMonthlyProgressPercentage()}%` }]} />
               </View>
-              <Text style={styles.progressPercentage}>64%</Text>
+              <Text style={styles.progressPercentage}>{Math.round(getMonthlyProgressPercentage())}%</Text>
             </View>
-            <Text style={styles.limitSubtext}>{t('resetsOn')} January 1st</Text>
+            <Text style={styles.limitSubtext}>{t('resetsOn')} {getResetDateFormatted()}</Text>
           </View>
         </View>
 
@@ -74,12 +123,14 @@ export default function LimitDetailsPage() {
           </View>
           
           <View style={styles.limitContainer}>
-            <Text style={styles.limitAmount}>€450 / €1,000</Text>
+            <Text style={styles.limitAmount}>
+              {userData?.daily_limit_used ? formatCurrency(userData.daily_limit_used) : '€0'} / {userData?.daily_limit ? formatCurrency(userData.daily_limit) : '€1,000'}
+            </Text>
             <View style={styles.progressBarContainer}>
               <View style={styles.progressBarBackground}>
-                <View style={[styles.progressBarFill, { width: '45%', backgroundColor: '#10B981' }]} />
+                <View style={[styles.progressBarFill, { width: `${getDailyProgressPercentage()}%`, backgroundColor: '#10B981' }]} />
               </View>
-              <Text style={[styles.progressPercentage, { color: '#10B981' }]}>45%</Text>
+              <Text style={[styles.progressPercentage, { color: '#10B981' }]}>{Math.round(getDailyProgressPercentage())}%</Text>
             </View>
             <Text style={styles.limitSubtext}>{t('resetsAtMidnight')}</Text>
           </View>

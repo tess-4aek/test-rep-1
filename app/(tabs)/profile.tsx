@@ -10,6 +10,7 @@ import { StatusBar } from 'expo-status-bar';
 import { User, CreditCard, Shield, Settings, CircleHelp as HelpCircle, LogOut, ChevronRight } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { t } from '@/lib/i18n';
+import { getUserData, User as UserType } from '@/utils/auth';
 
 const menuItems = [
   {
@@ -30,6 +31,16 @@ const menuItems = [
 ];
 
 export default function ProfilePage() {
+  const [userData, setUserData] = React.useState<UserType | null>(null);
+
+  React.useEffect(() => {
+    const loadUserData = async () => {
+      const user = await getUserData();
+      setUserData(user);
+    };
+    loadUserData();
+  }, []);
+
   const handleMenuItemPress = (index: number) => {
     switch (index) {
       case 0: // Personal Information
@@ -65,8 +76,10 @@ export default function ProfilePage() {
               <User color="#3D8BFF" size={32} />
             </View>
           </View>
-          <Text style={styles.userName}>John Doe</Text>
-          <Text style={styles.userEmail}>john.doe@example.com</Text>
+          <Text style={styles.userName}>{userData?.name || 'User'}</Text>
+          <Text style={styles.userEmail}>
+            {userData?.telegram_username ? `@${userData.telegram_username}` : 'No username'}
+          </Text>
           <View style={styles.verificationBadge}>
             <Shield color="#10B981" size={16} />
             <Text style={styles.verificationText}>{t('verifiedAccount')}</Text>

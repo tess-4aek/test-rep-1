@@ -1,9 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { User } from '@/lib/supabase';
+import { User as SupabaseUser } from '@/lib/supabase';
+
+// Re-export User type for convenience
+export type User = SupabaseUser;
 
 const USER_STORAGE_KEY = 'authenticated_user';
 
-export async function saveUserData(user: User): Promise<void> {
+export async function saveUserData(user: SupabaseUser): Promise<void> {
   try {
     await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
     console.log('User data saved to storage');
@@ -12,11 +15,11 @@ export async function saveUserData(user: User): Promise<void> {
   }
 }
 
-export async function getUserData(): Promise<User | null> {
+export async function getUserData(): Promise<SupabaseUser | null> {
   try {
     const userData = await AsyncStorage.getItem(USER_STORAGE_KEY);
     if (userData) {
-      return JSON.parse(userData) as User;
+      return JSON.parse(userData) as SupabaseUser;
     }
     return null;
   } catch (error) {
@@ -34,7 +37,7 @@ export async function clearUserData(): Promise<void> {
   }
 }
 
-export function determineNextScreen(user: User): string {
+export function determineNextScreen(user: SupabaseUser): string {
   // Check KYC status first
   if (!user.kyc_status || user.kyc_status === false) {
     return '/auth-progress';
