@@ -10,7 +10,6 @@ import { StatusBar } from 'expo-status-bar';
 import { User, CreditCard, Shield, Settings, CircleHelp as HelpCircle, LogOut, ChevronRight } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { t } from '@/lib/i18n';
-import { t } from '@/lib/i18n';
 
 const menuItems = [
   {
