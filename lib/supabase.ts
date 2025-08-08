@@ -99,9 +99,3 @@ export async function updateUserBankDetailsStatus(telegramId: string, bankDetail
     return null;
   }
 }
-
-export { checkUserExists }
-
-export { updateUserBankDetailsStatus }
-
-export { updateUserKYCStatus }

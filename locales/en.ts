@@ -144,5 +144,4 @@ export default {
   authTimeout: 'Authentication timed out. Please try again.',
   authError: 'Authentication error occurred. Please try again.',
   submitting: 'Submitting...',
-  loading: 'Loading...',
 };
