@@ -12,6 +12,20 @@ export interface User {
   telegram_username?: string;
   kyc_status?: boolean;
   bank_details_status?: boolean;
+  bank_full_name?: string;
+  bank_iban?: string;
+  bank_swift_bic?: string;
+  bank_name?: string;
+  bank_country?: string;
+  kyc_verification_url?: string;
+  kyc_requested_at?: string;
+  kyc_verified?: boolean;
+  sumsub_external_user_id?: string;
+  monthly_limit?: number;
+  daily_limit?: number;
+  monthly_used?: number;
+  daily_used?: number;
+  limit_reset_date?: string;
   created_at?: string;
   updated_at?: string;
 }
