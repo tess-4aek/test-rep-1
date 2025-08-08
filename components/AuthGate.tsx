@@ -32,19 +32,19 @@ export default function AuthGate() {
         } else {
           // User not authenticated, go to intro
           console.log('🚪 User not authenticated, navigating to intro');
-          router.replace('/');
+          router.replace('/index');
         }
       } catch (error) {
         console.error('❌ Error during auth check:', error);
         // On error, default to intro screen
-        router.replace('/');
+        router.replace('/index');
       } finally {
         setIsLoading(false);
       }
     };
 
     checkAuthAndRoute();
-  }, []);
+      router.replace('/index');
 
   // Show loading screen while checking auth
   if (isLoading) {
