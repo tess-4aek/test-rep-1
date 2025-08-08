@@ -9,24 +9,39 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { ArrowLeft, Check } from 'lucide-react-native';
 import { router } from 'expo-router';
-
-type Language = 'uk' | 'en';
+import { t, getCurrentLanguage, changeLanguage } from '@/lib/i18n';
 
 export default function SettingsPage() {
-  const [selectedLanguage, setSelectedLanguage] = useState<Language>('en');
+  const [selectedLanguage, setSelectedLanguage] = useState<'uk' | 'en'>(getCurrentLanguage());
+  const [isChangingLanguage, setIsChangingLanguage] = useState(false);
 
   const handleBack = () => {
     router.back();
   };
 
-  const handleLanguageSelect = (language: Language) => {
-    setSelectedLanguage(language);
-    // TODO: Implement language switching logic
+  const handleLanguageSelect = async (language: 'uk' | 'en') => {
+    if (language === selectedLanguage || isChangingLanguage) return;
+    
+    setIsChangingLanguage(true);
+    try {
+      await changeLanguage(language);
+      setSelectedLanguage(language);
+      
+      // Force re-render by navigating back and forth
+      // This ensures all components pick up the new translations
+      setTimeout(() => {
+        router.back();
+      }, 100);
+    } catch (error) {
+      console.error('Error changing language:', error);
+    } finally {
+      setIsChangingLanguage(false);
+    }
   };
 
   const languages = [
-    { code: 'uk' as Language, name: 'Українська' },
-    { code: 'en' as Language, name: 'English' },
+    { code: 'uk' as const, name: t('ukrainian') },
+    { code: 'en' as const, name: t('english') },
   ];
 
   return (
@@ -38,7 +53,7 @@ export default function SettingsPage() {
         <TouchableOpacity onPress={handleBack} style={styles.backButton}>
           <ArrowLeft color="#0C1E3C" size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Settings</Text>
+        <Text style={styles.headerTitle}>{t('settings')}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -49,7 +64,7 @@ export default function SettingsPage() {
       >
         {/* Language Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Language</Text>
+          <Text style={styles.sectionTitle}>{t('changeLanguage')}</Text>
           
           <View style={styles.languageContainer}>
             {languages.map((language) => (
@@ -58,13 +73,16 @@ export default function SettingsPage() {
                 style={[
                   styles.languageOption,
                   selectedLanguage === language.code && styles.selectedLanguageOption,
+                  isChangingLanguage && styles.disabledLanguageOption,
                 ]}
                 onPress={() => handleLanguageSelect(language.code)}
                 activeOpacity={0.7}
+                disabled={isChangingLanguage}
               >
                 <Text style={[
                   styles.languageText,
                   selectedLanguage === language.code && styles.selectedLanguageText,
+                  isChangingLanguage && styles.disabledLanguageText,
                 ]}>
                   {language.name}
                 </Text>
@@ -163,6 +181,9 @@ const styles = StyleSheet.create({
   selectedLanguageOption: {
     backgroundColor: '#3D8BFF' + '10',
   },
+  disabledLanguageOption: {
+    opacity: 0.6,
+  },
   languageText: {
     fontSize: 16,
     fontWeight: '500',
@@ -172,5 +193,8 @@ const styles = StyleSheet.create({
   selectedLanguageText: {
     fontWeight: '600',
     color: '#3D8BFF',
+  },
+  disabledLanguageText: {
+    color: '#9CA3AF',
   },
 });

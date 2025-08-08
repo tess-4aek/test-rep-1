@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
 import { Chrome as Home, FileText, User } from 'lucide-react-native';
+import { t } from '@/lib/i18n';
 
 export default function TabLayout() {
   return (
@@ -21,7 +22,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: t('home'),
           tabBarIcon: ({ size, color }) => (
             <Home size={size} color={color} />
           ),
@@ -30,7 +31,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="history"
         options={{
-          title: 'History',
+          title: t('history'),
           tabBarIcon: ({ size, color }) => (
             <FileText size={size} color={color} />
           ),
@@ -39,7 +40,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: t('profile'),
           tabBarIcon: ({ size, color }) => (
             <User size={size} color={color} />
           ),
