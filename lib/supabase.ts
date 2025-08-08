@@ -8,7 +8,7 @@ export const supabase = createClient(supabaseUrl, supabaseKey);
 export interface User {
   id: string;
   telegram_id?: string;
-  username?: string;
+  username?: string; // Telegram username
   first_name?: string;
   last_name?: string;
   kyc_status?: boolean;

@@ -1,11 +1,48 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { User as SupabaseUser } from '@/lib/supabase';
 
 // Re-export User type for convenience
 export type User = SupabaseUser;
 
 const USER_STORAGE_KEY = 'authenticated_user';
+const USER_UUID_KEY = 'userUUID';
 
+/**
+ * Save user UUID to secure storage
+ */
+export async function saveUserUUID(uuid: string): Promise<void> {
+  try {
+    await SecureStore.setItemAsync(USER_UUID_KEY, uuid);
+    console.log('User UUID saved to secure storage');
+  } catch (error) {
+    console.error('Error saving user UUID:', error);
+  }
+}
+
+/**
+ * Get user UUID from secure storage
+ */
+export async function getUserUUID(): Promise<string | null> {
+  try {
+    return await SecureStore.getItemAsync(USER_UUID_KEY);
+  } catch (error) {
+    console.error('Error loading user UUID:', error);
+    return null;
+  }
+}
+
+/**
+ * Clear user UUID from secure storage
+ */
+export async function clearUserUUID(): Promise<void> {
+  try {
+    await SecureStore.deleteItemAsync(USER_UUID_KEY);
+    console.log('User UUID cleared from secure storage');
+  } catch (error) {
+    console.error('Error clearing user UUID:', error);
+  }
+}
 export async function saveUserData(user: SupabaseUser): Promise<void> {
   try {
     await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
