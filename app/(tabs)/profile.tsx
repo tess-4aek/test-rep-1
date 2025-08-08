@@ -11,11 +11,9 @@ import { User, CreditCard, Shield, Settings, CircleHelp as HelpCircle, LogOut, C
 import { router } from 'expo-router';
 import { t } from '@/lib/i18n';
 import { getUserData, User as UserType } from '@/utils/auth';
-import { useAuth } from '@/hooks/useAuth';
 
 export default function ProfilePage() {
   const [userData, setUserData] = React.useState<UserType | null>(null);
-  const { logout } = useAuth();
 
   const menuItems = [
     {
@@ -42,18 +40,6 @@ export default function ProfilePage() {
     };
     loadUserData();
   }, []);
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      // Clear user data as well
-      await AsyncStorage.removeItem('authenticated_user');
-      console.log('User logged out successfully');
-      router.replace('/');
-    } catch (error) {
-      console.error('Error during logout:', error);
-    }
-  };
 
   const handleMenuItemPress = (index: number) => {
     switch (index) {
@@ -127,7 +113,7 @@ export default function ProfilePage() {
 
         {/* Logout Button */}
         <View style={styles.logoutContainer}>
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <TouchableOpacity style={styles.logoutButton}>
             <LogOut color="#EF4444" size={20} />
             <Text style={styles.logoutText}>{t('signOut')}</Text>
           </TouchableOpacity>

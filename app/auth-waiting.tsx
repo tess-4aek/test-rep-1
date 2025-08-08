@@ -12,7 +12,6 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { checkUserExists, User } from '@/lib/supabase';
 import { saveUserData, determineNextScreen } from '@/utils/auth';
 import { t } from '@/lib/i18n';
-import { useAuth } from '@/hooks/useAuth';
 
 export default function AuthWaitingPage() {
   const { uuid } = useLocalSearchParams<{ uuid: string }>();
@@ -21,7 +20,6 @@ export default function AuthWaitingPage() {
   const pollingInterval = useRef<NodeJS.Timeout | null>(null);
   const pollCount = useRef(0);
   const maxPolls = 60; // 5 minutes maximum (60 * 5 seconds)
-  const { login } = useAuth();
 
   const handleBack = () => {
     // Stop polling when going back
@@ -78,9 +76,6 @@ export default function AuthWaitingPage() {
         
         // Save user data locally
         await saveUserData(user);
-        
-        // Set authentication state
-        await login();
         
         // Determine next screen based on user status
         const nextScreen = determineNextScreen(user);
