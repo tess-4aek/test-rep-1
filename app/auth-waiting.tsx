@@ -77,9 +77,6 @@ export default function AuthWaitingPage() {
         // Save user data locally
         await saveUserData(user);
         
-        // Save user UUID for authentication checks
-        await saveUserUUID(user.id);
-        
         // Determine next screen based on user status
         const nextScreen = determineNextScreen(user);
         console.log('Navigating to:', nextScreen);

@@ -4,12 +4,10 @@ import { StatusBar } from 'expo-status-bar';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { initializeLanguage } from '@/lib/i18n';
-import { checkUserAuthentication, hasAuthCheckBeenPerformed } from '@/lib/auth-check';
 
 export default function RootLayout() {
   useFrameworkReady();
   const [isLanguageReady, setIsLanguageReady] = useState(false);
-  const [isAuthCheckComplete, setIsAuthCheckComplete] = useState(false);
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -17,22 +15,9 @@ export default function RootLayout() {
         // Initialize language first
         await initializeLanguage();
         setIsLanguageReady(true);
-        
-        // Check if auth check has already been performed
-        const authCheckPerformed = await hasAuthCheckBeenPerformed();
-        
-        if (!authCheckPerformed) {
-          console.log('🔐 Performing initial authentication check...');
-          await checkUserAuthentication();
-        } else {
-          console.log('✅ Authentication check already performed, skipping...');
-        }
-        
-        setIsAuthCheckComplete(true);
       } catch (error) {
         console.error('❌ Error during app initialization:', error);
         setIsLanguageReady(true);
-        setIsAuthCheckComplete(true);
       }
     };
     
@@ -40,7 +25,7 @@ export default function RootLayout() {
   }, []);
 
   // Show loading screen until language and auth check are complete
-  if (!isLanguageReady || !isAuthCheckComplete) {
+  if (!isLanguageReady) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#3D8BFF" />
