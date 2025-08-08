@@ -345,7 +345,10 @@ export default function HomePage() {
               
               <TouchableOpacity
                 style={styles.confirmButton}
-                onPress={handleConfirmExchange}
+                onPress={() => {
+                  setShowConfirmModal(false);
+                  router.push('/order-details');
+                }}
               >
                 <LinearGradient
                   colors={['#3D8BFF', '#2A7FFF']}

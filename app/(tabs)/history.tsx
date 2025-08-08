@@ -7,89 +7,71 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { ArrowUpRight, ArrowDownLeft, Clock, RefreshCw } from 'lucide-react-native';
+import { ArrowUpRight, ArrowDownLeft, Clock } from 'lucide-react-native';
 import { router } from 'expo-router';
-import { useFocusEffect } from '@react-navigation/native';
 import { t } from '@/lib/i18n';
-import { Order } from '@/lib/supabase';
-import { getUserOrders } from '@/lib/supabase';
-import { getUserData } from '@/utils/auth';
+import { Order } from '@/types/order';
+
+const transactions: Order[] = [
+  {
+    id: '1',
+    type: 'buy',
+    title: `${t('bought')} Bitcoin`,
+    amount: '+$500.00',
+    crypto: '0.0125 BTC',
+    time: '2 hours ago',
+    status: 'completed',
+    fromCurrency: 'USD',
+    toCurrency: 'BTC',
+    exchangeRate: '1 USD ≈ 0.000025 BTC',
+    fee: '0.5%',
+    estimatedReceived: '0.0125',
+  },
+  {
+    id: '2',
+    type: 'sell',
+    title: `${t('sold')} Ethereum`,
+    amount: '-$1,200.00',
+    crypto: '0.75 ETH',
+    time: '1 day ago',
+    status: 'completed',
+    fromCurrency: 'ETH',
+    toCurrency: 'USD',
+    exchangeRate: '1 ETH ≈ 1600 USD',
+    fee: '0.5%',
+    estimatedReceived: '1200.00',
+  },
+  {
+    id: '3',
+    type: 'buy',
+    title: `${t('bought')} Litecoin`,
+    amount: '+$300.00',
+    crypto: '4.2 LTC',
+    time: '3 days ago',
+    status: 'pending',
+    fromCurrency: 'USD',
+    toCurrency: 'LTC',
+    exchangeRate: '1 USD ≈ 0.014 LTC',
+    fee: '0.5%',
+    estimatedReceived: '4.2',
+  },
+  {
+    id: '4',
+    type: 'sell',
+    title: `${t('sold')} Bitcoin`,
+    amount: '-$800.00',
+    crypto: '0.02 BTC',
+    time: '1 week ago',
+    status: 'completed',
+    fromCurrency: 'BTC',
+    toCurrency: 'USD',
+    exchangeRate: '1 BTC ≈ 40000 USD',
+    fee: '0.5%',
+    estimatedReceived: '800.00',
+  },
+];
 
 export default function HistoryPage() {
-  const [orders, setOrders] = React.useState<Order[]>([]);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
-
-  const loadOrders = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      // Get current user data
-      const userData = await getUserData();
-      
-      // Fetch orders from Supabase
-      const userOrders = await getUserOrders(userData?.id, userData?.telegram_id);
-      setOrders(userOrders);
-      
-      console.log('Loaded orders:', userOrders.length);
-    } catch (error) {
-      console.error('Error loading orders:', error);
-      setError('Failed to load orders');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Load orders when screen comes into focus
-  useFocusEffect(
-    React.useCallback(() => {
-      loadOrders();
-    }, [])
-  );
-
-  const formatTimeAgo = (dateString: string): string => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-    
-    if (diffInMinutes < 1) return 'Just now';
-    if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`;
-    
-    const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24) return `${diffInHours} hours ago`;
-    
-    const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays < 7) return `${diffInDays} days ago`;
-    
-    const diffInWeeks = Math.floor(diffInDays / 7);
-    return `${diffInWeeks} weeks ago`;
-  };
-
-  const getTransactionTitle = (order: Order): string => {
-    if (order.direction === 'usdc-eur') {
-      return `${t('sold')} USDC`;
-    } else {
-      return `${t('bought')} USDC`;
-    }
-  };
-
-  const getTransactionAmount = (order: Order): string => {
-    if (order.direction === 'usdc-eur') {
-      return `+€${order.eur_amount.toFixed(2)}`;
-    } else {
-      return `-€${order.eur_amount.toFixed(2)}`;
-    }
-  };
-
-  const getTransactionCrypto = (order: Order): string => {
-    return `${order.usdc_amount.toFixed(2)} USDC`;
-  };
-
-  const getTransactionType = (order: Order): 'buy' | 'sell' => {
-    return order.direction === 'eur-usdc' ? 'buy' : 'sell';
-  };
-
   const getTransactionIcon = (type: string, status: string) => {
     if (status === 'pending') {
       return <Clock color="#F59E0B" size={20} />;
@@ -116,35 +98,6 @@ export default function HistoryPage() {
     });
   };
 
-  const handleRetry = () => {
-    loadOrders();
-  };
-
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <StatusBar style="dark" />
-        <View style={styles.loadingContainer}>
-          <RefreshCw color="#3D8BFF" size={32} />
-          <Text style={styles.loadingText}>Loading orders...</Text>
-        </View>
-      </View>
-    );
-  }
-
-  if (error) {
-    return (
-      <View style={styles.container}>
-        <StatusBar style="dark" />
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
-            <Text style={styles.retryButtonText}>{t('retry')}</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
-  }
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
@@ -160,61 +113,51 @@ export default function HistoryPage() {
           <Text style={styles.subtitle}>{t('recentExchanges')}</Text>
         </View>
 
-        {/* Orders List */}
-        {orders.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>No orders yet</Text>
-            <Text style={styles.emptySubtext}>Your exchange history will appear here</Text>
-          </View>
-        ) : (
-          <View style={styles.transactionsContainer}>
-            {orders.map((order) => {
-              const transactionType = getTransactionType(order);
-              return (
-                <TouchableOpacity 
-                  key={order.id} 
-                  style={styles.transactionItem}
-                  onPress={() => handleOrderPress(order)}
-                  activeOpacity={0.7}
-                >
-                  <View style={[
-                    styles.transactionIcon, 
-                    { backgroundColor: getIconBackgroundColor(transactionType, order.status) }
-                  ]}>
-                    {getTransactionIcon(transactionType, order.status)}
-                  </View>
-                  
-                  <View style={styles.transactionDetails}>
-                    <Text style={styles.transactionTitle}>{getTransactionTitle(order)}</Text>
-                    <Text style={styles.transactionCrypto}>{getTransactionCrypto(order)}</Text>
-                    <Text style={styles.transactionTime}>{formatTimeAgo(order.created_at)}</Text>
-                  </View>
-                  
-                  <View style={styles.transactionAmountContainer}>
-                    <Text style={[
-                      styles.transactionAmount,
-                      { color: transactionType === 'buy' ? '#10B981' : '#EF4444' }
-                    ]}>
-                      {getTransactionAmount(order)}
-                    </Text>
-                    <Text style={[
-                      styles.transactionStatus,
-                      { 
-                        color: order.status === 'completed' ? '#10B981' : 
-                               order.status === 'pending' ? '#F59E0B' : '#6B7280',
-                        textTransform: 'capitalize'
-                      }
-                    ]}>
-                      {order.status === 'pending' ? t('pending') : 
-                       order.status === 'processing' ? t('processing') : 
-                       order.status === 'completed' ? t('completed') : order.status}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        )}
+        {/* Transactions List */}
+        <View style={styles.transactionsContainer}>
+          {transactions.map((transaction) => (
+            <TouchableOpacity 
+              key={transaction.id} 
+              style={styles.transactionItem}
+              onPress={() => handleOrderPress(transaction)}
+              activeOpacity={0.7}
+            >
+              <View style={[
+                styles.transactionIcon, 
+                { backgroundColor: getIconBackgroundColor(transaction.type, transaction.status) }
+              ]}>
+                {getTransactionIcon(transaction.type, transaction.status)}
+              </View>
+              
+              <View style={styles.transactionDetails}>
+                <Text style={styles.transactionTitle}>{transaction.title}</Text>
+                <Text style={styles.transactionCrypto}>{transaction.crypto}</Text>
+                <Text style={styles.transactionTime}>{transaction.time}</Text>
+              </View>
+              
+              <View style={styles.transactionAmountContainer}>
+                <Text style={[
+                  styles.transactionAmount,
+                  { color: transaction.type === 'buy' ? '#10B981' : '#EF4444' }
+                ]}>
+                  {transaction.amount}
+                </Text>
+                <Text style={[
+                  styles.transactionStatus,
+                  { 
+                    color: transaction.status === 'completed' ? '#10B981' : 
+                           transaction.status === 'pending' ? '#F59E0B' : '#6B7280',
+                    textTransform: 'capitalize'
+                  }
+                ]}>
+                  {transaction.status === 'pending' ? t('pending') : 
+                   transaction.status === 'processing' ? t('processing') : 
+                   t('completed')}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
       </ScrollView>
     </View>
   );
@@ -312,63 +255,5 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '500',
     lineHeight: 16,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 32,
-  },
-  loadingText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#6B7280',
-    marginTop: 16,
-    textAlign: 'center',
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 32,
-  },
-  errorText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#EF4444',
-    textAlign: 'center',
-    marginBottom: 24,
-    lineHeight: 24,
-  },
-  retryButton: {
-    backgroundColor: '#3D8BFF',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 12,
-  },
-  retryButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 32,
-    paddingTop: 100,
-  },
-  emptyText: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#6B7280',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  emptySubtext: {
-    fontSize: 16,
-    fontWeight: '400',
-    color: '#9CA3AF',
-    textAlign: 'center',
   },
 });

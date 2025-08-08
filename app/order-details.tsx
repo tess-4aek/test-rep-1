@@ -12,13 +12,73 @@ import { ArrowLeft, MessageCircle } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Linking } from 'react-native';
 import { t } from '@/lib/i18n';
-import { Order, getOrderById } from '@/lib/supabase';
+import { Order } from '@/types/order';
+
+// Mock function to get order by ID - in real app this would fetch from database
+const getOrderById = (orderId: string): Order | null => {
+  const orders: Order[] = [
+    {
+      id: '1',
+      type: 'buy',
+      title: `${t('bought')} Bitcoin`,
+      amount: '+$500.00',
+      crypto: '0.0125 BTC',
+      time: '2 hours ago',
+      status: 'completed',
+      fromCurrency: 'USD',
+      toCurrency: 'BTC',
+      exchangeRate: '1 USD ≈ 0.000025 BTC',
+      fee: '0.5%',
+      estimatedReceived: '0.0125',
+    },
+    {
+      id: '2',
+      type: 'sell',
+      title: `${t('sold')} Ethereum`,
+      amount: '-$1,200.00',
+      crypto: '0.75 ETH',
+      time: '1 day ago',
+      status: 'completed',
+      fromCurrency: 'ETH',
+      toCurrency: 'USD',
+      exchangeRate: '1 ETH ≈ 1600 USD',
+      fee: '0.5%',
+      estimatedReceived: '1200.00',
+    },
+    {
+      id: '3',
+      type: 'buy',
+      title: `${t('bought')} Litecoin`,
+      amount: '+$300.00',
+      crypto: '4.2 LTC',
+      time: '3 days ago',
+      status: 'pending',
+      fromCurrency: 'USD',
+      toCurrency: 'LTC',
+      exchangeRate: '1 USD ≈ 0.014 LTC',
+      fee: '0.5%',
+      estimatedReceived: '4.2',
+    },
+    {
+      id: '4',
+      type: 'sell',
+      title: `${t('sold')} Bitcoin`,
+      amount: '-$800.00',
+      crypto: '0.02 BTC',
+      time: '1 week ago',
+      status: 'completed',
+      fromCurrency: 'BTC',
+      toCurrency: 'USD',
+      exchangeRate: '1 BTC ≈ 40000 USD',
+      fee: '0.5%',
+      estimatedReceived: '800.00',
+    },
+  ];
+
+  return orders.find(order => order.id === orderId) || null;
+};
 
 export default function OrderDetailsPage() {
-  const [orderData, setOrderData] = React.useState<Order | null>(null);
-  const [loading, setLoading] = React.useState(true);
-  const [error, setError] = React.useState<string | null>(null);
-
   const params = useLocalSearchParams<{
     orderId?: string;
     isExistingOrder?: string;
@@ -27,43 +87,27 @@ export default function OrderDetailsPage() {
   const isExistingOrder = params.isExistingOrder === 'true';
   const orderId = params.orderId;
   
-  React.useEffect(() => {
-    const loadOrderData = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        if (isExistingOrder && orderId) {
-          // Fetch existing order from Supabase
-          const order = await getOrderById(orderId);
-          if (order) {
-            setOrderData(order);
-          } else {
-            setError('Order not found');
-          }
-        } else {
-          // Default data for new orders
-          setOrderData({
-            id: 'new',
-            usdc_amount: 1000,
-            eur_amount: 920,
-            direction: 'usdc-eur',
-            exchange_rate: '1 USDC ≈ 0.92 EUR',
-            fee_percentage: 0.5,
-            status: 'processing',
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          });
-        }
-      } catch (error) {
-        console.error('Error loading order:', error);
-        setError('Failed to load order');
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Get order data if it's an existing order
+  const orderData = React.useMemo(() => {
+    if (isExistingOrder && orderId) {
+      return getOrderById(orderId);
+    }
     
-    loadOrderData();
+    // Default data for new orders (current behavior)
+    return {
+      id: 'new',
+      type: 'buy' as const,
+      title: t('exchangeOrder'),
+      amount: '1000.00',
+      crypto: '',
+      time: '',
+      status: t('processing'),
+      fromCurrency: 'USDC',
+      toCurrency: 'EUR',
+      exchangeRate: '1 USDC ≈ 0.92 EUR',
+      fee: '0.5%',
+      estimatedReceived: '915.40',
+    };
   }, [isExistingOrder, orderId]);
 
   const handleBack = () => {
@@ -81,61 +125,12 @@ export default function OrderDetailsPage() {
     }
   };
 
-  const formatTimeAgo = (dateString: string): string => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-    
-    if (diffInMinutes < 1) return 'Just now';
-    if (diffInMinutes < 60) return `${diffInMinutes} minutes ago`;
-    
-    const diffInHours = Math.floor(diffInMinutes / 60);
-    if (diffInHours < 24) return `${diffInHours} hours ago`;
-    
-    const diffInDays = Math.floor(diffInHours / 24);
-    if (diffInDays < 7) return `${diffInDays} days ago`;
-    
-    const diffInWeeks = Math.floor(diffInDays / 7);
-    return `${diffInWeeks} weeks ago`;
-  };
-
-  const getFromCurrency = (order: Order): string => {
-    return order.direction === 'usdc-eur' ? 'USDC' : 'EUR';
-  };
-
-  const getToCurrency = (order: Order): string => {
-    return order.direction === 'usdc-eur' ? 'EUR' : 'USDC';
-  };
-
-  const getFromAmount = (order: Order): string => {
-    return order.direction === 'usdc-eur' 
-      ? order.usdc_amount.toFixed(2) 
-      : order.eur_amount.toFixed(2);
-  };
-
-  const getToAmount = (order: Order): string => {
-    return order.direction === 'usdc-eur' 
-      ? order.eur_amount.toFixed(2) 
-      : order.usdc_amount.toFixed(2);
-  };
-
-  if (loading) {
-    return (
-      <View style={styles.container}>
-        <StatusBar style="dark" />
-        <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading order details...</Text>
-        </View>
-      </View>
-    );
-  }
-
-  if (error || !orderData) {
+  if (!orderData) {
     return (
       <View style={styles.container}>
         <StatusBar style="dark" />
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{error || 'Order not found'}</Text>
+          <Text style={styles.errorText}>Order not found</Text>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
             <Text style={styles.backButtonText}>{t('goBack')}</Text>
           </TouchableOpacity>
@@ -170,31 +165,31 @@ export default function OrderDetailsPage() {
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>{t('amount')}</Text>
               <Text style={styles.detailValue}>
-                {getFromAmount(orderData)} {getFromCurrency(orderData)}
+                {orderData.amount.replace(/[+-]/g, '')} {orderData.fromCurrency}
               </Text>
             </View>
             
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>{t('currency')}</Text>
               <Text style={styles.detailValue}>
-                {getFromCurrency(orderData)} → {getToCurrency(orderData)}
+                {orderData.fromCurrency} → {orderData.toCurrency}
               </Text>
             </View>
             
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>{t('exchangeRate')}</Text>
-              <Text style={styles.detailValue}>{orderData.exchange_rate}</Text>
+              <Text style={styles.detailValue}>{orderData.exchangeRate}</Text>
             </View>
             
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>{t('fee')}</Text>
-              <Text style={styles.detailValue}>{orderData.fee_percentage}%</Text>
+              <Text style={styles.detailValue}>{orderData.fee}</Text>
             </View>
             
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>{t('estimatedReceived')}</Text>
               <Text style={[styles.detailValue, styles.highlightedValue]}>
-                {getToAmount(orderData)} {getToCurrency(orderData)}
+                {orderData.estimatedReceived} {orderData.toCurrency}
               </Text>
             </View>
             
@@ -237,7 +232,7 @@ export default function OrderDetailsPage() {
           </Text>
           <Text style={styles.infoSubtext}>
             {isExistingOrder 
-              ? `Order created: ${formatTimeAgo(orderData.created_at)}`
+              ? `Order created: ${orderData.time}`
               : t('processingTime')
             }
           </Text>
@@ -457,17 +452,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     letterSpacing: 0.5,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 32,
-  },
-  loadingText: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#6B7280',
-    textAlign: 'center',
   },
 });

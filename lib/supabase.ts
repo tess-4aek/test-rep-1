@@ -31,20 +31,6 @@ export interface User {
   updated_at?: string;
 }
 
-export interface Order {
-  id: string;
-  user_id?: string;
-  telegram_id?: string;
-  usdc_amount: number;
-  eur_amount: number;
-  direction: 'usdc-eur' | 'eur-usdc';
-  exchange_rate: string;
-  fee_percentage: number;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
-  created_at: string;
-  updated_at: string;
-}
-
 export async function checkUserExists(userId: string): Promise<User | null> {
   try {
     const { data, error } = await supabase
@@ -125,95 +111,6 @@ export async function updateUserBankDetailsStatus(telegramId: string, bankDetail
     return data as User;
   } catch (error) {
     console.error('Error updating bank details status for telegram_id:', telegramId, error);
-    return null;
-  }
-}
-
-export async function createOrder(orderData: {
-  usdc_amount: number;
-  eur_amount: number;
-  direction: 'usdc-eur' | 'eur-usdc';
-  exchange_rate: string;
-  telegram_id?: string;
-  user_id?: string;
-}): Promise<Order | null> {
-  try {
-    const { data, error } = await supabase
-      .from('orders')
-      .insert({
-        usdc_amount: orderData.usdc_amount,
-        eur_amount: orderData.eur_amount,
-        direction: orderData.direction,
-        exchange_rate: orderData.exchange_rate,
-        telegram_id: orderData.telegram_id,
-        user_id: orderData.user_id,
-        status: 'pending',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      })
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error creating order:', error);
-      throw error;
-    }
-
-    console.log('Successfully created order:', data.id);
-    return data as Order;
-  } catch (error) {
-    console.error('Error creating order:', error);
-    return null;
-  }
-}
-
-export async function getUserOrders(userId?: string, telegramId?: string): Promise<Order[]> {
-  try {
-    let query = supabase
-      .from('orders')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    // Filter by user_id or telegram_id if provided
-    if (userId) {
-      query = query.eq('user_id', userId);
-    } else if (telegramId) {
-      query = query.eq('telegram_id', telegramId);
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-      console.error('Error fetching user orders:', error);
-      throw error;
-    }
-
-    return (data as Order[]) || [];
-  } catch (error) {
-    console.error('Error fetching user orders:', error);
-    return [];
-  }
-}
-
-export async function getOrderById(orderId: string): Promise<Order | null> {
-  try {
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('id', orderId)
-      .single();
-
-    if (error) {
-      if (error.code === 'PGRST116') {
-        // No rows returned - order doesn't exist
-        return null;
-      }
-      throw error;
-    }
-
-    return data as Order;
-  } catch (error) {
-    console.error('Error fetching order by ID:', error);
     return null;
   }
 }
