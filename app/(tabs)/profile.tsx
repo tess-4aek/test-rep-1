@@ -9,22 +9,23 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { User, CreditCard, Shield, Settings, CircleHelp as HelpCircle, LogOut, ChevronRight } from 'lucide-react-native';
 import { router } from 'expo-router';
+import { t } from '@/lib/i18n';
 
 const menuItems = [
   {
     icon: <User color="#6B7280" size={20} />,
-    title: 'Personal Information',
-    subtitle: 'Update your profile details',
+    title: t('personalInfo'),
+    subtitle: t('updateProfile'),
   },
   {
     icon: <Settings color="#6B7280" size={20} />,
-    title: 'Settings',
-    subtitle: 'App preferences and notifications',
+    title: t('appSettings'),
+    subtitle: t('appPreferences'),
   },
   {
     icon: <HelpCircle color="#6B7280" size={20} />,
-    title: 'Help & Support',
-    subtitle: 'Get help or contact us',
+    title: t('helpSupport'),
+    subtitle: t('getHelp'),
   },
 ];
 
@@ -54,7 +55,7 @@ export default function ProfilePage() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.heading}>Profile</Text>
+          <Text style={styles.heading}>{t('profile')}</Text>
         </View>
 
         {/* User Info Card */}
@@ -68,7 +69,7 @@ export default function ProfilePage() {
           <Text style={styles.userEmail}>john.doe@example.com</Text>
           <View style={styles.verificationBadge}>
             <Shield color="#10B981" size={16} />
-            <Text style={styles.verificationText}>Verified Account</Text>
+            <Text style={styles.verificationText}>{t('verifiedAccount')}</Text>
           </View>
         </View>
 
@@ -97,7 +98,7 @@ export default function ProfilePage() {
         <View style={styles.logoutContainer}>
           <TouchableOpacity style={styles.logoutButton}>
             <LogOut color="#EF4444" size={20} />
-            <Text style={styles.logoutText}>Sign Out</Text>
+            <Text style={styles.logoutText}>{t('signOut')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

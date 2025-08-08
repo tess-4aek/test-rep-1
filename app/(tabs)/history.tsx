@@ -7,12 +7,13 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { ArrowUpRight, ArrowDownLeft, Clock } from 'lucide-react-native';
+import { t } from '@/lib/i18n';
 
 const transactions = [
   {
     id: 1,
     type: 'buy',
-    title: 'Bought Bitcoin',
+    title: `${t('bought')} Bitcoin`,
     amount: '+$500.00',
     crypto: '0.0125 BTC',
     time: '2 hours ago',
@@ -21,7 +22,7 @@ const transactions = [
   {
     id: 2,
     type: 'sell',
-    title: 'Sold Ethereum',
+    title: `${t('sold')} Ethereum`,
     amount: '-$1,200.00',
     crypto: '0.75 ETH',
     time: '1 day ago',
@@ -30,16 +31,16 @@ const transactions = [
   {
     id: 3,
     type: 'buy',
-    title: 'Bought Litecoin',
+    title: `${t('bought')} Litecoin`,
     amount: '+$300.00',
     crypto: '4.2 LTC',
     time: '3 days ago',
-    status: 'pending',
+    status: t('pending'),
   },
   {
     id: 4,
     type: 'sell',
-    title: 'Sold Bitcoin',
+    title: `${t('sold')} Bitcoin`,
     amount: '-$800.00',
     crypto: '0.02 BTC',
     time: '1 week ago',
@@ -64,6 +65,19 @@ export default function HistoryPage() {
     return type === 'buy' ? '#10B981' + '20' : '#EF4444' + '20';
   };
 
+  const getStatusText = () => {
+    switch (status) {
+      case 'completed':
+        return t('completed');
+      case 'pending':
+        return t('inProgress');
+      case 'not-started':
+        return t('notStarted');
+      default:
+        return t('notStarted');
+    }
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
@@ -75,8 +89,8 @@ export default function HistoryPage() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.heading}>Transaction History</Text>
-          <Text style={styles.subtitle}>Your recent crypto exchanges</Text>
+          <Text style={styles.heading}>{t('transactionHistory')}</Text>
+          <Text style={styles.subtitle}>{t('recentExchanges')}</Text>
         </View>
 
         {/* Transactions List */}

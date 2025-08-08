@@ -17,6 +17,7 @@ import {
   TrendingUp 
 } from 'lucide-react-native';
 import { router } from 'expo-router';
+import { t } from '@/lib/i18n';
 
 export default function HomePage() {
   const [exchangeAmount, setExchangeAmount] = useState('');
@@ -94,13 +95,13 @@ export default function HomePage() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.greeting}>Welcome back!</Text>
+          <Text style={styles.greeting}>{t('greeting')}</Text>
           <Text style={styles.subtitle}>Ready to exchange crypto?</Text>
         </View>
 
         {/* Monthly Transaction Limit Block */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Monthly Transaction Limit</Text>
+          <Text style={styles.cardTitle}>{t('monthlyLimit')}</Text>
           
           <View style={styles.progressBarContainer}>
             <View style={styles.progressBarBackground}>
@@ -111,8 +112,8 @@ export default function HomePage() {
             </View>
           </View>
           
-          <Text style={styles.limitUsageText}>€3,200 / €5,000 used</Text>
-          <Text style={styles.limitResetText}>Your monthly limit resets in 12 days</Text>
+          <Text style={styles.limitUsageText}>€3,200 / €5,000 {t('limitUsed')}</Text>
+          <Text style={styles.limitResetText}>{t('limitResets')} 12 {t('days')}</Text>
           
           <TouchableOpacity 
             style={styles.viewDetailsButton}
@@ -132,7 +133,7 @@ export default function HomePage() {
 
         {/* Exchange Rate Block */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Exchange Rate</Text>
+          <Text style={styles.cardTitle}>{t('exchangeRate')}</Text>
           <View style={styles.rateContainer}>
             <TrendingUp color="#10B981" size={20} />
             <Text style={styles.rateText}>{getCurrentRate()}</Text>
@@ -141,11 +142,11 @@ export default function HomePage() {
 
         {/* Exchange Block */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Exchange</Text>
+          <Text style={styles.cardTitle}>{t('exchange')}</Text>
           
           {/* From Input */}
           <View style={styles.exchangeInputContainer}>
-            <Text style={styles.inputLabel}>You send</Text>
+            <Text style={styles.inputLabel}>{t('youSend')}</Text>
             <View style={styles.inputWrapper}>
               <TextInput
                 style={styles.amountInput}
@@ -168,7 +169,7 @@ export default function HomePage() {
 
           {/* To Input */}
           <View style={styles.exchangeInputContainer}>
-            <Text style={styles.inputLabel}>You receive</Text>
+            <Text style={styles.inputLabel}>{t('youReceive')}</Text>
             <View style={styles.inputWrapper}>
               <TextInput
                 style={[styles.amountInput, styles.readOnlyInput]}
@@ -183,7 +184,7 @@ export default function HomePage() {
 
           {/* Exchange Fee */}
           <View style={styles.feeContainer}>
-            <Text style={styles.feeText}>Fee: ~0.5%</Text>
+            <Text style={styles.feeText}>{t('fee')}: ~0.5%</Text>
           </View>
 
           {/* Create Exchange Button */}
@@ -206,7 +207,7 @@ export default function HomePage() {
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
             >
-              <Text style={styles.createExchangeButtonText}>Create Order</Text>
+              <Text style={styles.createExchangeButtonText}>{t('createOrder')}</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -218,7 +219,7 @@ export default function HomePage() {
             onPress={handleOrderBankAccount}
             activeOpacity={0.9}
           >
-            <Text style={styles.bankAccountButtonText}>Замовити відкриття рахунку</Text>
+            <Text style={styles.bankAccountButtonText}>{t('orderBankAccount')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -233,7 +234,7 @@ export default function HomePage() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Confirm Exchange</Text>
+              <Text style={styles.modalTitle}>{t('confirmExchange')}</Text>
               <TouchableOpacity
                 style={styles.closeButton}
                 onPress={() => setShowConfirmModal(false)}
@@ -244,7 +245,7 @@ export default function HomePage() {
             
             <View style={styles.modalBody}>
               <View style={styles.exchangeSummary}>
-                <Text style={styles.summaryLabel}>You send</Text>
+                <Text style={styles.summaryLabel}>{t('youSend')}</Text>
                 <Text style={styles.summaryAmount}>
                   {exchangeAmount} {getFromCurrency()}
                 </Text>
@@ -255,14 +256,14 @@ export default function HomePage() {
               </View>
               
               <View style={styles.exchangeSummary}>
-                <Text style={styles.summaryLabel}>You receive</Text>
+                <Text style={styles.summaryLabel}>{t('youReceive')}</Text>
                 <Text style={styles.summaryAmount}>
                   {calculateReceiveAmount()} {getToCurrency()}
                 </Text>
               </View>
               
               <Text style={styles.rateInfo}>
-                Rate: {getCurrentRate()}
+                {t('rate')}: {getCurrentRate()}
               </Text>
             </View>
             
@@ -271,7 +272,7 @@ export default function HomePage() {
                 style={styles.cancelButton}
                 onPress={() => setShowConfirmModal(false)}
               >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
+                <Text style={styles.cancelButtonText}>{t('cancel')}</Text>
               </TouchableOpacity>
               
               <TouchableOpacity
@@ -287,7 +288,7 @@ export default function HomePage() {
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                 >
-                  <Text style={styles.confirmButtonText}>Confirm</Text>
+                  <Text style={styles.confirmButtonText}>{t('confirm')}</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </View>
@@ -489,17 +490,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 8,
     elevation: 3,
-  },
-  feeContainer: {
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  feeText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#6B7280',
-    textAlign: 'center',
-    lineHeight: 18,
   },
   feeContainer: {
     marginTop: 16,
