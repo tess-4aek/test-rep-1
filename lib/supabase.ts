@@ -8,8 +8,9 @@ export const supabase = createClient(supabaseUrl, supabaseKey);
 export interface User {
   id: string;
   telegram_id?: string;
-  name?: string;
-  telegram_username?: string;
+  username?: string;
+  first_name?: string;
+  last_name?: string;
   kyc_status?: boolean;
   bank_details_status?: boolean;
   bank_full_name?: string;

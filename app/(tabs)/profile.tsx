@@ -76,9 +76,13 @@ export default function ProfilePage() {
               <User color="#3D8BFF" size={32} />
             </View>
           </View>
-          <Text style={styles.userName}>{userData?.name || 'User'}</Text>
+          <Text style={styles.userName}>
+            {userData?.first_name && userData?.last_name 
+              ? `${userData.first_name} ${userData.last_name}` 
+              : 'User'}
+          </Text>
           <Text style={styles.userEmail}>
-            {userData?.telegram_username ? `@${userData.telegram_username}` : 'No username'}
+            {userData?.username ? `@${userData.username}` : 'No username'}
           </Text>
           <View style={styles.verificationBadge}>
             <Shield color="#10B981" size={16} />

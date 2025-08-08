@@ -56,7 +56,7 @@ export default function PersonalInformationPage() {
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>{t('username')}</Text>
               <Text style={styles.infoValue}>
-                {userData?.telegram_username ? `@${userData.telegram_username}` : 'Not available'}
+                {userData?.username ? `@${userData.username}` : 'Not available'}
               </Text>
             </View>
           </View>
