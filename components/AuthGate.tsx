@@ -45,6 +45,8 @@ export default function AuthGate() {
 
     checkAuthAndRoute();
       router.replace('/index');
+  }
+  )
 
   // Show loading screen while checking auth
   if (isLoading) {
