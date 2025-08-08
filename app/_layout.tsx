@@ -4,12 +4,10 @@ import { StatusBar } from 'expo-status-bar';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { initializeLanguage } from '@/lib/i18n';
-import { useAuthCheck } from '@/hooks/useAuthCheck';
 
 export default function RootLayout() {
   useFrameworkReady();
   const [isLanguageReady, setIsLanguageReady] = useState(false);
-  const { isChecking: isAuthChecking } = useAuthCheck();
 
   useEffect(() => {
     const initLanguage = async () => {
@@ -21,7 +19,7 @@ export default function RootLayout() {
   }, []);
 
   // Show loading screen until language is initialized
-  if (!isLanguageReady || isAuthChecking) {
+  if (!isLanguageReady) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#3D8BFF" />
