@@ -144,4 +144,17 @@ export default {
   authTimeout: 'Authentication timed out. Please try again.',
   authError: 'Authentication error occurred. Please try again.',
   submitting: 'Submitting...',
+  // Validation errors
+  fullNameRequired: 'Full name is required',
+  fullNameTooShort: 'Full name must be at least 2 characters',
+  fullNameInvalid: 'Full name can only contain letters, spaces, hyphens, and apostrophes',
+  ibanRequired: 'IBAN is required',
+  ibanInvalid: 'Invalid IBAN format. Please enter a valid IBAN (e.g., GB29 NWBK 6016 1331 9268 19)',
+  ibanTooShort: 'IBAN is too short. Please enter a complete IBAN',
+  swiftInvalid: 'Invalid SWIFT/BIC format. Should be 8-11 characters (e.g., NWBKGB2L)',
+  bankNameTooShort: 'Bank name must be at least 2 characters',
+  bankNameInvalid: 'Bank name contains invalid characters',
+  countryRequired: 'Country is required',
+  countryTooShort: 'Country name must be at least 2 characters',
+  countryInvalid: 'Country name can only contain letters, spaces, and hyphens',
 };

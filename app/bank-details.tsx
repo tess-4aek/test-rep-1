@@ -26,6 +26,14 @@ interface FormData {
   country: string;
 }
 
+interface FormErrors {
+  fullName?: string;
+  iban?: string;
+  swiftBic?: string;
+  bankName?: string;
+  country?: string;
+}
+
 export default function BankDetailsFormPage() {
   const [formData, setFormData] = useState<FormData>({
     fullName: '',
@@ -37,16 +45,156 @@ export default function BankDetailsFormPage() {
 
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<FormErrors>({});
 
+  const validateFullName = (value: string): string | undefined => {
+    if (!value.trim()) {
+      return t('fullNameRequired');
+    }
+    if (value.trim().length < 2) {
+      return t('fullNameTooShort');
+    }
+    // Allow letters, spaces, hyphens, and apostrophes
+    const nameRegex = /^[a-zA-ZÀ-ÿĀ-žА-я\s\-']+$/;
+    if (!nameRegex.test(value.trim())) {
+      return t('fullNameInvalid');
+    }
+    return undefined;
+  };
+
+  const validateIBAN = (value: string): string | undefined => {
+    if (!value.trim()) {
+      return t('ibanRequired');
+    }
+    
+    // Remove spaces and convert to uppercase
+    const cleanIban = value.replace(/\s/g, '').toUpperCase();
+    
+    if (cleanIban.length < 15) {
+      return t('ibanTooShort');
+    }
+    
+    // Basic IBAN format validation (2 letters + 2 digits + up to 30 alphanumeric)
+    const ibanRegex = /^[A-Z]{2}[0-9]{2}[A-Z0-9]{4,30}$/;
+    if (!ibanRegex.test(cleanIban)) {
+      return t('ibanInvalid');
+    }
+    
+    return undefined;
+  };
+
+  const validateSwiftBic = (value: string): string | undefined => {
+    if (!value.trim()) {
+      return undefined; // Optional field
+    }
+    
+    // SWIFT/BIC should be 8-11 characters
+    const cleanSwift = value.replace(/\s/g, '').toUpperCase();
+    const swiftRegex = /^[A-Z]{6}[A-Z0-9]{2}([A-Z0-9]{3})?$/;
+    
+    if (cleanSwift.length < 8 || cleanSwift.length > 11 || !swiftRegex.test(cleanSwift)) {
+      return t('swiftInvalid');
+    }
+    
+    return undefined;
+  };
+
+  const validateBankName = (value: string): string | undefined => {
+    if (!value.trim()) {
+      return undefined; // Optional field
+    }
+    if (value.trim().length < 2) {
+      return t('bankNameTooShort');
+    }
+    // Allow letters, numbers, spaces, hyphens, and common bank symbols
+    const bankNameRegex = /^[a-zA-ZÀ-ÿĀ-žА-я0-9\s\-&.()]+$/;
+    if (!bankNameRegex.test(value.trim())) {
+      return t('bankNameInvalid');
+    }
+    return undefined;
+  };
+
+  const validateCountry = (value: string): string | undefined => {
+    if (!value.trim()) {
+      return t('countryRequired');
+    }
+    if (value.trim().length < 2) {
+      return t('countryTooShort');
+    }
+    // Allow letters, spaces, and hyphens
+    const countryRegex = /^[a-zA-ZÀ-ÿĀ-žА-я\s\-]+$/;
+    if (!countryRegex.test(value.trim())) {
+      return t('countryInvalid');
+    }
+    return undefined;
+  };
+
+  const validateField = (field: keyof FormData, value: string): string | undefined => {
+    switch (field) {
+      case 'fullName':
+        return validateFullName(value);
+      case 'iban':
+        return validateIBAN(value);
+      case 'swiftBic':
+        return validateSwiftBic(value);
+      case 'bankName':
+        return validateBankName(value);
+      case 'country':
+        return validateCountry(value);
+      default:
+        return undefined;
+    }
+  };
+
+  const validateAllFields = (): FormErrors => {
+    const newErrors: FormErrors = {};
+    
+    Object.keys(formData).forEach((key) => {
+      const field = key as keyof FormData;
+      const error = validateField(field, formData[field]);
+      if (error) {
+        newErrors[field] = error;
+      }
+    });
+    
+    return newErrors;
+  };
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: value,
     }));
+    
+    // Clear error for this field when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({
+        ...prev,
+        [field]: undefined,
+      }));
+    }
+  };
+
+  const handleInputBlur = (field: keyof FormData) => {
+    setFocusedField(null);
+    
+    // Validate field on blur
+    const error = validateField(field, formData[field]);
+    setErrors(prev => ({
+      ...prev,
+      [field]: error,
+    }));
   };
 
   const handleSubmit = async () => {
-    if (!isFormValid() || isSubmitting) return;
+    // Validate all fields before submission
+    const validationErrors = validateAllFields();
+    setErrors(validationErrors);
+    
+    // Check if there are any errors
+    const hasErrors = Object.values(validationErrors).some(error => error !== undefined);
+    if (hasErrors || isSubmitting) {
+      return;
+    }
     
     setIsSubmitting(true);
     
@@ -116,9 +264,9 @@ export default function BankDetailsFormPage() {
   };
 
   const isFormValid = () => {
-    return formData.fullName.trim() !== '' && 
-           formData.iban.trim() !== '' && 
-           formData.country.trim() !== '';
+    const validationErrors = validateAllFields();
+    const hasErrors = Object.values(validationErrors).some(error => error !== undefined);
+    return !hasErrors && formData.fullName.trim() !== '' && formData.iban.trim() !== '' && formData.country.trim() !== '';
   };
 
   return (
@@ -169,16 +317,20 @@ export default function BankDetailsFormPage() {
                 style={[
                   styles.textInput,
                   focusedField === 'fullName' && styles.focusedInput,
+                  errors.fullName && styles.errorInput,
                 ]}
                 value={formData.fullName}
                 onChangeText={(value) => handleInputChange('fullName', value)}
                 onFocus={() => setFocusedField('fullName')}
-                onBlur={() => setFocusedField(null)}
+                onBlur={() => handleInputBlur('fullName')}
                 placeholder={t('enterFullName')}
                 placeholderTextColor="#9CA3AF"
                 autoCapitalize="words"
                 autoComplete="name"
               />
+              {errors.fullName && (
+                <Text style={styles.errorText}>{errors.fullName}</Text>
+              )}
             </View>
 
             {/* IBAN */}
@@ -190,16 +342,20 @@ export default function BankDetailsFormPage() {
                 style={[
                   styles.textInput,
                   focusedField === 'iban' && styles.focusedInput,
+                  errors.iban && styles.errorInput,
                 ]}
                 value={formData.iban}
                 onChangeText={(value) => handleInputChange('iban', value)}
                 onFocus={() => setFocusedField('iban')}
-                onBlur={() => setFocusedField(null)}
+                onBlur={() => handleInputBlur('iban')}
                 placeholder="GB29 NWBK 6016 1331 9268 19"
                 placeholderTextColor="#9CA3AF"
                 autoCapitalize="characters"
                 autoComplete="off"
               />
+              {errors.iban && (
+                <Text style={styles.errorText}>{errors.iban}</Text>
+              )}
             </View>
 
             {/* SWIFT/BIC */}
@@ -209,16 +365,20 @@ export default function BankDetailsFormPage() {
                 style={[
                   styles.textInput,
                   focusedField === 'swiftBic' && styles.focusedInput,
+                  errors.swiftBic && styles.errorInput,
                 ]}
                 value={formData.swiftBic}
                 onChangeText={(value) => handleInputChange('swiftBic', value)}
                 onFocus={() => setFocusedField('swiftBic')}
-                onBlur={() => setFocusedField(null)}
+                onBlur={() => handleInputBlur('swiftBic')}
                 placeholder="NWBKGB2L"
                 placeholderTextColor="#9CA3AF"
                 autoCapitalize="characters"
                 autoComplete="off"
               />
+              {errors.swiftBic && (
+                <Text style={styles.errorText}>{errors.swiftBic}</Text>
+              )}
             </View>
 
             {/* Bank Name */}
@@ -228,16 +388,20 @@ export default function BankDetailsFormPage() {
                 style={[
                   styles.textInput,
                   focusedField === 'bankName' && styles.focusedInput,
+                  errors.bankName && styles.errorInput,
                 ]}
                 value={formData.bankName}
                 onChangeText={(value) => handleInputChange('bankName', value)}
                 onFocus={() => setFocusedField('bankName')}
-                onBlur={() => setFocusedField(null)}
+                onBlur={() => handleInputBlur('bankName')}
                 placeholder={t('enterBankName')}
                 placeholderTextColor="#9CA3AF"
                 autoCapitalize="words"
                 autoComplete="off"
               />
+              {errors.bankName && (
+                <Text style={styles.errorText}>{errors.bankName}</Text>
+              )}
             </View>
 
             {/* Country */}
@@ -249,16 +413,20 @@ export default function BankDetailsFormPage() {
                 style={[
                   styles.textInput,
                   focusedField === 'country' && styles.focusedInput,
+                  errors.country && styles.errorInput,
                 ]}
                 value={formData.country}
                 onChangeText={(value) => handleInputChange('country', value)}
                 onFocus={() => setFocusedField('country')}
-                onBlur={() => setFocusedField(null)}
+                onBlur={() => handleInputBlur('country')}
                 placeholder={t('enterCountry')}
                 placeholderTextColor="#9CA3AF"
                 autoCapitalize="words"
                 autoComplete="country"
               />
+              {errors.country && (
+                <Text style={styles.errorText}>{errors.country}</Text>
+              )}
             </View>
           </View>
         </View>
@@ -409,6 +577,19 @@ const styles = StyleSheet.create({
     shadowColor: '#3D8BFF',
     shadowOpacity: 0.15,
     shadowRadius: 8,
+  },
+  errorInput: {
+    borderColor: '#EF4444',
+    shadowColor: '#EF4444',
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+  },
+  errorText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#EF4444',
+    marginTop: 4,
+    lineHeight: 16,
   },
   infoBlock: {
     backgroundColor: '#EBF4FF',
