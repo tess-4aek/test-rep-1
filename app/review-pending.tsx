@@ -10,6 +10,7 @@ import { StatusBar } from 'expo-status-bar';
 import { CircleCheck as CheckCircle } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { t } from '@/lib/i18n';
+import { saveAuthStatus } from '@/utils/auth';
 
 interface StepItemProps {
   icon: React.ReactNode;
@@ -53,7 +54,11 @@ export default function ReviewPendingPage() {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          setTimeout(() => router.replace('/(tabs)'), 0);
+          setTimeout(async () => {
+            // Set authentication status to true when completing onboarding
+            await saveAuthStatus(true);
+            router.replace('/(tabs)');
+          }, 0);
           return 0;
         }
         return prev - 1;
