@@ -78,7 +78,7 @@ export default function HomePage() {
     const telegramUrl = `tg://resolve?domain=YourBotUsername&text=${message}`;
     
     try {
-      await WebBrowser.openBrowserAsync(telegramUrl);
+      await Linking.openURL(telegramUrl);
     } catch (error) {
       console.error('Error opening Telegram:', error);
     }

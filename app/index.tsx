@@ -10,7 +10,7 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { Zap, Shield, TrendingUp } from 'lucide-react-native';
 import { router } from 'expo-router';
-import * as WebBrowser from 'expo-web-browser';
+import { Linking } from 'react-native';
 import * as Crypto from 'expo-crypto';
 import { t } from '@/lib/i18n';
 
@@ -67,7 +67,7 @@ export default function IntroPage() {
       console.log('Opening Telegram with URL:', telegramUrl);
       
       // Open Telegram
-      await WebBrowser.openBrowserAsync(telegramUrl);
+      await Linking.openURL(telegramUrl);
       
       // Navigate to waiting screen with the UUID
       router.push({

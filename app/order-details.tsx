@@ -10,7 +10,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { ArrowLeft, MessageCircle } from 'lucide-react-native';
 import { router } from 'expo-router';
-import * as WebBrowser from 'expo-web-browser';
+import { Linking } from 'react-native';
 import { t } from '@/lib/i18n';
 
 export default function OrderDetailsPage() {
@@ -23,7 +23,7 @@ export default function OrderDetailsPage() {
     const telegramUrl = `tg://resolve?domain=YourBotUsername&text=${message}`;
     
     try {
-      await WebBrowser.openBrowserAsync(telegramUrl);
+      await Linking.openURL(telegramUrl);
     } catch (error) {
       console.error('Error opening Telegram:', error);
     }
