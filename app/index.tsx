@@ -11,7 +11,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Zap, Shield, TrendingUp } from 'lucide-react-native';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import { v4 as uuidv4 } from 'uuid';
+import * as Crypto from 'expo-crypto';
 import { t } from '@/lib/i18n';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -59,7 +59,7 @@ export default function IntroPage() {
   const handleSignIn = async () => {
     try {
       // Generate unique UUID for this authentication session
-      const authUuid = uuidv4();
+      const authUuid = Crypto.randomUUID();
       console.log('Generated auth UUID:', authUuid);
       
       // Create Telegram bot URL with the UUID
@@ -78,7 +78,7 @@ export default function IntroPage() {
     } catch (error) {
       console.error('Error opening Telegram:', error);
       // Fallback: still navigate to waiting screen for testing
-      const authUuid = uuidv4();
+      const authUuid = Crypto.randomUUID();
       router.push({
         pathname: '/auth-waiting',
         params: { uuid: authUuid }
