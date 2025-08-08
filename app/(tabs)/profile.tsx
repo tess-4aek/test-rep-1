@@ -65,12 +65,12 @@ export default function ProfilePage() {
       
       console.log('✅ User logged out successfully');
       
-      // Navigate to intro screen
+      // Navigate to intro/sign-in screen
       router.replace('/');
       
     } catch (error) {
       console.error('❌ Error during logout:', error);
-      // Still navigate to intro on error
+      // Still navigate to intro/sign-in on error
       router.replace('/');
     }
   };

@@ -31,12 +31,12 @@ export default function AuthGate() {
           }
         } else {
           // User not authenticated, go to intro
-          console.log('🚪 User not authenticated, navigating to intro');
+          console.log('🚪 User not authenticated, navigating to sign-in screen');
           router.replace('/');
         }
       } catch (error) {
         console.error('❌ Error during auth check:', error);
-        // On error, default to intro screen
+        // On error, default to sign-in screen
         router.replace('/');
       } finally {
         setIsLoading(false);
