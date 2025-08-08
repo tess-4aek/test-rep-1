@@ -77,7 +77,9 @@ export default function ProfilePage() {
             </View>
           </View>
           <Text style={styles.userName}>
-            {userData?.name || 'User'}
+            {userData?.first_name && userData?.last_name 
+              ? `${userData.first_name} ${userData.last_name}` 
+              : 'User'}
           </Text>
           <Text style={styles.userEmail}>
             {userData?.username ? `@${userData.username}` : 'No username'}
