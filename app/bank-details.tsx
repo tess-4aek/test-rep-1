@@ -14,6 +14,7 @@ import { StatusBar } from 'expo-status-bar';
 import { ArrowLeft } from 'lucide-react-native';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
+import { t } from '@/lib/i18n';
 
 interface FormData {
   fullName: string;
@@ -80,7 +81,7 @@ export default function BankDetailsFormPage() {
         <TouchableOpacity onPress={handleBack} style={styles.backButton}>
           <ArrowLeft color="#0C1E3C" size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Bank Details</Text>
+        <Text style={styles.headerTitle}>{t('bankDetails')}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -92,17 +93,16 @@ export default function BankDetailsFormPage() {
       >
         {/* Main Content */}
         <View style={styles.contentContainer}>
-          <Text style={styles.heading}>Enter your bank details</Text>
+          <Text style={styles.heading}>{t('enterBankDetails')}</Text>
           <Text style={styles.description}>
-            We need your banking information to process fiat transactions securely.
+            {t('bankDetailsDescription')}
           </Text>
 
           {/* Bank Requirements Info Block */}
           <View style={styles.infoBlock}>
-            <Text style={styles.infoBlockTitle}>Bank Account Requirements</Text>
+            <Text style={styles.infoBlockTitle}>{t('bankRequirements')}</Text>
             <Text style={styles.infoBlockText}>
-              Please enter bank details that follow the European (SEPA/IBAN) standard.{'\n'}
-              If you don't have such an account, you can request one using the button below.
+              {t('bankRequirementsText')}
             </Text>
           </View>
 
@@ -111,7 +111,7 @@ export default function BankDetailsFormPage() {
             {/* Full Name */}
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>
-                Full Name <Text style={styles.required}>*</Text>
+                {t('fullName')} <Text style={styles.required}>*</Text>
               </Text>
               <TextInput
                 style={[
@@ -122,7 +122,7 @@ export default function BankDetailsFormPage() {
                 onChangeText={(value) => handleInputChange('fullName', value)}
                 onFocus={() => setFocusedField('fullName')}
                 onBlur={() => setFocusedField(null)}
-                placeholder="Enter your full legal name"
+                placeholder={t('enterFullName')}
                 placeholderTextColor="#9CA3AF"
                 autoCapitalize="words"
                 autoComplete="name"
@@ -132,7 +132,7 @@ export default function BankDetailsFormPage() {
             {/* IBAN */}
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>
-                IBAN <Text style={styles.required}>*</Text>
+                {t('iban')} <Text style={styles.required}>*</Text>
               </Text>
               <TextInput
                 style={[
@@ -152,7 +152,7 @@ export default function BankDetailsFormPage() {
 
             {/* SWIFT/BIC */}
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>SWIFT/BIC</Text>
+              <Text style={styles.inputLabel}>{t('swiftBic')}</Text>
               <TextInput
                 style={[
                   styles.textInput,
@@ -171,7 +171,7 @@ export default function BankDetailsFormPage() {
 
             {/* Bank Name */}
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Bank Name</Text>
+              <Text style={styles.inputLabel}>{t('bankName')}</Text>
               <TextInput
                 style={[
                   styles.textInput,
@@ -181,7 +181,7 @@ export default function BankDetailsFormPage() {
                 onChangeText={(value) => handleInputChange('bankName', value)}
                 onFocus={() => setFocusedField('bankName')}
                 onBlur={() => setFocusedField(null)}
-                placeholder="Enter your bank name"
+                placeholder={t('enterBankName')}
                 placeholderTextColor="#9CA3AF"
                 autoCapitalize="words"
                 autoComplete="off"
@@ -191,7 +191,7 @@ export default function BankDetailsFormPage() {
             {/* Country */}
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>
-                Country <Text style={styles.required}>*</Text>
+                {t('country')} <Text style={styles.required}>*</Text>
               </Text>
               <TextInput
                 style={[
@@ -202,7 +202,7 @@ export default function BankDetailsFormPage() {
                 onChangeText={(value) => handleInputChange('country', value)}
                 onFocus={() => setFocusedField('country')}
                 onBlur={() => setFocusedField(null)}
-                placeholder="United Kingdom"
+                placeholder={t('enterCountry')}
                 placeholderTextColor="#9CA3AF"
                 autoCapitalize="words"
                 autoComplete="country"
@@ -229,7 +229,7 @@ export default function BankDetailsFormPage() {
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
           >
-            <Text style={styles.ctaButtonText}>Submit</Text>
+            <Text style={styles.ctaButtonText}>{t('submit')}</Text>
           </LinearGradient>
         </TouchableOpacity>
         
@@ -238,11 +238,11 @@ export default function BankDetailsFormPage() {
           onPress={handleOrderBankAccount}
           activeOpacity={0.9}
         >
-          <Text style={styles.secondaryButtonText}>Order Bank Account Opening</Text>
+          <Text style={styles.secondaryButtonText}>{t('orderBankAccountOpening')}</Text>
         </TouchableOpacity>
         
         <Text style={styles.footerText}>
-          Your information is encrypted and secure
+          {t('informationSecure')}
         </Text>
       </View>
     </KeyboardAvoidingView>

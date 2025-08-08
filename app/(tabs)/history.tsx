@@ -8,6 +8,7 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { ArrowUpRight, ArrowDownLeft, Clock } from 'lucide-react-native';
 import { t } from '@/lib/i18n';
+import { t } from '@/lib/i18n';
 
 const transactions = [
   {

@@ -10,6 +10,7 @@ import { WebView } from 'react-native-webview';
 import { StatusBar } from 'expo-status-bar';
 import { ArrowLeft, X } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
+import { t } from '@/lib/i18n';
 
 export default function KYCWebViewPage() {
   const { url } = useLocalSearchParams<{ url: string }>();
@@ -59,9 +60,9 @@ export default function KYCWebViewPage() {
       <View style={styles.container}>
         <StatusBar style="dark" />
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>No verification URL provided</Text>
+          <Text style={styles.errorText}>{t('noUrlProvided')}</Text>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <Text style={styles.backButtonText}>Go Back</Text>
+            <Text style={styles.backButtonText}>{t('goBack')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -77,7 +78,7 @@ export default function KYCWebViewPage() {
         <TouchableOpacity onPress={handleBack} style={styles.headerButton}>
           <ArrowLeft color="#0C1E3C" size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>KYC Verification</Text>
+        <Text style={styles.headerTitle}>{t('kycVerificationTitle')}</Text>
         <TouchableOpacity onPress={handleClose} style={styles.headerButton}>
           <X color="#0C1E3C" size={24} />
         </TouchableOpacity>
@@ -87,16 +88,16 @@ export default function KYCWebViewPage() {
       {loading && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#3D8BFF" />
-          <Text style={styles.loadingText}>Loading verification page...</Text>
+          <Text style={styles.loadingText}>{t('loadingVerification')}</Text>
         </View>
       )}
 
       {/* Error State */}
       {error && (
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Failed to load verification page</Text>
+          <Text style={styles.errorText}>{t('failedToLoad')}</Text>
           <TouchableOpacity style={styles.retryButton} onPress={() => setError(false)}>
-            <Text style={styles.retryButtonText}>Retry</Text>
+            <Text style={styles.retryButtonText}>{t('retry')}</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -123,10 +124,10 @@ export default function KYCWebViewPage() {
       {/* Instructions */}
       <View style={styles.instructionsContainer}>
         <Text style={styles.instructionsText}>
-          Complete the verification process and tap "Done" when finished
+          {t('completeVerification')}
         </Text>
         <TouchableOpacity style={styles.doneButton} onPress={handleClose}>
-          <Text style={styles.doneButtonText}>Done</Text>
+          <Text style={styles.doneButtonText}>{t('done')}</Text>
         </TouchableOpacity>
       </View>
     </View>

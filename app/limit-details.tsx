@@ -11,6 +11,7 @@ import { StatusBar } from 'expo-status-bar';
 import { ArrowLeft, Calendar, Clock, TrendingUp, MessageCircle } from 'lucide-react-native';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
+import { t } from '@/lib/i18n';
 
 export default function LimitDetailsPage() {
   const handleBack = () => {
@@ -18,7 +19,7 @@ export default function LimitDetailsPage() {
   };
 
   const handleRequestIncrease = async () => {
-    const message = encodeURIComponent('I want to increase my transaction limit');
+    const message = encodeURIComponent(t('increaseLimit'));
     const telegramUrl = `https://t.me/your_bot_username?start=${message}`;
     
     try {
@@ -37,7 +38,7 @@ export default function LimitDetailsPage() {
         <TouchableOpacity onPress={handleBack} style={styles.backButton}>
           <ArrowLeft color="#0C1E3C" size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Transaction Limits</Text>
+        <Text style={styles.headerTitle}>{t('transactionLimits')}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -50,7 +51,7 @@ export default function LimitDetailsPage() {
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Calendar color="#3D8BFF" size={24} />
-            <Text style={styles.cardTitle}>Monthly Limit</Text>
+            <Text style={styles.cardTitle}>{t('monthlyLimit')}</Text>
           </View>
           
           <View style={styles.limitContainer}>
@@ -61,7 +62,7 @@ export default function LimitDetailsPage() {
               </View>
               <Text style={styles.progressPercentage}>64%</Text>
             </View>
-            <Text style={styles.limitSubtext}>Resets on January 1st</Text>
+            <Text style={styles.limitSubtext}>{t('resetsOn')} January 1st</Text>
           </View>
         </View>
 
@@ -69,7 +70,7 @@ export default function LimitDetailsPage() {
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Clock color="#10B981" size={24} />
-            <Text style={styles.cardTitle}>Daily Limit</Text>
+            <Text style={styles.cardTitle}>{t('dailyLimit')}</Text>
           </View>
           
           <View style={styles.limitContainer}>
@@ -80,7 +81,7 @@ export default function LimitDetailsPage() {
               </View>
               <Text style={[styles.progressPercentage, { color: '#10B981' }]}>45%</Text>
             </View>
-            <Text style={styles.limitSubtext}>Resets at midnight UTC</Text>
+            <Text style={styles.limitSubtext}>{t('resetsAtMidnight')}</Text>
           </View>
         </View>
 
@@ -88,7 +89,7 @@ export default function LimitDetailsPage() {
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <TrendingUp color="#F59E0B" size={24} />
-            <Text style={styles.cardTitle}>How to Increase Limits</Text>
+            <Text style={styles.cardTitle}>{t('howToIncrease')}</Text>
           </View>
           
           <View style={styles.explanationContainer}>
@@ -97,9 +98,9 @@ export default function LimitDetailsPage() {
                 <Text style={styles.stepNumberText}>1</Text>
               </View>
               <View style={styles.stepContent}>
-                <Text style={styles.stepTitle}>Complete Enhanced Verification</Text>
+                <Text style={styles.stepTitle}>{t('enhancedVerification')}</Text>
                 <Text style={styles.stepDescription}>
-                  Provide additional documentation for identity verification
+                  {t('enhancedVerificationDesc')}
                 </Text>
               </View>
             </View>
@@ -109,9 +110,9 @@ export default function LimitDetailsPage() {
                 <Text style={styles.stepNumberText}>2</Text>
               </View>
               <View style={styles.stepContent}>
-                <Text style={styles.stepTitle}>Build Transaction History</Text>
+                <Text style={styles.stepTitle}>{t('buildHistory')}</Text>
                 <Text style={styles.stepDescription}>
-                  Complete successful transactions to demonstrate account activity
+                  {t('buildHistoryDesc')}
                 </Text>
               </View>
             </View>
@@ -121,9 +122,9 @@ export default function LimitDetailsPage() {
                 <Text style={styles.stepNumberText}>3</Text>
               </View>
               <View style={styles.stepContent}>
-                <Text style={styles.stepTitle}>Request Manual Review</Text>
+                <Text style={styles.stepTitle}>{t('manualReview')}</Text>
                 <Text style={styles.stepDescription}>
-                  Contact our support team for personalized limit assessment
+                  {t('manualReviewDesc')}
                 </Text>
               </View>
             </View>
@@ -132,12 +133,12 @@ export default function LimitDetailsPage() {
 
         {/* Benefits Card */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Higher Limits Benefits</Text>
+          <Text style={styles.cardTitle}>{t('higherLimitsBenefits')}</Text>
           <View style={styles.benefitsList}>
-            <Text style={styles.benefitItem}>• Access to larger exchange amounts</Text>
-            <Text style={styles.benefitItem}>• Priority customer support</Text>
-            <Text style={styles.benefitItem}>• Reduced processing times</Text>
-            <Text style={styles.benefitItem}>• Advanced trading features</Text>
+            <Text style={styles.benefitItem}>{t('largerAmounts')}</Text>
+            <Text style={styles.benefitItem}>{t('prioritySupport')}</Text>
+            <Text style={styles.benefitItem}>{t('reducedProcessing')}</Text>
+            <Text style={styles.benefitItem}>{t('advancedFeatures')}</Text>
           </View>
         </View>
       </ScrollView>
@@ -156,12 +157,12 @@ export default function LimitDetailsPage() {
             end={{ x: 1, y: 0 }}
           >
             <MessageCircle color="#FFFFFF" size={20} style={styles.buttonIcon} />
-            <Text style={styles.ctaButtonText}>Request Limit Increase</Text>
+            <Text style={styles.ctaButtonText}>{t('requestLimitIncrease')}</Text>
           </LinearGradient>
         </TouchableOpacity>
         
         <Text style={styles.footerText}>
-          Our team will review your request within 24 hours
+          {t('reviewWithin24h')}
         </Text>
       </View>
     </View>

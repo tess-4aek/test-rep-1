@@ -9,6 +9,7 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { ArrowLeft, MessageCircle, CreditCard } from 'lucide-react-native';
 import { router } from 'expo-router';
+import { t } from '@/lib/i18n';
 
 export default function PersonalInformationPage() {
   const handleBack = () => {
@@ -38,7 +39,7 @@ export default function PersonalInformationPage() {
         <TouchableOpacity onPress={handleBack} style={styles.backButton}>
           <ArrowLeft color="#0C1E3C" size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Personal Information</Text>
+        <Text style={styles.headerTitle}>{t('personalInfo')}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -51,12 +52,12 @@ export default function PersonalInformationPage() {
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <MessageCircle color="#3D8BFF" size={24} />
-            <Text style={styles.cardTitle}>Telegram Account</Text>
+            <Text style={styles.cardTitle}>{t('telegramAccount')}</Text>
           </View>
           
           <View style={styles.infoContainer}>
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Username</Text>
+              <Text style={styles.infoLabel}>{t('username')}</Text>
               <Text style={styles.infoValue}>{userData.telegram.username}</Text>
             </View>
           </View>
@@ -66,36 +67,36 @@ export default function PersonalInformationPage() {
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <CreditCard color="#10B981" size={24} />
-            <Text style={styles.cardTitle}>Bank Account Details</Text>
+            <Text style={styles.cardTitle}>{t('bankAccountDetails')}</Text>
           </View>
           
           <View style={styles.infoContainer}>
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Full Name</Text>
+              <Text style={styles.infoLabel}>{t('fullName')}</Text>
               <Text style={styles.infoValue}>{userData.bankAccount.fullName}</Text>
             </View>
             
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>IBAN</Text>
+              <Text style={styles.infoLabel}>{t('iban')}</Text>
               <Text style={styles.infoValue}>{userData.bankAccount.iban}</Text>
             </View>
             
             {userData.bankAccount.swiftBic && (
               <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>SWIFT/BIC</Text>
+                <Text style={styles.infoLabel}>{t('swiftBic')}</Text>
                 <Text style={styles.infoValue}>{userData.bankAccount.swiftBic}</Text>
               </View>
             )}
             
             {userData.bankAccount.bankName && (
               <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Bank Name</Text>
+                <Text style={styles.infoLabel}>{t('bankName')}</Text>
                 <Text style={styles.infoValue}>{userData.bankAccount.bankName}</Text>
               </View>
             )}
             
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Country</Text>
+              <Text style={styles.infoLabel}>{t('country')}</Text>
               <Text style={styles.infoValue}>{userData.bankAccount.country}</Text>
             </View>
           </View>
@@ -104,7 +105,7 @@ export default function PersonalInformationPage() {
         {/* Info Note */}
         <View style={styles.noteContainer}>
           <Text style={styles.noteText}>
-            To update your information, please contact our support team.
+            {t('updateInfoNote')}
           </Text>
         </View>
       </ScrollView>

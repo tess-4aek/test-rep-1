@@ -11,6 +11,7 @@ import { StatusBar } from 'expo-status-bar';
 import { ArrowLeft, MessageCircle } from 'lucide-react-native';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
+import { t } from '@/lib/i18n';
 
 export default function OrderDetailsPage() {
   const handleBack = () => {
@@ -18,7 +19,7 @@ export default function OrderDetailsPage() {
   };
 
   const handleAskQuestion = async () => {
-    const message = encodeURIComponent('Є питання щодо поточного ордеру обміну.');
+    const message = encodeURIComponent(t('askQuestion'));
     const telegramUrl = `tg://resolve?domain=YourBotUsername&text=${message}`;
     
     try {
@@ -36,7 +37,7 @@ export default function OrderDetailsPage() {
     exchangeRate: '1 USDC ≈ 0.92 EUR',
     fee: '0.5%',
     estimatedReceived: '915.40',
-    status: 'Processing',
+    status: t('processing'),
   };
 
   return (
@@ -48,7 +49,7 @@ export default function OrderDetailsPage() {
         <TouchableOpacity onPress={handleBack} style={styles.backButton}>
           <ArrowLeft color="#0C1E3C" size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Order Details</Text>
+        <Text style={styles.headerTitle}>{t('orderDetails')}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -59,42 +60,42 @@ export default function OrderDetailsPage() {
       >
         {/* Order Details Card */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Exchange Order</Text>
+          <Text style={styles.cardTitle}>{t('exchangeOrder')}</Text>
           
           <View style={styles.detailsContainer}>
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Amount</Text>
+              <Text style={styles.detailLabel}>{t('amount')}</Text>
               <Text style={styles.detailValue}>
                 {orderData.amount} {orderData.fromCurrency}
               </Text>
             </View>
             
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Currency</Text>
+              <Text style={styles.detailLabel}>{t('currency')}</Text>
               <Text style={styles.detailValue}>
                 {orderData.fromCurrency} → {orderData.toCurrency}
               </Text>
             </View>
             
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Exchange Rate</Text>
+              <Text style={styles.detailLabel}>{t('exchangeRate')}</Text>
               <Text style={styles.detailValue}>{orderData.exchangeRate}</Text>
             </View>
             
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Fee</Text>
+              <Text style={styles.detailLabel}>{t('fee')}</Text>
               <Text style={styles.detailValue}>{orderData.fee}</Text>
             </View>
             
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Estimated Received</Text>
+              <Text style={styles.detailLabel}>{t('estimatedReceived')}</Text>
               <Text style={[styles.detailValue, styles.highlightedValue]}>
                 {orderData.estimatedReceived} {orderData.toCurrency}
               </Text>
             </View>
             
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Status</Text>
+              <Text style={styles.detailLabel}>{t('status')}</Text>
               <View style={styles.statusContainer}>
                 <View style={styles.statusIndicator} />
                 <Text style={styles.statusText}>{orderData.status}</Text>
@@ -105,12 +106,12 @@ export default function OrderDetailsPage() {
 
         {/* Additional Info Card */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Transaction Info</Text>
+          <Text style={styles.cardTitle}>{t('transactionInfo')}</Text>
           <Text style={styles.infoText}>
-            Your order is being processed. You will receive a notification once the exchange is complete.
+            {t('orderProcessing')}
           </Text>
           <Text style={styles.infoSubtext}>
-            Processing time: 2-5 minutes
+            {t('processingTime')}
           </Text>
         </View>
       </ScrollView>
@@ -123,7 +124,7 @@ export default function OrderDetailsPage() {
           activeOpacity={0.9}
         >
           <MessageCircle color="#3D8BFF" size={20} style={styles.buttonIcon} />
-          <Text style={styles.questionButtonText}>Ask a question about this order</Text>
+          <Text style={styles.questionButtonText}>{t('askQuestion')}</Text>
         </TouchableOpacity>
       </View>
     </View>

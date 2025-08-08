@@ -10,6 +10,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { CircleCheck as CheckCircle, Square } from 'lucide-react-native';
 import { router } from 'expo-router';
+import { t } from '@/lib/i18n';
 
 interface StepItemProps {
   icon: React.ReactNode;
@@ -33,11 +34,11 @@ const StepItem: React.FC<StepItemProps> = ({ icon, title, status, isLast }) => {
   const getStatusText = () => {
     switch (status) {
       case 'completed':
-        return 'Completed';
+        return t('completed');
       case 'not-started':
-        return 'Not Started';
+        return t('notStarted');
       default:
-        return 'Not Started';
+        return t('notStarted');
     }
   };
 
@@ -72,17 +73,17 @@ export default function PostKYCPage() {
   const steps = [
     {
       icon: <CheckCircle />,
-      title: 'Telegram authorization',
+      title: t('telegramAuth'),
       status: 'completed' as const,
     },
     {
       icon: <CheckCircle />,
-      title: 'KYC verification',
+      title: t('kycVerification'),
       status: 'completed' as const,
     },
     {
       icon: <Square />,
-      title: 'Bank details submission',
+      title: t('bankDetailsSubmission'),
       status: 'not-started' as const,
     },
   ];
@@ -98,9 +99,9 @@ export default function PostKYCPage() {
       >
         {/* Header Section */}
         <View style={styles.headerContainer}>
-          <Text style={styles.heading}>One last step!</Text>
+          <Text style={styles.heading}>{t('oneLastStep')}</Text>
           <Text style={styles.description}>
-            You're almost ready to start exchanging.
+            {t('almostReady')}
           </Text>
         </View>
 
@@ -131,12 +132,12 @@ export default function PostKYCPage() {
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
           >
-            <Text style={styles.ctaButtonText}>Add Bank Details</Text>
+            <Text style={styles.ctaButtonText}>{t('addBankDetails')}</Text>
           </LinearGradient>
         </TouchableOpacity>
         
         <Text style={styles.footerText}>
-          Secure verification process • Takes 2-3 minutes
+          {t('secureProcess')}
         </Text>
       </View>
     </View>

@@ -11,6 +11,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { CircleCheck as CheckCircle, Clock, Square } from 'lucide-react-native';
 import { router } from 'expo-router';
+import { t } from '@/lib/i18n';
 
 interface StepItemProps {
   icon: React.ReactNode;
@@ -36,13 +37,13 @@ const StepItem: React.FC<StepItemProps> = ({ icon, title, status, isLast }) => {
   const getStatusText = () => {
     switch (status) {
       case 'completed':
-        return 'Completed';
+        return t('completed');
       case 'pending':
-        return 'In Progress';
+        return t('inProgress');
       case 'not-started':
-        return 'Not Started';
+        return t('notStarted');
       default:
-        return 'Not Started';
+        return t('notStarted');
     }
   };
 
@@ -127,17 +128,17 @@ export default function AuthProgressPage() {
   const steps = [
     {
       icon: <CheckCircle />,
-      title: 'Telegram authorization',
+      title: t('telegramAuth'),
       status: 'completed' as const,
     },
     {
       icon: <Clock />,
-      title: 'KYC verification',
+      title: t('kycVerification'),
       status: 'pending' as const,
     },
     {
       icon: <Square />,
-      title: 'Bank details submission',
+      title: t('bankDetailsSubmission'),
       status: 'not-started' as const,
     },
   ];
@@ -153,9 +154,9 @@ export default function AuthProgressPage() {
       >
         {/* Header Section */}
         <View style={styles.headerContainer}>
-          <Text style={styles.heading}>Almost there!</Text>
+          <Text style={styles.heading}>{t('almostThere')}</Text>
           <Text style={styles.description}>
-            Complete the remaining steps to finish setting up your account.
+            {t('completeSteps')}
           </Text>
         </View>
 
@@ -186,12 +187,12 @@ export default function AuthProgressPage() {
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
           >
-            <Text style={styles.ctaButtonText}>Continue KYC</Text>
+            <Text style={styles.ctaButtonText}>{t('continueKyc')}</Text>
           </LinearGradient>
         </TouchableOpacity>
         
         <Text style={styles.footerText}>
-          Secure verification process • Takes 2-3 minutes
+          {t('secureProcess')}
         </Text>
       </View>
     </View>

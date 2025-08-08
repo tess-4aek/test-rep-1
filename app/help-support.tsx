@@ -11,6 +11,7 @@ import { StatusBar } from 'expo-status-bar';
 import { ArrowLeft, MessageCircle, ChevronDown, ChevronUp } from 'lucide-react-native';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
+import { t } from '@/lib/i18n';
 
 interface FAQItem {
   question: string;
@@ -19,20 +20,20 @@ interface FAQItem {
 
 const faqData: FAQItem[] = [
   {
-    question: "How to increase my transaction limit?",
-    answer: "You can increase your transaction limit by completing enhanced verification, building transaction history, or requesting a manual review from our support team."
+    question: t('increaseLimit'),
+    answer: t('increaseLimitAnswer')
   },
   {
-    question: "What is the exchange fee?",
-    answer: "Our exchange fee is approximately 0.5% of the transaction amount. This fee covers processing costs and ensures secure, fast transactions."
+    question: t('exchangeFee'),
+    answer: t('exchangeFeeAnswer')
   },
   {
-    question: "How long does verification take?",
-    answer: "KYC verification typically takes 2-5 minutes for automated approval. In some cases, manual review may take up to 24 hours."
+    question: t('verificationTime'),
+    answer: t('verificationTimeAnswer')
   },
   {
-    question: "What currencies do you support?",
-    answer: "We currently support USDC to EUR exchanges and vice versa. More currency pairs will be added in future updates."
+    question: t('supportedCurrencies'),
+    answer: t('supportedCurrenciesAnswer')
   },
 ];
 
@@ -44,8 +45,8 @@ export default function HelpAndSupportPage() {
   };
 
   const handleContactSupport = async () => {
-    const message = encodeURIComponent('Привіт, мені потрібна допомога з додатком.');
-    const telegramUrl = `tg://resolve?domain=YourBotUsername&text=${message}`;
+    const message = encodeURIComponent(t('contactSupport'));
+    <Text style={styles.sectionTitle}>{t('faqTitle')}</Text>
     
     try {
       await WebBrowser.openBrowserAsync(telegramUrl);
@@ -72,6 +73,7 @@ export default function HelpAndSupportPage() {
           <ArrowLeft color="#0C1E3C" size={24} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Help & Support</Text>
+        <Text style={styles.headerTitle}>{t('helpSupport')}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -125,12 +127,12 @@ export default function HelpAndSupportPage() {
             end={{ x: 1, y: 0 }}
           >
             <MessageCircle color="#FFFFFF" size={20} style={styles.buttonIcon} />
-            <Text style={styles.contactButtonText}>Contact Support</Text>
+            <Text style={styles.contactButtonText}>{t('contactSupport')}</Text>
           </LinearGradient>
         </TouchableOpacity>
         
         <Text style={styles.footerText}>
-          We typically respond within 1 hour
+        {t('respondWithin1h')}
         </Text>
       </View>
     </View>

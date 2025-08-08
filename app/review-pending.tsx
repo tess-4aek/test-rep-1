@@ -9,6 +9,7 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { CircleCheck as CheckCircle } from 'lucide-react-native';
 import { router } from 'expo-router';
+import { t } from '@/lib/i18n';
 
 interface StepItemProps {
   icon: React.ReactNode;
@@ -20,6 +21,7 @@ interface StepItemProps {
 const StepItem: React.FC<StepItemProps> = ({ icon, title, status, isLast }) => {
   const getStatusColor = () => '#10B981';
   const getStatusText = () => 'Completed';
+  const getStatusText = () => t('completed');
 
   return (
     <View style={styles.stepContainer}>
@@ -65,17 +67,17 @@ export default function ReviewPendingPage() {
   const steps = [
     {
       icon: <CheckCircle />,
-      title: 'Telegram authorization',
+      title: t('telegramAuth'),
       status: 'completed' as const,
     },
     {
       icon: <CheckCircle />,
-      title: 'KYC verification',
+      title: t('kycVerification'),
       status: 'completed' as const,
     },
     {
       icon: <CheckCircle />,
-      title: 'Bank details submission',
+      title: t('bankDetailsSubmission'),
       status: 'completed' as const,
     },
   ];
@@ -91,9 +93,9 @@ export default function ReviewPendingPage() {
       >
         {/* Header Section */}
         <View style={styles.headerContainer}>
-          <Text style={styles.heading}>Verification in progress</Text>
+          <Text style={styles.heading}>{t('verificationInProgress')}</Text>
           <Text style={styles.description}>
-            All steps completed. Your data is being reviewed by our team.
+            {t('allStepsCompleted')}
           </Text>
         </View>
 
@@ -114,10 +116,10 @@ export default function ReviewPendingPage() {
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#3D8BFF" />
           <Text style={styles.loadingText}>
-            Reviewing your information...
+            {t('reviewingInfo')}
           </Text>
           <Text style={styles.countdownText}>
-            Redirecting in {countdown} seconds
+            {t('redirectingIn')} {countdown} {t('seconds')}
           </Text>
         </View>
       </ScrollView>
