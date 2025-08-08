@@ -12,26 +12,26 @@ import { router } from 'expo-router';
 import { t } from '@/lib/i18n';
 import { getUserData, User as UserType } from '@/utils/auth';
 
-const menuItems = [
-  {
-    icon: <User color="#6B7280" size={20} />,
-    title: t('personalInformation'),
-    subtitle: t('updateProfile'),
-  },
-  {
-    icon: <Settings color="#6B7280" size={20} />,
-    title: t('appSettings'),
-    subtitle: t('appPreferences'),
-  },
-  {
-    icon: <HelpCircle color="#6B7280" size={20} />,
-    title: t('helpAndSupport'),
-    subtitle: t('getHelp'),
-  },
-];
-
 export default function ProfilePage() {
   const [userData, setUserData] = React.useState<UserType | null>(null);
+
+  const menuItems = [
+    {
+      icon: <User color="#6B7280" size={20} />,
+      title: t('personalInformation'),
+      subtitle: t('updateProfile'),
+    },
+    {
+      icon: <Settings color="#6B7280" size={20} />,
+      title: t('appSettings'),
+      subtitle: t('appPreferences'),
+    },
+    {
+      icon: <HelpCircle color="#6B7280" size={20} />,
+      title: t('helpAndSupport'),
+      subtitle: t('getHelp'),
+    },
+  ];
 
   React.useEffect(() => {
     const loadUserData = async () => {

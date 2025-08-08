@@ -16,30 +16,30 @@ import { t } from '@/lib/i18n';
 
 const { width: screenWidth } = Dimensions.get('window');
 
-const slides = [
-  {
-    id: 1,
-    title: t('instantExchange'),
-    subtitle: t('instantExchangeDesc'),
-    icon: <Zap color="#3D8BFF" size={48} />,
-  },
-  {
-    id: 2,
-    title: t('bankGradeSecurity'),
-    subtitle: t('bankGradeSecurityDesc'),
-    icon: <Shield color="#10B981" size={48} />,
-  },
-  {
-    id: 3,
-    title: t('bestRates'),
-    subtitle: t('bestRatesDesc'),
-    icon: <TrendingUp color="#F59E0B" size={48} />,
-  },
-];
-
 export default function IntroPage() {
   const scrollViewRef = useRef<ScrollView>(null);
   const currentIndex = useRef(0);
+
+  const slides = [
+    {
+      id: 1,
+      title: t('instantExchange'),
+      subtitle: t('instantExchangeDesc'),
+      icon: <Zap color="#3D8BFF" size={48} />,
+    },
+    {
+      id: 2,
+      title: t('bankGradeSecurity'),
+      subtitle: t('bankGradeSecurityDesc'),
+      icon: <Shield color="#10B981" size={48} />,
+    },
+    {
+      id: 3,
+      title: t('bestRates'),
+      subtitle: t('bestRatesDesc'),
+      icon: <TrendingUp color="#F59E0B" size={48} />,
+    },
+  ];
 
   useEffect(() => {
     const interval = setInterval(() => {

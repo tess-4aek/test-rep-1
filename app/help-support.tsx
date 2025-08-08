@@ -13,32 +13,27 @@ import { router } from 'expo-router';
 import { Linking } from 'react-native';
 import { t } from '@/lib/i18n';
 
-interface FAQItem {
-  question: string;
-  answer: string;
-}
-
-const faqData: FAQItem[] = [
-  {
-    question: t('increaseLimit'),
-    answer: t('increaseLimitAnswer')
-  },
-  {
-    question: t('exchangeFee'),
-    answer: t('exchangeFeeAnswer')
-  },
-  {
-    question: t('verificationTime'),
-    answer: t('verificationTimeAnswer')
-  },
-  {
-    question: t('supportedCurrencies'),
-    answer: t('supportedCurrenciesAnswer')
-  },
-];
-
 export default function HelpAndSupportPage() {
   const [expandedItems, setExpandedItems] = useState<number[]>([]);
+
+  const faqData = [
+    {
+      question: t('increaseLimit'),
+      answer: t('increaseLimitAnswer')
+    },
+    {
+      question: t('exchangeFee'),
+      answer: t('exchangeFeeAnswer')
+    },
+    {
+      question: t('verificationTime'),
+      answer: t('verificationTimeAnswer')
+    },
+    {
+      question: t('supportedCurrencies'),
+      answer: t('supportedCurrenciesAnswer')
+    },
+  ];
 
   const handleBack = () => {
     router.back();
