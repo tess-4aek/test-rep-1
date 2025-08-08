@@ -37,10 +37,16 @@ export default function KYCWebViewPage() {
         return;
       }
 
-      console.log('Updating KYC status for user:', currentUser.id);
+      if (!currentUser.telegram_id) {
+        console.error('No telegram_id found for user');
+        router.push('/post-kyc');
+        return;
+      }
+
+      console.log('Updating KYC status for telegram_id:', currentUser.telegram_id);
       
       // Update KYC status in Supabase
-      const updatedUser = await updateUserKYCStatus(currentUser.id);
+      const updatedUser = await updateUserKYCStatus(currentUser.telegram_id);
       if (!updatedUser) {
         console.error('Failed to update KYC status');
         // Still navigate but show error

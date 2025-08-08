@@ -59,11 +59,17 @@ export default function BankDetailsFormPage() {
         return;
       }
 
-      console.log('Updating bank details for user:', currentUser.id);
+      if (!currentUser.telegram_id) {
+        console.error('No telegram_id found for user');
+        router.push('/review-pending');
+        return;
+      }
+
+      console.log('Updating bank details for telegram_id:', currentUser.telegram_id);
       console.log('Form data:', formData);
       
       // Update bank details status in Supabase
-      const updatedUser = await updateUserBankDetailsStatus(currentUser.id, {
+      const updatedUser = await updateUserBankDetailsStatus(currentUser.telegram_id, {
         fullName: formData.fullName,
         iban: formData.iban,
         swiftBic: formData.swiftBic,

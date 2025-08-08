@@ -36,12 +36,12 @@ export async function clearUserData(): Promise<void> {
 
 export function determineNextScreen(user: User): string {
   // Check KYC status first
-  if (!user.kyc_status) {
+  if (!user.kyc_status || user.kyc_status === false) {
     return '/auth-progress';
   }
   
   // Then check bank details status
-  if (!user.bank_details_status) {
+  if (!user.bank_details_status || user.bank_details_status === false) {
     return '/bank-details';
   }
   

@@ -7,6 +7,7 @@ export const supabase = createClient(supabaseUrl, supabaseKey);
 
 export interface User {
   id: string;
+  telegram_id?: string;
   name?: string;
   telegram_username?: string;
   kyc_status?: boolean;
@@ -38,7 +39,7 @@ export async function checkUserExists(userId: string): Promise<User | null> {
   }
 }
 
-export async function updateUserKYCStatus(userId: string): Promise<User | null> {
+export async function updateUserKYCStatus(telegramId: string): Promise<User | null> {
   try {
     const { data, error } = await supabase
       .from('users')
@@ -46,24 +47,24 @@ export async function updateUserKYCStatus(userId: string): Promise<User | null> 
         kyc_status: true,
         updated_at: new Date().toISOString()
       })
-      .eq('id', userId)
+      .eq('telegram_id', telegramId)
       .select()
       .single();
 
     if (error) {
-      console.error('Error updating KYC status:', error);
+      console.error('Error updating KYC status for telegram_id:', telegramId, error);
       throw error;
     }
 
-    console.log('Successfully updated KYC status for user:', userId);
+    console.log('Successfully updated KYC status for telegram_id:', telegramId);
     return data as User;
   } catch (error) {
-    console.error('Error updating KYC status:', error);
+    console.error('Error updating KYC status for telegram_id:', telegramId, error);
     return null;
   }
 }
 
-export async function updateUserBankDetailsStatus(userId: string, bankDetails: {
+export async function updateUserBankDetailsStatus(telegramId: string, bankDetails: {
   fullName: string;
   iban: string;
   swiftBic?: string;
@@ -82,19 +83,19 @@ export async function updateUserBankDetailsStatus(userId: string, bankDetails: {
         bank_country: bankDetails.country,
         updated_at: new Date().toISOString()
       })
-      .eq('id', userId)
+      .eq('telegram_id', telegramId)
       .select()
       .single();
 
     if (error) {
-      console.error('Error updating bank details status:', error);
+      console.error('Error updating bank details status for telegram_id:', telegramId, error);
       throw error;
     }
 
-    console.log('Successfully updated bank details status for user:', userId);
+    console.log('Successfully updated bank details status for telegram_id:', telegramId);
     return data as User;
   } catch (error) {
-    console.error('Error updating bank details status:', error);
+    console.error('Error updating bank details status for telegram_id:', telegramId, error);
     return null;
   }
 }
