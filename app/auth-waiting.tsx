@@ -10,7 +10,7 @@ import { StatusBar } from 'expo-status-bar';
 import { ArrowLeft, MessageCircle } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { checkUserExists, User } from '@/lib/supabase';
-import { saveUserData, determineNextScreen, saveAuthStatus } from '@/utils/auth';
+import { saveUserData, determineNextScreen } from '@/utils/auth';
 import { t } from '@/lib/i18n';
 
 export default function AuthWaitingPage() {
@@ -76,9 +76,6 @@ export default function AuthWaitingPage() {
         
         // Save user data locally
         await saveUserData(user);
-        
-        // Set authentication status to true
-        await saveAuthStatus(true);
         
         // Determine next screen based on user status
         const nextScreen = determineNextScreen(user);

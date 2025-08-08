@@ -7,32 +7,6 @@ export type User = SupabaseUser;
 
 const USER_STORAGE_KEY = 'authenticated_user';
 const USER_UUID_KEY = 'userUUID';
-const AUTH_STATUS_KEY = 'is_auth';
-
-/**
- * Save authentication status
- */
-export async function saveAuthStatus(isAuthenticated: boolean): Promise<void> {
-  try {
-    await AsyncStorage.setItem(AUTH_STATUS_KEY, JSON.stringify(isAuthenticated));
-    console.log('Auth status saved:', isAuthenticated);
-  } catch (error) {
-    console.error('Error saving auth status:', error);
-  }
-}
-
-/**
- * Get authentication status
- */
-export async function getAuthStatus(): Promise<boolean> {
-  try {
-    const authStatus = await AsyncStorage.getItem(AUTH_STATUS_KEY);
-    return authStatus ? JSON.parse(authStatus) : false;
-  } catch (error) {
-    console.error('Error loading auth status:', error);
-    return false;
-  }
-}
 
 /**
  * Save user UUID to secure storage
@@ -94,8 +68,6 @@ export async function getUserData(): Promise<SupabaseUser | null> {
 export async function clearUserData(): Promise<void> {
   try {
     await AsyncStorage.removeItem(USER_STORAGE_KEY);
-    await AsyncStorage.removeItem(AUTH_STATUS_KEY);
-    await clearUserUUID();
     console.log('User data cleared from storage');
   } catch (error) {
     console.error('Error clearing user data:', error);
