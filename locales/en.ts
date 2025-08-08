@@ -143,4 +143,5 @@ export default {
   noAuthSession: 'No authentication session found',
   authTimeout: 'Authentication timed out. Please try again.',
   authError: 'Authentication error occurred. Please try again.',
+  submitting: 'Submitting...',
 };

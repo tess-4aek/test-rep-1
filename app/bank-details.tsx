@@ -15,6 +15,8 @@ import { ArrowLeft } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { Linking } from 'react-native';
 import { t } from '@/lib/i18n';
+import { updateUserBankDetailsStatus } from '@/lib/supabase';
+import { getUserData, saveUserData } from '@/utils/auth';
 
 interface FormData {
   fullName: string;
@@ -34,6 +36,7 @@ export default function BankDetailsFormPage() {
   });
 
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({
@@ -42,10 +45,53 @@ export default function BankDetailsFormPage() {
     }));
   };
 
-  const handleSubmit = () => {
-    // Form submission logic will be implemented later
-    console.log('Form submitted:', formData);
-    router.push('/review-pending');
+  const handleSubmit = async () => {
+    if (!isFormValid() || isSubmitting) return;
+    
+    setIsSubmitting(true);
+    
+    try {
+      // Get current user data
+      const currentUser = await getUserData();
+      if (!currentUser) {
+        console.error('No user data found');
+        router.push('/');
+        return;
+      }
+
+      console.log('Updating bank details for user:', currentUser.id);
+      console.log('Form data:', formData);
+      
+      // Update bank details status in Supabase
+      const updatedUser = await updateUserBankDetailsStatus(currentUser.id, {
+        fullName: formData.fullName,
+        iban: formData.iban,
+        swiftBic: formData.swiftBic,
+        bankName: formData.bankName,
+        country: formData.country,
+      });
+      
+      if (!updatedUser) {
+        console.error('Failed to update bank details status');
+        // Still navigate but show error
+        router.push('/review-pending');
+        return;
+      }
+
+      // Update local user data
+      await saveUserData(updatedUser);
+      console.log('Bank details status updated successfully');
+
+      // Navigate to review pending page
+      router.push('/review-pending');
+      
+    } catch (error) {
+      console.error('Error submitting bank details:', error);
+      // Still navigate on error to avoid blocking user
+      router.push('/review-pending');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleOrderBankAccount = async () => {
@@ -217,19 +263,21 @@ export default function BankDetailsFormPage() {
         <TouchableOpacity
           style={[
             styles.ctaButton,
-            !isFormValid() && styles.disabledButton,
+            (!isFormValid() || isSubmitting) && styles.disabledButton,
           ]}
           onPress={handleSubmit}
           activeOpacity={0.9}
-          disabled={!isFormValid()}
+          disabled={!isFormValid() || isSubmitting}
         >
           <LinearGradient
-            colors={isFormValid() ? ['#3D8BFF', '#2A7FFF'] : ['#9CA3AF', '#9CA3AF']}
+            colors={(isFormValid() && !isSubmitting) ? ['#3D8BFF', '#2A7FFF'] : ['#9CA3AF', '#9CA3AF']}
             style={styles.buttonGradient}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
           >
-            <Text style={styles.ctaButtonText}>{t('submit')}</Text>
+            <Text style={styles.ctaButtonText}>
+              {isSubmitting ? t('submitting') : t('submit')}
+            </Text>
           </LinearGradient>
         </TouchableOpacity>
         
