@@ -92,9 +92,40 @@ export default function HomePage() {
     }
   };
 
+  const formatDecimalInput = (value: string): string => {
+    // Remove any non-numeric characters except decimal point
+    let cleaned = value.replace(/[^0-9.]/g, '');
+    
+    // Ensure only one decimal point
+    const parts = cleaned.split('.');
+    if (parts.length > 2) {
+      cleaned = parts[0] + '.' + parts.slice(1).join('');
+    }
+    
+    // Limit to 2 decimal places
+    if (parts.length === 2 && parts[1].length > 2) {
+      cleaned = parts[0] + '.' + parts[1].substring(0, 2);
+    }
+    
+    return cleaned;
+  };
+
+  const handleAmountChange = (value: string) => {
+    const formattedValue = formatDecimalInput(value);
+    setExchangeAmount(formattedValue);
+  };
+
   const handleSwapDirection = () => {
-    setExchangeDirection(prev => prev === 'usdc-eur' ? 'eur-usdc' : 'usdc-eur');
-    setExchangeAmount('');
+    const newDirection = exchangeDirection === 'usdc-eur' ? 'eur-usdc' : 'usdc-eur';
+    setExchangeDirection(newDirection);
+    
+    // Swap the amounts: what we were receiving becomes what we're sending
+    const currentReceiveAmount = calculateReceiveAmount();
+    if (currentReceiveAmount && !isNaN(Number(currentReceiveAmount))) {
+      setExchangeAmount(currentReceiveAmount);
+    } else {
+      setExchangeAmount('');
+    }
   };
 
   const handleCreateExchange = () => {
@@ -188,7 +219,7 @@ export default function HomePage() {
               <TextInput
                 style={styles.amountInput}
                 value={exchangeAmount}
-                onChangeText={setExchangeAmount}
+                onChangeText={handleAmountChange}
                 placeholder="0.00"
                 placeholderTextColor="#9CA3AF"
                 keyboardType="numeric"
