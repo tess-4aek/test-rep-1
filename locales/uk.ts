@@ -127,4 +127,8 @@ export default {
   secureAuth: 'Безпечна автентифікація через Telegram',
   appName: 'CryptoExchange',
   tagline: 'Ваш шлюз до цифрових фінансів',
+  enterFullName: 'Введіть ваше повне юридичне ім\'я',
+  enterBankName: 'Введіть назву вашого банку',
+  enterCountry: 'Україна',
+  bankDetails: 'Банківські дані',
 };

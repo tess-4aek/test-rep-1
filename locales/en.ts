@@ -127,4 +127,8 @@ export default {
   secureAuth: 'Secure authentication via Telegram',
   appName: 'CryptoExchange',
   tagline: 'Your gateway to digital finance',
+  enterFullName: 'Enter your full legal name',
+  enterBankName: 'Enter your bank name',
+  enterCountry: 'United Kingdom',
+  bankDetails: 'Bank Details',
 };

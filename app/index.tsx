@@ -11,26 +11,27 @@ import { StatusBar } from 'expo-status-bar';
 import { Zap, Shield, TrendingUp } from 'lucide-react-native';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
+import { t } from '@/lib/i18n';
 
 const { width: screenWidth } = Dimensions.get('window');
 
 const slides = [
   {
     id: 1,
-    title: 'Instant Crypto Exchange',
-    subtitle: 'Convert between crypto and fiat currencies in seconds with real-time market rates',
+    title: t('instantExchange'),
+    subtitle: t('instantExchangeDesc'),
     icon: <Zap color="#3D8BFF" size={48} />,
   },
   {
     id: 2,
-    title: 'Bank-Grade Security',
-    subtitle: 'Your funds are protected with enterprise-level encryption and regulatory compliance',
+    title: t('bankGradeSecurity'),
+    subtitle: t('bankGradeSecurityDesc'),
     icon: <Shield color="#10B981" size={48} />,
   },
   {
     id: 3,
-    title: 'Best Exchange Rates',
-    subtitle: 'Access competitive rates with transparent fees and no hidden charges',
+    title: t('bestRates'),
+    subtitle: t('bestRatesDesc'),
     icon: <TrendingUp color="#F59E0B" size={48} />,
   },
 ];
@@ -65,8 +66,8 @@ export default function IntroPage() {
       
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.appName}>CryptoExchange</Text>
-        <Text style={styles.tagline}>Your gateway to digital finance</Text>
+        <Text style={styles.appName}>{t('appName')}</Text>
+        <Text style={styles.tagline}>{t('tagline')}</Text>
       </View>
 
       {/* Horizontal Slider */}
@@ -100,11 +101,11 @@ export default function IntroPage() {
           onPress={handleSignIn}
           activeOpacity={0.9}
         >
-          <Text style={styles.signInButtonText}>Sign In</Text>
+          <Text style={styles.signInButtonText}>{t('signIn')}</Text>
         </TouchableOpacity>
         
         <Text style={styles.footerText}>
-          Secure authentication via Telegram
+          {t('secureAuth')}
         </Text>
       </View>
     </View>
