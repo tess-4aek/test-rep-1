@@ -10,7 +10,7 @@ import { StatusBar } from 'expo-status-bar';
 import { User, CreditCard, Shield, Settings, CircleHelp as HelpCircle, LogOut, ChevronRight } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { t } from '@/lib/i18n';
-import { getUserData, User as UserType } from '@/utils/auth';
+import { getUserData, User as UserType, clearUserData, clearUserUUID } from '@/utils/auth';
 
 export default function ProfilePage() {
   const [userData, setUserData] = React.useState<UserType | null>(null);
@@ -55,6 +55,25 @@ export default function ProfilePage() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      console.log('🚪 Logging out user...');
+      
+      // Clear all user data and auth status
+      await clearUserData();
+      await clearUserUUID();
+      
+      console.log('✅ User logged out successfully');
+      
+      // Navigate to intro screen
+      router.replace('/');
+      
+    } catch (error) {
+      console.error('❌ Error during logout:', error);
+      // Still navigate to intro on error
+      router.replace('/');
+    }
+  };
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
@@ -113,7 +132,7 @@ export default function ProfilePage() {
 
         {/* Logout Button */}
         <View style={styles.logoutContainer}>
-          <TouchableOpacity style={styles.logoutButton}>
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
             <LogOut color="#EF4444" size={20} />
             <Text style={styles.logoutText}>{t('signOut')}</Text>
           </TouchableOpacity>

@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { initializeLanguage } from '@/lib/i18n';
+import AuthGate from '@/components/AuthGate';
 
 export default function RootLayout() {
   useFrameworkReady();
@@ -35,6 +36,7 @@ export default function RootLayout() {
 
   return (
     <>
+      <AuthGate />
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="+not-found" />
       </Stack>
