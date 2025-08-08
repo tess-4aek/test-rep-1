@@ -4,7 +4,6 @@ import { StatusBar } from 'expo-status-bar';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { initializeLanguage } from '@/lib/i18n';
-import { initializeLanguage } from '@/lib/i18n';
 
 export default function RootLayout() {
   useFrameworkReady();
