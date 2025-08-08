@@ -23,8 +23,8 @@ export interface User {
   sumsub_external_user_id?: string;
   monthly_limit?: number;
   daily_limit?: number;
-  monthly_used?: number;
-  daily_used?: number;
+  monthly_limit_used?: number;
+  daily_limit_used?: number;
   limit_reset_date?: string;
   created_at?: string;
   updated_at?: string;
