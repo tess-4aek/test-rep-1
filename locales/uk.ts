@@ -137,4 +137,10 @@ export default {
   appSettings: 'Налаштування додатку',
   helpAndSupport: 'Допомога та підтримка',
   frequentlyAskedQuestions: 'Часті питання',
+  waitingForTelegram: 'Очікування підтвердження з Telegram...',
+  telegramInstructions: 'Будь ласка, завершіть процес автентифікації в Telegram і поверніться до цього додатку.',
+  checkingStatus: 'Перевірка статусу автентифікації',
+  noAuthSession: 'Сесія автентифікації не знайдена',
+  authTimeout: 'Час автентифікації вичерпано. Спробуйте ще раз.',
+  authError: 'Сталася помилка автентифікації. Спробуйте ще раз.',
 };

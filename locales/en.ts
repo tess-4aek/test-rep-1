@@ -137,4 +137,10 @@ export default {
   appSettings: 'App Settings',
   helpAndSupport: 'Help & Support',
   frequentlyAskedQuestions: 'Frequently Asked Questions',
+  waitingForTelegram: 'Waiting for Telegram confirmation...',
+  telegramInstructions: 'Please complete the authentication process in Telegram and return to this app.',
+  checkingStatus: 'Checking authentication status',
+  noAuthSession: 'No authentication session found',
+  authTimeout: 'Authentication timed out. Please try again.',
+  authError: 'Authentication error occurred. Please try again.',
 };

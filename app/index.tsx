@@ -11,6 +11,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Zap, Shield, TrendingUp } from 'lucide-react-native';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
+import { v4 as uuidv4 } from 'uuid';
 import { t } from '@/lib/i18n';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -56,8 +57,33 @@ export default function IntroPage() {
   }, []);
 
   const handleSignIn = async () => {
-    // Skip Telegram for testing - navigate directly to next step
-    router.push('/auth-progress');
+    try {
+      // Generate unique UUID for this authentication session
+      const authUuid = uuidv4();
+      console.log('Generated auth UUID:', authUuid);
+      
+      // Create Telegram bot URL with the UUID
+      const telegramUrl = `tg://resolve?domain=xPaid_app_test_bot&start=${authUuid}`;
+      console.log('Opening Telegram with URL:', telegramUrl);
+      
+      // Open Telegram
+      await WebBrowser.openBrowserAsync(telegramUrl);
+      
+      // Navigate to waiting screen with the UUID
+      router.push({
+        pathname: '/auth-waiting',
+        params: { uuid: authUuid }
+      });
+      
+    } catch (error) {
+      console.error('Error opening Telegram:', error);
+      // Fallback: still navigate to waiting screen for testing
+      const authUuid = uuidv4();
+      router.push({
+        pathname: '/auth-waiting',
+        params: { uuid: authUuid }
+      });
+    }
   };
 
   return (
