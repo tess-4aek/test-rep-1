@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
 import { User as SupabaseUser } from '@/lib/supabase';
+import { useAuth } from '@/hooks/useAuth';
 
 // Re-export User type for convenience
 export type User = SupabaseUser;
@@ -46,6 +47,9 @@ export async function clearUserUUID(): Promise<void> {
 export async function saveUserData(user: SupabaseUser): Promise<void> {
   try {
     await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
+    // Also set authentication flag when saving user data
+    const { login } = useAuth();
+    await login();
     console.log('User data saved to storage');
   } catch (error) {
     console.error('Error saving user data:', error);
@@ -68,6 +72,9 @@ export async function getUserData(): Promise<SupabaseUser | null> {
 export async function clearUserData(): Promise<void> {
   try {
     await AsyncStorage.removeItem(USER_STORAGE_KEY);
+    // Also clear authentication flag when clearing user data
+    const { logout } = useAuth();
+    await logout();
     console.log('User data cleared from storage');
   } catch (error) {
     console.error('Error clearing user data:', error);
