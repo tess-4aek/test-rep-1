@@ -66,12 +66,12 @@ export default function ProfilePage() {
       console.log('✅ User logged out successfully');
       
       // Navigate to intro screen
-      router.replace('/index');
+      router.replace('/');
       
     } catch (error) {
       console.error('❌ Error during logout:', error);
       // Still navigate to intro on error
-      router.replace('/index');
+      router.replace('/');
     }
   };
   return (
