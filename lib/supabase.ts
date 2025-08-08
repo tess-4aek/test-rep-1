@@ -37,3 +37,64 @@ export async function checkUserExists(userId: string): Promise<User | null> {
     return null;
   }
 }
+
+export async function updateUserKYCStatus(userId: string): Promise<User | null> {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .update({ 
+        kyc_status: true,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating KYC status:', error);
+      throw error;
+    }
+
+    console.log('Successfully updated KYC status for user:', userId);
+    return data as User;
+  } catch (error) {
+    console.error('Error updating KYC status:', error);
+    return null;
+  }
+}
+
+export async function updateUserBankDetailsStatus(userId: string, bankDetails: {
+  fullName: string;
+  iban: string;
+  swiftBic?: string;
+  bankName?: string;
+  country: string;
+}): Promise<User | null> {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .update({ 
+        bank_details_status: true,
+        bank_full_name: bankDetails.fullName,
+        bank_iban: bankDetails.iban,
+        bank_swift_bic: bankDetails.swiftBic,
+        bank_name: bankDetails.bankName,
+        bank_country: bankDetails.country,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating bank details status:', error);
+      throw error;
+    }
+
+    console.log('Successfully updated bank details status for user:', userId);
+    return data as User;
+  } catch (error) {
+    console.error('Error updating bank details status:', error);
+    return null;
+  }
+}
