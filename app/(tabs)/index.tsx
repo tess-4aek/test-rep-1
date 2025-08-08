@@ -17,19 +17,51 @@ import {
   TrendingUp 
 } from 'lucide-react-native';
 import { router } from 'expo-router';
+import { Linking } from 'react-native';
 import { t } from '@/lib/i18n';
+import { getUserLimits } from '@/lib/supabase';
+import { getUserData } from '@/utils/auth';
 
 export default function HomePage() {
   const [exchangeAmount, setExchangeAmount] = useState('');
   const [exchangeDirection, setExchangeDirection] = useState<'usdc-eur' | 'eur-usdc'>('usdc-eur');
   const [rateDirection, setRateDirection] = useState<'usdc-eur' | 'eur-usdc'>('usdc-eur');
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [monthlyLimit, setMonthlyLimit] = useState(5000);
+  const [monthlyLimitUsed, setMonthlyLimitUsed] = useState(0);
+  const [limitsLoading, setLimitsLoading] = useState(true);
+
+  // Fetch user limits on component mount
+  useEffect(() => {
+    const fetchUserLimits = async () => {
+      try {
+        const userData = await getUserData();
+        if (userData?.telegram_id) {
+          const limits = await getUserLimits(userData.telegram_id);
+          if (limits) {
+            setMonthlyLimit(limits.monthly_limit);
+            setMonthlyLimitUsed(limits.monthly_limit_used);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user limits:', error);
+      } finally {
+        setLimitsLoading(false);
+      }
+    };
+
+    fetchUserLimits();
+  }, []);
 
   const getProgressColor = () => {
-    const percentage = 64; // 3200/5000 = 64%
+    const percentage = monthlyLimit > 0 ? (monthlyLimitUsed / monthlyLimit) * 100 : 0;
     if (percentage < 70) return '#10B981'; // Green
     if (percentage < 90) return '#F59E0B'; // Yellow
     return '#EF4444'; // Red
+  };
+
+  const getProgressPercentage = () => {
+    return monthlyLimit > 0 ? Math.round((monthlyLimitUsed / monthlyLimit) * 100) : 0;
   };
 
   const handleViewLimitDetails = () => {
@@ -107,12 +139,14 @@ export default function HomePage() {
             <View style={styles.progressBarBackground}>
               <View style={[
                 styles.progressBarFill, 
-                { width: '64%', backgroundColor: getProgressColor() }
+                { width: `${getProgressPercentage()}%`, backgroundColor: getProgressColor() }
               ]} />
             </View>
           </View>
           
-          <Text style={styles.limitUsageText}>€3,200 / €5,000 {t('limitUsed')}</Text>
+          <Text style={styles.limitUsageText}>
+            {limitsLoading ? t('loading') : `€${monthlyLimitUsed.toLocaleString()} / €${monthlyLimit.toLocaleString()} ${t('limitUsed')}`}
+          </Text>
           <Text style={styles.limitResetText}>{t('limitResets')} 12 {t('days')}</Text>
           
           <TouchableOpacity 
