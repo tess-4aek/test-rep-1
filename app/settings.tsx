@@ -95,36 +95,6 @@ export default function SettingsPage() {
             ))}
           </View>
         </View>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('changeLanguage')}</Text>
-          
-          <View style={styles.languageContainer}>
-            {languages.map((language) => (
-              <TouchableOpacity
-                key={language.code}
-                style={[
-                  styles.languageOption,
-                  selectedLanguage === language.code && styles.selectedLanguageOption,
-                  isChangingLanguage && styles.disabledLanguageOption,
-                ]}
-                onPress={() => handleLanguageSelect(language.code)}
-                activeOpacity={0.7}
-                disabled={isChangingLanguage}
-              >
-                <Text style={[
-                  styles.languageText,
-                  selectedLanguage === language.code && styles.selectedLanguageText,
-                  isChangingLanguage && styles.disabledLanguageText,
-                ]}>
-                  {language.name}
-                </Text>
-                {selectedLanguage === language.code && (
-                  <Check color="#3D8BFF" size={20} />
-                )}
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
       </ScrollView>
     </View>
   );
