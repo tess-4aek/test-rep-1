@@ -131,4 +131,10 @@ export default {
   enterBankName: 'Enter your bank name',
   enterCountry: 'United Kingdom',
   bankDetails: 'Bank Details',
+  viewLimitDetails: 'View Limit Details',
+  readyToExchange: 'Ready to exchange crypto?',
+  personalInformation: 'Personal Information',
+  appSettings: 'App Settings',
+  helpAndSupport: 'Help & Support',
+  frequentlyAskedQuestions: 'Frequently Asked Questions',
 };

@@ -96,7 +96,7 @@ export default function HomePage() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.greeting}>{t('greeting')}</Text>
-          <Text style={styles.subtitle}>Ready to exchange crypto?</Text>
+          <Text style={styles.subtitle}>{t('readyToExchange')}</Text>
         </View>
 
         {/* Monthly Transaction Limit Block */}
@@ -126,7 +126,7 @@ export default function HomePage() {
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
             >
-              <Text style={styles.viewDetailsText}>View Limit Details</Text>
+              <Text style={styles.viewDetailsText}>{t('viewLimitDetails')}</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>

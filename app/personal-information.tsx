@@ -39,7 +39,7 @@ export default function PersonalInformationPage() {
         <TouchableOpacity onPress={handleBack} style={styles.backButton}>
           <ArrowLeft color="#0C1E3C" size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('personalInfo')}</Text>
+        <Text style={styles.headerTitle}>{t('personalInformation')}</Text>
         <View style={styles.headerSpacer} />
       </View>
 

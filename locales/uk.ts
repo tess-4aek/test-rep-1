@@ -131,4 +131,10 @@ export default {
   enterBankName: 'Введіть назву вашого банку',
   enterCountry: 'Україна',
   bankDetails: 'Банківські дані',
+  viewLimitDetails: 'Переглянути деталі ліміту',
+  readyToExchange: 'Готові обмінювати криптовалюту?',
+  personalInformation: 'Особиста інформація',
+  appSettings: 'Налаштування додатку',
+  helpAndSupport: 'Допомога та підтримка',
+  frequentlyAskedQuestions: 'Часті питання',
 };

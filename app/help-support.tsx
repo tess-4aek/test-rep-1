@@ -72,7 +72,7 @@ export default function HelpAndSupportPage() {
         <TouchableOpacity onPress={handleBack} style={styles.backButton}>
           <ArrowLeft color="#0C1E3C" size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('helpSupport')}</Text>
+        <Text style={styles.headerTitle}>{t('helpAndSupport')}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -83,7 +83,7 @@ export default function HelpAndSupportPage() {
       >
         {/* FAQ Section */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>{t('faqTitle')}</Text>
+          <Text style={styles.sectionTitle}>{t('frequentlyAskedQuestions')}</Text>
           
           <View style={styles.faqContainer}>
             {faqData.map((item, index) => (

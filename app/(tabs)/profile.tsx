@@ -14,7 +14,7 @@ import { t } from '@/lib/i18n';
 const menuItems = [
   {
     icon: <User color="#6B7280" size={20} />,
-    title: t('personalInfo'),
+    title: t('personalInformation'),
     subtitle: t('updateProfile'),
   },
   {
@@ -24,7 +24,7 @@ const menuItems = [
   },
   {
     icon: <HelpCircle color="#6B7280" size={20} />,
-    title: t('helpSupport'),
+    title: t('helpAndSupport'),
     subtitle: t('getHelp'),
   },
 ];
