@@ -4,47 +4,70 @@ import {
   Text,
   StyleSheet,
   ScrollView,
+  TouchableOpacity,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { ArrowUpRight, ArrowDownLeft, Clock } from 'lucide-react-native';
+import { router } from 'expo-router';
 import { t } from '@/lib/i18n';
+import { Order } from '@/types/order';
 
-const transactions = [
+const transactions: Order[] = [
   {
-    id: 1,
+    id: '1',
     type: 'buy',
     title: `${t('bought')} Bitcoin`,
     amount: '+$500.00',
     crypto: '0.0125 BTC',
     time: '2 hours ago',
     status: 'completed',
+    fromCurrency: 'USD',
+    toCurrency: 'BTC',
+    exchangeRate: '1 USD ≈ 0.000025 BTC',
+    fee: '0.5%',
+    estimatedReceived: '0.0125',
   },
   {
-    id: 2,
+    id: '2',
     type: 'sell',
     title: `${t('sold')} Ethereum`,
     amount: '-$1,200.00',
     crypto: '0.75 ETH',
     time: '1 day ago',
     status: 'completed',
+    fromCurrency: 'ETH',
+    toCurrency: 'USD',
+    exchangeRate: '1 ETH ≈ 1600 USD',
+    fee: '0.5%',
+    estimatedReceived: '1200.00',
   },
   {
-    id: 3,
+    id: '3',
     type: 'buy',
     title: `${t('bought')} Litecoin`,
     amount: '+$300.00',
     crypto: '4.2 LTC',
     time: '3 days ago',
-    status: t('pending'),
+    status: 'pending',
+    fromCurrency: 'USD',
+    toCurrency: 'LTC',
+    exchangeRate: '1 USD ≈ 0.014 LTC',
+    fee: '0.5%',
+    estimatedReceived: '4.2',
   },
   {
-    id: 4,
+    id: '4',
     type: 'sell',
     title: `${t('sold')} Bitcoin`,
     amount: '-$800.00',
     crypto: '0.02 BTC',
     time: '1 week ago',
     status: 'completed',
+    fromCurrency: 'BTC',
+    toCurrency: 'USD',
+    exchangeRate: '1 BTC ≈ 40000 USD',
+    fee: '0.5%',
+    estimatedReceived: '800.00',
   },
 ];
 
@@ -65,6 +88,16 @@ export default function HistoryPage() {
     return type === 'buy' ? '#10B981' + '20' : '#EF4444' + '20';
   };
 
+  const handleOrderPress = (order: Order) => {
+    router.push({
+      pathname: '/order-details',
+      params: {
+        orderId: order.id,
+        isExistingOrder: 'true'
+      }
+    });
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
@@ -83,7 +116,12 @@ export default function HistoryPage() {
         {/* Transactions List */}
         <View style={styles.transactionsContainer}>
           {transactions.map((transaction) => (
-            <View key={transaction.id} style={styles.transactionItem}>
+            <TouchableOpacity 
+              key={transaction.id} 
+              style={styles.transactionItem}
+              onPress={() => handleOrderPress(transaction)}
+              activeOpacity={0.7}
+            >
               <View style={[
                 styles.transactionIcon, 
                 { backgroundColor: getIconBackgroundColor(transaction.type, transaction.status) }
@@ -107,14 +145,17 @@ export default function HistoryPage() {
                 <Text style={[
                   styles.transactionStatus,
                   { 
-                    color: transaction.status === 'completed' ? '#10B981' : '#F59E0B',
+                    color: transaction.status === 'completed' ? '#10B981' : 
+                           transaction.status === 'pending' ? '#F59E0B' : '#6B7280',
                     textTransform: 'capitalize'
                   }
                 ]}>
-                  {transaction.status}
+                  {transaction.status === 'pending' ? t('pending') : 
+                   transaction.status === 'processing' ? t('processing') : 
+                   t('completed')}
                 </Text>
               </View>
-            </View>
+            </TouchableOpacity>
           ))}
         </View>
       </ScrollView>

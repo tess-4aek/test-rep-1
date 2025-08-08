@@ -9,11 +9,107 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { ArrowLeft, MessageCircle } from 'lucide-react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Linking } from 'react-native';
 import { t } from '@/lib/i18n';
+import { Order } from '@/types/order';
+
+// Mock function to get order by ID - in real app this would fetch from database
+const getOrderById = (orderId: string): Order | null => {
+  const orders: Order[] = [
+    {
+      id: '1',
+      type: 'buy',
+      title: `${t('bought')} Bitcoin`,
+      amount: '+$500.00',
+      crypto: '0.0125 BTC',
+      time: '2 hours ago',
+      status: 'completed',
+      fromCurrency: 'USD',
+      toCurrency: 'BTC',
+      exchangeRate: '1 USD ≈ 0.000025 BTC',
+      fee: '0.5%',
+      estimatedReceived: '0.0125',
+    },
+    {
+      id: '2',
+      type: 'sell',
+      title: `${t('sold')} Ethereum`,
+      amount: '-$1,200.00',
+      crypto: '0.75 ETH',
+      time: '1 day ago',
+      status: 'completed',
+      fromCurrency: 'ETH',
+      toCurrency: 'USD',
+      exchangeRate: '1 ETH ≈ 1600 USD',
+      fee: '0.5%',
+      estimatedReceived: '1200.00',
+    },
+    {
+      id: '3',
+      type: 'buy',
+      title: `${t('bought')} Litecoin`,
+      amount: '+$300.00',
+      crypto: '4.2 LTC',
+      time: '3 days ago',
+      status: 'pending',
+      fromCurrency: 'USD',
+      toCurrency: 'LTC',
+      exchangeRate: '1 USD ≈ 0.014 LTC',
+      fee: '0.5%',
+      estimatedReceived: '4.2',
+    },
+    {
+      id: '4',
+      type: 'sell',
+      title: `${t('sold')} Bitcoin`,
+      amount: '-$800.00',
+      crypto: '0.02 BTC',
+      time: '1 week ago',
+      status: 'completed',
+      fromCurrency: 'BTC',
+      toCurrency: 'USD',
+      exchangeRate: '1 BTC ≈ 40000 USD',
+      fee: '0.5%',
+      estimatedReceived: '800.00',
+    },
+  ];
+
+  return orders.find(order => order.id === orderId) || null;
+};
 
 export default function OrderDetailsPage() {
+  const params = useLocalSearchParams<{
+    orderId?: string;
+    isExistingOrder?: string;
+  }>();
+  
+  const isExistingOrder = params.isExistingOrder === 'true';
+  const orderId = params.orderId;
+  
+  // Get order data if it's an existing order
+  const orderData = React.useMemo(() => {
+    if (isExistingOrder && orderId) {
+      return getOrderById(orderId);
+    }
+    
+    // Default data for new orders (current behavior)
+    return {
+      id: 'new',
+      type: 'buy' as const,
+      title: t('exchangeOrder'),
+      amount: '1000.00',
+      crypto: '',
+      time: '',
+      status: t('processing'),
+      fromCurrency: 'USDC',
+      toCurrency: 'EUR',
+      exchangeRate: '1 USDC ≈ 0.92 EUR',
+      fee: '0.5%',
+      estimatedReceived: '915.40',
+    };
+  }, [isExistingOrder, orderId]);
+
   const handleBack = () => {
     router.back();
   };
@@ -29,16 +125,19 @@ export default function OrderDetailsPage() {
     }
   };
 
-  // Mock order data - in real app this would come from props/state
-  const orderData = {
-    amount: '1000.00',
-    fromCurrency: 'USDC',
-    toCurrency: 'EUR',
-    exchangeRate: '1 USDC ≈ 0.92 EUR',
-    fee: '0.5%',
-    estimatedReceived: '915.40',
-    status: t('processing'),
-  };
+  if (!orderData) {
+    return (
+      <View style={styles.container}>
+        <StatusBar style="dark" />
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Order not found</Text>
+          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+            <Text style={styles.backButtonText}>{t('goBack')}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -66,7 +165,7 @@ export default function OrderDetailsPage() {
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>{t('amount')}</Text>
               <Text style={styles.detailValue}>
-                {orderData.amount} {orderData.fromCurrency}
+                {orderData.amount.replace(/[+-]/g, '')} {orderData.fromCurrency}
               </Text>
             </View>
             
@@ -97,8 +196,24 @@ export default function OrderDetailsPage() {
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>{t('status')}</Text>
               <View style={styles.statusContainer}>
-                <View style={styles.statusIndicator} />
-                <Text style={styles.statusText}>{orderData.status}</Text>
+                <View style={[
+                  styles.statusIndicator,
+                  { 
+                    backgroundColor: orderData.status === 'completed' ? '#10B981' : 
+                                   orderData.status === 'pending' ? '#F59E0B' : '#6B7280'
+                  }
+                ]} />
+                <Text style={[
+                  styles.statusText,
+                  { 
+                    color: orderData.status === 'completed' ? '#10B981' : 
+                           orderData.status === 'pending' ? '#F59E0B' : '#6B7280'
+                  }
+                ]}>
+                  {orderData.status === 'pending' ? t('pending') : 
+                   orderData.status === 'processing' ? t('processing') : 
+                   orderData.status === 'completed' ? t('completed') : orderData.status}
+                </Text>
               </View>
             </View>
           </View>
@@ -108,15 +223,23 @@ export default function OrderDetailsPage() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>{t('transactionInfo')}</Text>
           <Text style={styles.infoText}>
-            {t('orderProcessing')}
+            {isExistingOrder 
+              ? (orderData.status === 'completed' 
+                  ? 'This order has been completed successfully.' 
+                  : 'This order is currently being processed.')
+              : t('orderProcessing')
+            }
           </Text>
           <Text style={styles.infoSubtext}>
-            {t('processingTime')}
+            {isExistingOrder 
+              ? `Order created: ${orderData.time}`
+              : t('processingTime')
+            }
           </Text>
         </View>
       </ScrollView>
 
-      {/* Ask Question Button */}
+      {/* Ask Question Button - Only show for existing orders or if it's a new order */}
       <View style={styles.ctaContainer}>
         <TouchableOpacity
           style={styles.questionButton}
@@ -170,6 +293,31 @@ const styles = StyleSheet.create({
   },
   headerSpacer: {
     width: 40,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+  },
+  errorText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#EF4444',
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 24,
+  },
+  backButton: {
+    backgroundColor: '#3D8BFF',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
+  backButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
   scrollView: {
     flex: 1,
