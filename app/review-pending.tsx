@@ -20,7 +20,6 @@ interface StepItemProps {
 
 const StepItem: React.FC<StepItemProps> = ({ icon, title, status, isLast }) => {
   const getStatusColor = () => '#10B981';
-  const getStatusText = () => 'Completed';
   const getStatusText = () => t('completed');
 
   return (

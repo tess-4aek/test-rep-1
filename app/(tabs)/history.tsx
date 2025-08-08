@@ -65,19 +65,6 @@ export default function HistoryPage() {
     return type === 'buy' ? '#10B981' + '20' : '#EF4444' + '20';
   };
 
-  const getStatusText = () => {
-    switch (status) {
-      case 'completed':
-        return t('completed');
-      case 'pending':
-        return t('inProgress');
-      case 'not-started':
-        return t('notStarted');
-      default:
-        return t('notStarted');
-    }
-  };
-
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />

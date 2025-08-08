@@ -46,7 +46,7 @@ export default function HelpAndSupportPage() {
 
   const handleContactSupport = async () => {
     const message = encodeURIComponent(t('contactSupport'));
-    <Text style={styles.sectionTitle}>{t('faqTitle')}</Text>
+    const telegramUrl = `tg://resolve?domain=YourBotUsername&text=${message}`;
     
     try {
       await WebBrowser.openBrowserAsync(telegramUrl);
@@ -84,7 +84,7 @@ export default function HelpAndSupportPage() {
       >
         {/* FAQ Section */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Frequently Asked Questions</Text>
+          <Text style={styles.sectionTitle}>{t('faqTitle')}</Text>
           
           <View style={styles.faqContainer}>
             {faqData.map((item, index) => (
