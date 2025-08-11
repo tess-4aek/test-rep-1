@@ -12,64 +12,7 @@ import { router } from 'expo-router';
 import { t } from '@/lib/i18n';
 import { Order } from '@/types/order';
 
-const transactions: Order[] = [
-  {
-    id: '1',
-    type: 'buy',
-    title: `${t('bought')} Bitcoin`,
-    amount: '+$500.00',
-    crypto: '0.0125 BTC',
-    time: '2 hours ago',
-    status: 'completed',
-    fromCurrency: 'USD',
-    toCurrency: 'BTC',
-    exchangeRate: '1 USD ≈ 0.000025 BTC',
-    fee: '0.5%',
-    estimatedReceived: '0.0125',
-  },
-  {
-    id: '2',
-    type: 'sell',
-    title: `${t('sold')} Ethereum`,
-    amount: '-$1,200.00',
-    crypto: '0.75 ETH',
-    time: '1 day ago',
-    status: 'completed',
-    fromCurrency: 'ETH',
-    toCurrency: 'USD',
-    exchangeRate: '1 ETH ≈ 1600 USD',
-    fee: '0.5%',
-    estimatedReceived: '1200.00',
-  },
-  {
-    id: '3',
-    type: 'buy',
-    title: `${t('bought')} Litecoin`,
-    amount: '+$300.00',
-    crypto: '4.2 LTC',
-    time: '3 days ago',
-    status: 'pending',
-    fromCurrency: 'USD',
-    toCurrency: 'LTC',
-    exchangeRate: '1 USD ≈ 0.014 LTC',
-    fee: '0.5%',
-    estimatedReceived: '4.2',
-  },
-  {
-    id: '4',
-    type: 'sell',
-    title: `${t('sold')} Bitcoin`,
-    amount: '-$800.00',
-    crypto: '0.02 BTC',
-    time: '1 week ago',
-    status: 'completed',
-    fromCurrency: 'BTC',
-    toCurrency: 'USD',
-    exchangeRate: '1 BTC ≈ 40000 USD',
-    fee: '0.5%',
-    estimatedReceived: '800.00',
-  },
-];
+const transactions: Order[] = getOrdersByTelegramId();
 
 export default function HistoryPage() {
   const getTransactionIcon = (type: string, status: string) => {
