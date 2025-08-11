@@ -193,3 +193,23 @@ export async function getOrderById(orderId: string): Promise<CreatedOrder | null
     return null;
   }
 }
+
+export async function getOrdersByTelegramId(telegramId: string): Promise<CreatedOrder[]> {
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('user_id', telegramId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching orders by telegram_id:', telegramId, error);
+      throw error;
+    }
+
+    return (data ?? []) as CreatedOrder[];
+  } catch (error) {
+    console.error('Error fetching orders by telegram_id:', telegramId, error);
+    return [];
+  }
+}
