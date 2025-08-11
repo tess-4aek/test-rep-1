@@ -165,7 +165,4 @@ export default {
   orderCreationError: 'Не вдалося створити ваш ордер. Спробуйте ще раз.',
   retryOrder: 'Спробувати знову',
   contactSupportOrder: 'Зв\'язатися з підтримкою',
-  noOrdersFound: 'Ордери не знайдені',
-  loadingOrders: 'Завантаження ордерів...',
-  errorLoadingOrders: 'Помилка завантаження ордерів',
 };
