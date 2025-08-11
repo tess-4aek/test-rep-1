@@ -348,6 +348,7 @@ export default function HomePage() {
                 onPress={() => {
                   setShowConfirmModal(false);
                   router.push('/order-details');
+                  createOrderfunc();
                 }}
               >
                 <LinearGradient
