@@ -171,6 +171,29 @@ export async function createOrder(orderData: CreateOrderData): Promise<CreatedOr
   }
 }
 
+export async function getUserOrders(telegramId: string): Promise<CreatedOrder[]> {
+  try {
+    console.log('Fetching orders for telegram_id:', telegramId);
+    
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('user_id', telegramId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching user orders:', error);
+      throw error;
+    }
+
+    console.log('Successfully fetched orders:', data?.length || 0);
+    return data as CreatedOrder[] || [];
+  } catch (error) {
+    console.error('Error fetching user orders:', error);
+    return [];
+  }
+}
+
 export async function getOrderById(orderId: string): Promise<CreatedOrder | null> {
   try {
     const { data, error } = await supabase
