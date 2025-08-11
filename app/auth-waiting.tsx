@@ -135,7 +135,7 @@ export default function AuthWaitingPage() {
               minimumFontScale={0.7}
             >
               {t('goBack')}
-            </Text>
+            </Text
               style={styles.retryButtonText}
               adjustsFontSizeToFit
               numberOfLines={1}
