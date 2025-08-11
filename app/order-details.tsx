@@ -102,37 +102,38 @@ export default function OrderDetailsPage() {
 
   if (!displayOrderData && !isLoadingOrder) {
     return (
-      <View style={styles.container}>
-        <StatusBar style="dark" />
-        <View style={styles.errorContainer}>
-          <Text 
-            style={styles.errorText}
-            adjustsFontSizeToFit
-            numberOfLines={2}
-            minimumFontScale={0.7}
-          >
-            Order not found
-          </Text>
-          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <Text 
-              style={styles.backButtonText}
-              adjustsFontSizeToFit
-              numberOfLines={1}
-              minimumFontScale={0.7}
-            >
-              {t('goBack')}
-            </Text>
-              style={styles.questionButtonText}
-              adjustsFontSizeToFit
-              numberOfLines={1}
-              minimumFontScale={0.7}
-            >
-              {t('askQuestion')}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
+  <View style={styles.container}>
+    <StatusBar style="dark" />
+    <View style={styles.errorContainer}>
+      <Text 
+        style={styles.errorText}
+        adjustsFontSizeToFit
+        numberOfLines={2}
+        minimumFontScale={0.7}
+      >
+        Order not found
+      </Text>
+      <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+        <Text 
+          style={styles.backButtonText}
+          adjustsFontSizeToFit
+          numberOfLines={1}
+          minimumFontScale={0.7}
+        >
+          {t('goBack')}
+        </Text>
+        <Text
+          style={styles.questionButtonText}
+          adjustsFontSizeToFit
+          numberOfLines={1}
+          minimumFontScale={0.7}
+        >
+          {t('askQuestion')}
+        </Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+);
   }
 
   if (isLoadingOrder) {
