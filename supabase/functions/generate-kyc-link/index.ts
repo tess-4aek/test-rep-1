@@ -101,7 +101,6 @@ Deno.serve(async (req)=>{
     } else {
       user = data;
     }
-    console.log(`📋 User details: ${user.id}`);
     // Check if user already has KYC verified
     if (user.kyc_verified) {
       console.log(`✅ User already has KYC verified`);
