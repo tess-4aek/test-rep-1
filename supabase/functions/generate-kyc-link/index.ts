@@ -89,7 +89,6 @@ Deno.serve(async (req)=>{
       console.log(`🆕 User not found, creating new user: ${user_id}`);
       const { data: newUser, error: createError } = await supabase.from('users').insert({
         id: user_id,
-        first_name: 'Pending KYC User',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       }).select().single();
