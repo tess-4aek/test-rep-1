@@ -92,8 +92,22 @@ export default function IntroPage() {
       
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.appName}>{t('appName')}</Text>
-        <Text style={styles.tagline}>{t('tagline')}</Text>
+        <Text 
+          style={styles.appName}
+          adjustsFontSizeToFit
+          numberOfLines={1}
+          minimumFontScale={0.7}
+        >
+          {t('appName')}
+        </Text>
+        <Text 
+          style={styles.tagline}
+          adjustsFontSizeToFit
+          numberOfLines={1}
+          minimumFontScale={0.7}
+        >
+          {t('tagline')}
+        </Text>
       </View>
 
       {/* Horizontal Slider */}
@@ -112,8 +126,22 @@ export default function IntroPage() {
                 <View style={styles.iconContainer}>
                   {slide.icon}
                 </View>
-                <Text style={styles.slideTitle}>{slide.title}</Text>
-                <Text style={styles.slideSubtitle}>{slide.subtitle}</Text>
+                <Text 
+                  style={styles.slideTitle}
+                  adjustsFontSizeToFit
+                  numberOfLines={1}
+                  minimumFontScale={0.7}
+                >
+                  {slide.title}
+                </Text>
+                <Text 
+                  style={styles.slideSubtitle}
+                  adjustsFontSizeToFit
+                  numberOfLines={2}
+                  minimumFontScale={0.7}
+                >
+                  {slide.subtitle}
+                </Text>
               </View>
             </View>
           ))}
@@ -127,10 +155,22 @@ export default function IntroPage() {
           onPress={handleSignIn}
           activeOpacity={0.9}
         >
-          <Text style={styles.signInButtonText}>{t('signIn')}</Text>
+          <Text 
+            style={styles.signInButtonText}
+            adjustsFontSizeToFit
+            numberOfLines={1}
+            minimumFontScale={0.7}
+          >
+            {t('signIn')}
+          </Text>
         </TouchableOpacity>
         
-        <Text style={styles.footerText}>
+        <Text 
+          style={styles.footerText}
+          adjustsFontSizeToFit
+          numberOfLines={1}
+          minimumFontScale={0.7}
+        >
           {t('secureAuth')}
         </Text>
       </View>

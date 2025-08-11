@@ -67,7 +67,14 @@ export default function HelpAndSupportPage() {
         <TouchableOpacity onPress={handleBack} style={styles.backButton}>
           <ArrowLeft color="#0C1E3C" size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('helpAndSupport')}</Text>
+        <Text 
+          style={styles.headerTitle}
+          adjustsFontSizeToFit
+          numberOfLines={1}
+          minimumFontScale={0.7}
+        >
+          {t('helpAndSupport')}
+        </Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -78,7 +85,14 @@ export default function HelpAndSupportPage() {
       >
         {/* FAQ Section */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>{t('frequentlyAskedQuestions')}</Text>
+          <Text 
+            style={styles.sectionTitle}
+            adjustsFontSizeToFit
+            numberOfLines={1}
+            minimumFontScale={0.7}
+          >
+            {t('frequentlyAskedQuestions')}
+          </Text>
           
           <View style={styles.faqContainer}>
             {faqData.map((item, index) => (
@@ -88,7 +102,14 @@ export default function HelpAndSupportPage() {
                   onPress={() => toggleExpanded(index)}
                   activeOpacity={0.7}
                 >
-                  <Text style={styles.questionText}>{item.question}</Text>
+                  <Text 
+                    style={styles.questionText}
+                    adjustsFontSizeToFit
+                    numberOfLines={2}
+                    minimumFontScale={0.7}
+                  >
+                    {item.question}
+                  </Text>
                   {expandedItems.includes(index) ? (
                     <ChevronUp color="#6B7280" size={20} />
                   ) : (
@@ -98,7 +119,14 @@ export default function HelpAndSupportPage() {
                 
                 {expandedItems.includes(index) && (
                   <View style={styles.faqAnswer}>
-                    <Text style={styles.answerText}>{item.answer}</Text>
+                    <Text 
+                      style={styles.answerText}
+                      adjustsFontSizeToFit
+                      numberOfLines={2}
+                      minimumFontScale={0.7}
+                    >
+                      {item.answer}
+                    </Text>
                   </View>
                 )}
               </View>
@@ -121,11 +149,23 @@ export default function HelpAndSupportPage() {
             end={{ x: 1, y: 0 }}
           >
             <MessageCircle color="#FFFFFF" size={20} style={styles.buttonIcon} />
-            <Text style={styles.contactButtonText}>{t('contactSupport')}</Text>
+            <Text 
+              style={styles.contactButtonText}
+              adjustsFontSizeToFit
+              numberOfLines={1}
+              minimumFontScale={0.7}
+            >
+              {t('contactSupport')}
+            </Text>
           </LinearGradient>
         </TouchableOpacity>
         
-        <Text style={styles.footerText}>
+        <Text 
+          style={styles.footerText}
+          adjustsFontSizeToFit
+          numberOfLines={2}
+          minimumFontScale={0.7}
+        >
         {t('respondWithin1h')}
         </Text>
       </View>

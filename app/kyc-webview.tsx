@@ -104,7 +104,14 @@ export default function KYCWebViewPage() {
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>{t('noUrlProvided')}</Text>
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-            <Text style={styles.backButtonText}>{t('goBack')}</Text>
+            <Text 
+              style={styles.backButtonText}
+              adjustsFontSizeToFit
+              numberOfLines={1}
+              minimumFontScale={0.7}
+            >
+              {t('goBack')}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -120,7 +127,14 @@ export default function KYCWebViewPage() {
         <TouchableOpacity onPress={handleBack} style={styles.headerButton}>
           <ArrowLeft color="#0C1E3C" size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('kycVerificationTitle')}</Text>
+        <Text 
+          style={styles.headerTitle}
+          adjustsFontSizeToFit
+          numberOfLines={1}
+          minimumFontScale={0.7}
+        >
+          {t('kycVerificationTitle')}
+        </Text>
         <TouchableOpacity onPress={handleClose} style={styles.headerButton}>
           <X color="#0C1E3C" size={24} />
         </TouchableOpacity>
@@ -130,16 +144,37 @@ export default function KYCWebViewPage() {
       {loading && (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#3D8BFF" />
-          <Text style={styles.loadingText}>{t('loadingVerification')}</Text>
+          <Text 
+            style={styles.loadingText}
+            adjustsFontSizeToFit
+            numberOfLines={2}
+            minimumFontScale={0.7}
+          >
+            {t('loadingVerification')}
+          </Text>
         </View>
       )}
 
       {/* Error State */}
       {error && (
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>{t('failedToLoad')}</Text>
+          <Text 
+            style={styles.errorText}
+            adjustsFontSizeToFit
+            numberOfLines={2}
+            minimumFontScale={0.7}
+          >
+            {t('failedToLoad')}
+          </Text>
           <TouchableOpacity style={styles.retryButton} onPress={() => setError(false)}>
-            <Text style={styles.retryButtonText}>{t('retry')}</Text>
+            <Text 
+              style={styles.retryButtonText}
+              adjustsFontSizeToFit
+              numberOfLines={1}
+              minimumFontScale={0.7}
+            >
+              {t('retry')}
+            </Text>
           </TouchableOpacity>
         </View>
       )}
@@ -165,11 +200,23 @@ export default function KYCWebViewPage() {
 
       {/* Instructions */}
       <View style={styles.instructionsContainer}>
-        <Text style={styles.instructionsText}>
+        <Text 
+          style={styles.instructionsText}
+          adjustsFontSizeToFit
+          numberOfLines={2}
+          minimumFontScale={0.7}
+        >
           {t('completeVerification')}
         </Text>
         <TouchableOpacity style={styles.doneButton} onPress={handleClose}>
-          <Text style={styles.doneButtonText}>{t('done')}</Text>
+          <Text 
+            style={styles.doneButtonText}
+            adjustsFontSizeToFit
+            numberOfLines={1}
+            minimumFontScale={0.7}
+          >
+            {t('done')}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>

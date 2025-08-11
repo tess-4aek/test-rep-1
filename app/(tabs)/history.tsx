@@ -110,8 +110,22 @@ export default function HistoryPage() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.heading}>{t('transactionHistory')}</Text>
-          <Text style={styles.subtitle}>{t('recentExchanges')}</Text>
+          <Text 
+            style={styles.heading}
+            adjustsFontSizeToFit
+            numberOfLines={1}
+            minimumFontScale={0.7}
+          >
+            {t('transactionHistory')}
+          </Text>
+          <Text 
+            style={styles.subtitle}
+            adjustsFontSizeToFit
+            numberOfLines={1}
+            minimumFontScale={0.7}
+          >
+            {t('recentExchanges')}
+          </Text>
         </View>
 
         {/* Transactions List */}
@@ -148,7 +162,14 @@ export default function HistoryPage() {
               </View>
               
               <View style={styles.transactionDetails}>
-                <Text style={styles.transactionTitle}>{displayOrder.title}</Text>
+                <Text 
+                  style={styles.transactionTitle}
+                  adjustsFontSizeToFit
+                  numberOfLines={1}
+                  minimumFontScale={0.7}
+                >
+                  {displayOrder.title}
+                </Text>
                 <Text style={styles.transactionCrypto}>{displayOrder.crypto}</Text>
                 <Text style={styles.transactionTime}>{displayOrder.time}</Text>
               </View>
@@ -167,7 +188,11 @@ export default function HistoryPage() {
                            displayOrder.status === 'pending' ? '#F59E0B' : '#6B7280',
                     textTransform: 'capitalize'
                   }
-                ]}>
+                ]}
+                adjustsFontSizeToFit
+                numberOfLines={1}
+                minimumFontScale={0.7}
+              >
                   {displayOrder.status === 'pending' ? t('pending') : 
                    displayOrder.status === 'processing' ? t('processing') : 
                    t('completed')}

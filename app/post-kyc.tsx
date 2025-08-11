@@ -53,7 +53,14 @@ const StepItem: React.FC<StepItemProps> = ({ icon, title, status, isLast }) => {
         </View>
         
         <View style={styles.stepTextContainer}>
-          <Text style={styles.stepTitle}>{title}</Text>
+          <Text 
+            style={styles.stepTitle}
+            adjustsFontSizeToFit
+            numberOfLines={1}
+            minimumFontScale={0.7}
+          >
+            {title}
+          </Text>
           <Text style={[styles.stepStatus, { color: getStatusColor() }]}>
             {getStatusText()}
           </Text>
@@ -99,8 +106,20 @@ export default function PostKYCPage() {
       >
         {/* Header Section */}
         <View style={styles.headerContainer}>
-          <Text style={styles.heading}>{t('oneLastStep')}</Text>
-          <Text style={styles.description}>
+          <Text 
+            style={styles.heading}
+            adjustsFontSizeToFit
+            numberOfLines={2}
+            minimumFontScale={0.7}
+          >
+            {t('oneLastStep')}
+          </Text>
+          <Text 
+            style={styles.description}
+            adjustsFontSizeToFit
+            numberOfLines={2}
+            minimumFontScale={0.7}
+          >
             {t('almostReady')}
           </Text>
         </View>
@@ -126,7 +145,14 @@ export default function PostKYCPage() {
           onPress={handleAddBankDetails}
           activeOpacity={0.9}
         >
-          <LinearGradient
+          <Text 
+            style={styles.ctaButtonText}
+            adjustsFontSizeToFit
+            numberOfLines={1}
+            minimumFontScale={0.7}
+          >
+            {t('addBankDetails')}
+          </Text>
             colors={['#3D8BFF', '#2A7FFF']}
             style={styles.buttonGradient}
             start={{ x: 0, y: 0 }}
@@ -136,7 +162,12 @@ export default function PostKYCPage() {
           </LinearGradient>
         </TouchableOpacity>
         
-        <Text style={styles.footerText}>
+        <Text 
+          style={styles.footerText}
+          adjustsFontSizeToFit
+          numberOfLines={2}
+          minimumFontScale={0.7}
+        >
           {t('secureProcess')}
         </Text>
       </View>
