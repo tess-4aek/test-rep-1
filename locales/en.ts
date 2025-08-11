@@ -165,4 +165,7 @@ export default {
   orderCreationError: 'Failed to create your order. Please try again.',
   retryOrder: 'Retry',
   contactSupportOrder: 'Contact Support',
+  loading: 'Loading...',
+  noOrdersYet: 'No orders yet',
+  startExchanging: 'Start exchanging to see your transaction history here',
 };

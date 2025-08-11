@@ -165,4 +165,7 @@ export default {
   orderCreationError: 'Не вдалося створити ваш ордер. Спробуйте ще раз.',
   retryOrder: 'Спробувати знову',
   contactSupportOrder: 'Зв\'язатися з підтримкою',
+  loading: 'Завантаження...',
+  noOrdersYet: 'Поки що немає ордерів',
+  startExchanging: 'Почніть обмінювати, щоб побачити історію транзакцій тут',
 };
