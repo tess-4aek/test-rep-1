@@ -11,9 +11,8 @@ import { ArrowUpRight, ArrowDownLeft, Clock } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { t } from '@/lib/i18n';
 import { Order } from '@/types/order';
-import getOrdersByTelegramId from '../lib/supabase.ts';
 
-const transactions: Order[] = getOrdersByTelegramId();
+const transactions: Order[] = [];
 
 export default function HistoryPage() {
   const getTransactionIcon = (type: string, status: string) => {
