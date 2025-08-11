@@ -159,4 +159,10 @@ export default {
   countryInvalid: 'Country name can only contain letters, spaces, and hyphens',
   consentCheckbox: 'I consent to the storage and processing of the personal data I have provided (full name, IBAN, SWIFT, and other details) for the purpose of processing bank transfers.',
   consentRequired: 'You must consent to data processing to continue',
+  // Order creation
+  creatingOrder: 'Creating order...',
+  orderCreationFailed: 'Order Creation Failed',
+  orderCreationError: 'Failed to create your order. Please try again.',
+  retryOrder: 'Retry',
+  contactSupportOrder: 'Contact Support',
 };

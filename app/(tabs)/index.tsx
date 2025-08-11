@@ -19,12 +19,17 @@ import {
 import { router } from 'expo-router';
 import { t } from '@/lib/i18n';
 import { getUserData, User } from '@/utils/auth';
+import { createOrder, CreateOrderData } from '@/lib/supabase';
+import { Linking } from 'react-native';
 
 export default function HomePage() {
   const [exchangeAmount, setExchangeAmount] = useState('');
   const [exchangeDirection, setExchangeDirection] = useState<'usdc-eur' | 'eur-usdc'>('usdc-eur');
   const [rateDirection, setRateDirection] = useState<'usdc-eur' | 'eur-usdc'>('usdc-eur');
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [userData, setUserData] = useState<User | null>(null);
 
   useEffect(() => {
@@ -131,6 +136,80 @@ export default function HomePage() {
   const handleCreateExchange = () => {
     if (exchangeAmount && !isNaN(Number(exchangeAmount))) {
       setShowConfirmModal(true);
+    }
+  };
+
+  const handleConfirmOrder = async () => {
+    if (!userData?.telegram_id) {
+      setErrorMessage('User authentication error. Please try logging in again.');
+      setShowErrorModal(true);
+      return;
+    }
+
+    if (!exchangeAmount || isNaN(Number(exchangeAmount))) {
+      setErrorMessage('Invalid exchange amount. Please enter a valid number.');
+      setShowErrorModal(true);
+      return;
+    }
+
+    setIsCreatingOrder(true);
+    
+    try {
+      const amount = Number(exchangeAmount);
+      const receiveAmount = Number(calculateReceiveAmount());
+      
+      const orderData: CreateOrderData = {
+        user_id: userData.id,
+        telegram_id: userData.telegram_id,
+        usdc_amount: exchangeDirection === 'usdc-eur' ? amount : receiveAmount,
+        eur_amount: exchangeDirection === 'usdc-eur' ? receiveAmount : amount,
+        direction: exchangeDirection,
+        exchange_rate: getCurrentRate(),
+        status: 'pending'
+      };
+
+      console.log('Creating order with data:', orderData);
+      const createdOrder = await createOrder(orderData);
+      
+      if (createdOrder) {
+        console.log('Order created successfully:', createdOrder.id);
+        setShowConfirmModal(false);
+        
+        // Navigate to order details with the new order ID
+        router.push({
+          pathname: '/order-details',
+          params: {
+            orderId: createdOrder.id,
+            isExistingOrder: 'true'
+          }
+        });
+      } else {
+        throw new Error('Failed to create order');
+      }
+    } catch (error) {
+      console.error('Error creating order:', error);
+      setErrorMessage(t('orderCreationError'));
+      setShowConfirmModal(false);
+      setShowErrorModal(true);
+    } finally {
+      setIsCreatingOrder(false);
+    }
+  };
+
+  const handleRetryOrder = () => {
+    setShowErrorModal(false);
+    setShowConfirmModal(true);
+  };
+
+  const handleContactSupport = async () => {
+    setShowErrorModal(false);
+    const message = encodeURIComponent(t('contactSupport'));
+    const telegramUrl = `tg://resolve?domain=YourBotUsername&text=${message}`;
+    
+    try {
+      await Linking.openURL(telegramUrl);
+    } catch (error) {
+      console.error('Error opening Telegram:', error);
     }
   };
 
@@ -345,10 +424,59 @@ export default function HomePage() {
               
               <TouchableOpacity
                 style={styles.confirmButton}
-                onPress={() => {
-                  setShowConfirmModal(false);
-                  router.push('/order-details');
-                }}
+                onPress={handleConfirmOrder}
+                disabled={isCreatingOrder}
+              >
+                <LinearGradient
+                  colors={isCreatingOrder ? ['#9CA3AF', '#9CA3AF'] : ['#3D8BFF', '#2A7FFF']}
+                  style={styles.confirmButtonGradient}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                >
+                  <Text style={styles.confirmButtonText}>
+                    {isCreatingOrder ? t('creatingOrder') : t('confirm')}
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Error Modal */}
+      <Modal
+        visible={showErrorModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowErrorModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>{t('orderCreationFailed')}</Text>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setShowErrorModal(false)}
+              >
+                <X color="#6B7280" size={24} />
+              </TouchableOpacity>
+            </View>
+            
+            <View style={styles.modalBody}>
+              <Text style={styles.errorText}>{errorMessage}</Text>
+            </View>
+            
+            <View style={styles.modalActions}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={handleContactSupport}
+              >
+                <Text style={styles.cancelButtonText}>{t('contactSupportOrder')}</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={styles.confirmButton}
+                onPress={handleRetryOrder}
               >
                 <LinearGradient
                   colors={['#3D8BFF', '#2A7FFF']}
@@ -356,7 +484,7 @@ export default function HomePage() {
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                 >
-                  <Text style={styles.confirmButtonText}>{t('confirm')}</Text>
+                  <Text style={styles.confirmButtonText}>{t('retryOrder')}</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </View>
@@ -708,6 +836,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     lineHeight: 20,
+  },
+  errorText: {
+    fontSize: 16,
+    fontWeight: '400',
+    color: '#EF4444',
+    textAlign: 'center',
+    lineHeight: 22,
   },
   bankAccountContainer: {
     paddingHorizontal: 32,

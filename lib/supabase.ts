@@ -114,3 +114,83 @@ export async function updateUserBankDetailsStatus(telegramId: string, bankDetail
     return null;
   }
 }
+
+export interface CreateOrderData {
+  user_id?: string;
+  telegram_id: string;
+  usdc_amount: number;
+  eur_amount: number;
+  direction: 'usdc-eur' | 'eur-usdc';
+  exchange_rate: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+}
+
+export interface CreatedOrder {
+  id: string;
+  user_id?: string;
+  telegram_id: string;
+  usdc_amount: number;
+  eur_amount: number;
+  direction: 'usdc-eur' | 'eur-usdc';
+  exchange_rate: string;
+  fee_percentage: number;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  created_at: string;
+  updated_at: string;
+}
+
+export async function createOrder(orderData: CreateOrderData): Promise<CreatedOrder | null> {
+  try {
+    console.log('Creating order with data:', orderData);
+    
+    const { data, error } = await supabase
+      .from('orders')
+      .insert({
+        user_id: orderData.user_id,
+        telegram_id: orderData.telegram_id,
+        usdc_amount: orderData.usdc_amount,
+        eur_amount: orderData.eur_amount,
+        direction: orderData.direction,
+        exchange_rate: orderData.exchange_rate,
+        status: orderData.status,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating order:', error);
+      throw error;
+    }
+
+    console.log('Successfully created order:', data);
+    return data as CreatedOrder;
+  } catch (error) {
+    console.error('Error creating order:', error);
+    return null;
+  }
+}
+
+export async function getOrderById(orderId: string): Promise<CreatedOrder | null> {
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('id', orderId)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        // No rows returned - order doesn't exist
+        return null;
+      }
+      throw error;
+    }
+
+    return data as CreatedOrder;
+  } catch (error) {
+    console.error('Error fetching order by ID:', error);
+    return null;
+  }
+}

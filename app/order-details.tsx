@@ -13,6 +13,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { Linking } from 'react-native';
 import { t } from '@/lib/i18n';
 import { Order } from '@/types/order';
+import { getOrderById, CreatedOrder } from '@/lib/supabase';
 
 // Mock function to get order by ID - in real app this would fetch from database
 const getOrderById = (orderId: string): Order | null => {
@@ -86,10 +87,12 @@ export default function OrderDetailsPage() {
   
   const isExistingOrder = params.isExistingOrder === 'true';
   const orderId = params.orderId;
+  const [realOrderData, setRealOrderData] = React.useState<CreatedOrder | null>(null);
+  const [isLoadingOrder, setIsLoadingOrder] = React.useState(false);
   
   // Get order data if it's an existing order
   const orderData = React.useMemo(() => {
-    if (isExistingOrder && orderId) {
+    if (isExistingOrder && orderId && !realOrderData) {
       return getOrderById(orderId);
     }
     
@@ -108,7 +111,40 @@ export default function OrderDetailsPage() {
       fee: '0.5%',
       estimatedReceived: '915.40',
     };
-  }, [isExistingOrder, orderId]);
+  }, [isExistingOrder, orderId, realOrderData]);
+
+  // Fetch real order data from database if it's an existing order
+  React.useEffect(() => {
+    const fetchOrderData = async () => {
+      if (isExistingOrder && orderId && !realOrderData) {
+        setIsLoadingOrder(true);
+        try {
+          const order = await getOrderById(orderId);
+          if (order) {
+            setRealOrderData(order);
+          }
+        } catch (error) {
+          console.error('Error fetching order:', error);
+        } finally {
+          setIsLoadingOrder(false);
+        }
+      }
+    };
+
+    fetchOrderData();
+  }, [isExistingOrder, orderId, realOrderData]);
+
+  // Use real order data if available, otherwise fall back to mock data
+  const displayOrderData = React.useMemo(() => {
+    if (realOrderData) {
+      return {
+        ...realOrderData,
+        exchangeRate: realOrderData.exchange_rate,
+        estimatedReceived: realOrderData.direction === 'usdc-eur' ? realOrderData.eur_amount.toString() : realOrderData.usdc_amount.toString(),
+      };
+    }
+    return orderData;
+  }, [realOrderData, orderData]);
 
   const handleBack = () => {
     router.back();
@@ -125,7 +161,7 @@ export default function OrderDetailsPage() {
     }
   };
 
-  if (!orderData) {
+  if (!displayOrderData && !isLoadingOrder) {
     return (
       <View style={styles.container}>
         <StatusBar style="dark" />
@@ -134,6 +170,17 @@ export default function OrderDetailsPage() {
           <TouchableOpacity style={styles.backButton} onPress={handleBack}>
             <Text style={styles.backButtonText}>{t('goBack')}</Text>
           </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
+  if (isLoadingOrder) {
+    return (
+      <View style={styles.container}>
+        <StatusBar style="dark" />
+        <View style={styles.errorContainer}>
+          <Text style={styles.loadingText}>Loading order details...</Text>
         </View>
       </View>
     );
@@ -165,31 +212,31 @@ export default function OrderDetailsPage() {
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>{t('amount')}</Text>
               <Text style={styles.detailValue}>
-                {orderData.amount.replace(/[+-]/g, '')} {orderData.fromCurrency}
+                {displayOrderData.direction === 'usdc-eur' ? displayOrderData.usdc_amount : displayOrderData.eur_amount} {displayOrderData.direction === 'usdc-eur' ? 'USDC' : 'EUR'}
               </Text>
             </View>
             
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>{t('currency')}</Text>
               <Text style={styles.detailValue}>
-                {orderData.fromCurrency} → {orderData.toCurrency}
+                {displayOrderData.direction === 'usdc-eur' ? 'USDC → EUR' : 'EUR → USDC'}
               </Text>
             </View>
             
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>{t('exchangeRate')}</Text>
-              <Text style={styles.detailValue}>{orderData.exchangeRate}</Text>
+              <Text style={styles.detailValue}>{displayOrderData.exchangeRate || displayOrderData.exchange_rate}</Text>
             </View>
             
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>{t('fee')}</Text>
-              <Text style={styles.detailValue}>{orderData.fee}</Text>
+              <Text style={styles.detailValue}>{displayOrderData.fee_percentage || 0.5}%</Text>
             </View>
             
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>{t('estimatedReceived')}</Text>
               <Text style={[styles.detailValue, styles.highlightedValue]}>
-                {orderData.estimatedReceived} {orderData.toCurrency}
+                {displayOrderData.estimatedReceived} {displayOrderData.direction === 'usdc-eur' ? 'EUR' : 'USDC'}
               </Text>
             </View>
             
@@ -199,20 +246,20 @@ export default function OrderDetailsPage() {
                 <View style={[
                   styles.statusIndicator,
                   { 
-                    backgroundColor: orderData.status === 'completed' ? '#10B981' : 
-                                   orderData.status === 'pending' ? '#F59E0B' : '#6B7280'
+                    backgroundColor: displayOrderData.status === 'completed' ? '#10B981' : 
+                                   displayOrderData.status === 'pending' ? '#F59E0B' : '#6B7280'
                   }
                 ]} />
                 <Text style={[
                   styles.statusText,
                   { 
-                    color: orderData.status === 'completed' ? '#10B981' : 
-                           orderData.status === 'pending' ? '#F59E0B' : '#6B7280'
+                    color: displayOrderData.status === 'completed' ? '#10B981' : 
+                           displayOrderData.status === 'pending' ? '#F59E0B' : '#6B7280'
                   }
                 ]}>
-                  {orderData.status === 'pending' ? t('pending') : 
-                   orderData.status === 'processing' ? t('processing') : 
-                   orderData.status === 'completed' ? t('completed') : orderData.status}
+                  {displayOrderData.status === 'pending' ? t('pending') : 
+                   displayOrderData.status === 'processing' ? t('processing') : 
+                   displayOrderData.status === 'completed' ? t('completed') : displayOrderData.status}
                 </Text>
               </View>
             </View>
@@ -224,15 +271,15 @@ export default function OrderDetailsPage() {
           <Text style={styles.cardTitle}>{t('transactionInfo')}</Text>
           <Text style={styles.infoText}>
             {isExistingOrder 
-              ? (orderData.status === 'completed' 
+              ? (displayOrderData.status === 'completed' 
                   ? 'This order has been completed successfully.' 
                   : 'This order is currently being processed.')
               : t('orderProcessing')
             }
           </Text>
           <Text style={styles.infoSubtext}>
-            {isExistingOrder 
-              ? `Order created: ${orderData.time}`
+            {isExistingOrder && displayOrderData.created_at
+              ? `Order created: ${new Date(displayOrderData.created_at).toLocaleString()}`
               : t('processingTime')
             }
           </Text>
@@ -336,6 +383,12 @@ const styles = StyleSheet.create({
     color: '#0C1E3C',
     fontSize: 16,
     fontWeight: '600',
+  },
+  loadingText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#6B7280',
+    textAlign: 'center',
   },
   scrollView: {
     flex: 1,
