@@ -146,8 +146,7 @@ export async function createOrder(orderData: CreateOrderData): Promise<CreatedOr
     const { data, error } = await supabase
       .from('orders')
       .insert({
-        user_id: orderData.user_id,
-        telegram_id: orderData.telegram_id,
+        user_id: orderData.telegram_id,
         usdc_amount: orderData.usdc_amount,
         eur_amount: orderData.eur_amount,
         direction: orderData.direction,
