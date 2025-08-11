@@ -157,4 +157,6 @@ export default {
   countryRequired: 'Country is required',
   countryTooShort: 'Country name must be at least 2 characters',
   countryInvalid: 'Country name can only contain letters, spaces, and hyphens',
+  consentCheckbox: 'I consent to the storage and processing of the personal data I have provided (full name, IBAN, SWIFT, and other details) for the purpose of processing bank transfers.',
+  consentRequired: 'You must consent to data processing to continue',
 };

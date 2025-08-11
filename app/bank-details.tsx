@@ -24,6 +24,7 @@ interface FormData {
   swiftBic: string;
   bankName: string;
   country: string;
+  consentChecked: boolean;
 }
 
 interface FormErrors {
@@ -32,6 +33,7 @@ interface FormErrors {
   swiftBic?: string;
   bankName?: string;
   country?: string;
+  consentChecked?: string;
 }
 
 export default function BankDetailsFormPage() {
@@ -41,6 +43,7 @@ export default function BankDetailsFormPage() {
     swiftBic: '',
     bankName: '',
     country: '',
+    consentChecked: false,
   });
 
   const [focusedField, setFocusedField] = useState<string | null>(null);
@@ -129,6 +132,13 @@ export default function BankDetailsFormPage() {
     return undefined;
   };
 
+  const validateConsent = (checked: boolean): string | undefined => {
+    if (!checked) {
+      return t('consentRequired');
+    }
+    return undefined;
+  };
+
   const validateField = (field: keyof FormData, value: string): string | undefined => {
     switch (field) {
       case 'fullName':
@@ -141,6 +151,8 @@ export default function BankDetailsFormPage() {
         return validateBankName(value);
       case 'country':
         return validateCountry(value);
+      case 'consentChecked':
+        return validateConsent(value as unknown as boolean);
       default:
         return undefined;
     }
@@ -149,13 +161,20 @@ export default function BankDetailsFormPage() {
   const validateAllFields = (): FormErrors => {
     const newErrors: FormErrors = {};
     
-    Object.keys(formData).forEach((key) => {
+    // Validate text fields
+    Object.keys(formData).filter(key => key !== 'consentChecked').forEach((key) => {
       const field = key as keyof FormData;
       const error = validateField(field, formData[field]);
       if (error) {
         newErrors[field] = error;
       }
     });
+    
+    // Validate consent checkbox
+    const consentError = validateConsent(formData.consentChecked);
+    if (consentError) {
+      newErrors.consentChecked = consentError;
+    }
     
     return newErrors;
   };
@@ -170,6 +189,21 @@ export default function BankDetailsFormPage() {
       setErrors(prev => ({
         ...prev,
         [field]: undefined,
+      }));
+    }
+  };
+
+  const handleConsentChange = (checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      consentChecked: checked,
+    }));
+    
+    // Clear error for consent when user checks it
+    if (errors.consentChecked && checked) {
+      setErrors(prev => ({
+        ...prev,
+        consentChecked: undefined,
       }));
     }
   };
@@ -266,7 +300,11 @@ export default function BankDetailsFormPage() {
   const isFormValid = () => {
     const validationErrors = validateAllFields();
     const hasErrors = Object.values(validationErrors).some(error => error !== undefined);
-    return !hasErrors && formData.fullName.trim() !== '' && formData.iban.trim() !== '' && formData.country.trim() !== '';
+    return !hasErrors && 
+           formData.fullName.trim() !== '' && 
+           formData.iban.trim() !== '' && 
+           formData.country.trim() !== '' && 
+           formData.consentChecked;
   };
 
   return (
@@ -426,6 +464,34 @@ export default function BankDetailsFormPage() {
               />
               {errors.country && (
                 <Text style={styles.errorText}>{errors.country}</Text>
+              )}
+            </View>
+
+            {/* Consent Checkbox */}
+            <View style={styles.checkboxGroup}>
+              <TouchableOpacity
+                style={styles.checkboxContainer}
+                onPress={() => handleConsentChange(!formData.consentChecked)}
+                activeOpacity={0.7}
+              >
+                <View style={[
+                  styles.checkbox,
+                  formData.consentChecked && styles.checkboxChecked,
+                  errors.consentChecked && styles.checkboxError,
+                ]}>
+                  {formData.consentChecked && (
+                    <Text style={styles.checkmark}>✓</Text>
+                  )}
+                </View>
+                <Text style={[
+                  styles.checkboxLabel,
+                  errors.consentChecked && styles.checkboxLabelError,
+                ]}>
+                  {t('consentCheckbox')}
+                </Text>
+              </TouchableOpacity>
+              {errors.consentChecked && (
+                <Text style={styles.errorText}>{errors.consentChecked}</Text>
               )}
             </View>
           </View>
@@ -681,5 +747,48 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     textAlign: 'center',
     letterSpacing: 0.3,
+  },
+  checkboxGroup: {
+    gap: 8,
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 12,
+  },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 2,
+    borderColor: '#E5E7EB',
+    borderRadius: 4,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 2,
+    flexShrink: 0,
+  },
+  checkboxChecked: {
+    borderColor: '#3D8BFF',
+    backgroundColor: '#3D8BFF',
+  },
+  checkboxError: {
+    borderColor: '#EF4444',
+  },
+  checkmark: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '700',
+    lineHeight: 12,
+  },
+  checkboxLabel: {
+    fontSize: 14,
+    fontWeight: '400',
+    color: '#0C1E3C',
+    lineHeight: 20,
+    flex: 1,
+  },
+  checkboxLabelError: {
+    color: '#EF4444',
   },
 });
