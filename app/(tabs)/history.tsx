@@ -1,5 +1,6 @@
 import React from 'react';
 import { useState, useEffect } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   Text,
@@ -39,34 +40,38 @@ export default function HistoryPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadUserOrders = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        
-        // Get current user data
-        const userData = await getUserData();
-        if (!userData?.telegram_id) {
-          console.error('No user data or telegram_id found');
-          setError('User not authenticated');
-          return;
-        }
-
-        // Fetch user orders
-        const userOrders = await fetchUserOrders(userData.telegram_id);
-        setOrders(userOrders);
-        
-      } catch (error) {
-        console.error('Error loading user orders:', error);
-        setError('Failed to load orders');
-      } finally {
-        setIsLoading(false);
+  const loadUserOrders = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      // Get current user data
+      const userData = await getUserData();
+      if (!userData?.telegram_id) {
+        console.error('No user data or telegram_id found');
+        setError('User not authenticated');
+        return;
       }
-    };
 
-    loadUserOrders();
-  }, []);
+      // Fetch user orders
+      const userOrders = await fetchUserOrders(userData.telegram_id);
+      setOrders(userOrders);
+      
+    } catch (error) {
+      console.error('Error loading user orders:', error);
+      setError('Failed to load orders');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Load orders every time the History tab becomes focused
+  useFocusEffect(
+    React.useCallback(() => {
+      console.log('📋 History tab focused - refreshing orders...');
+      loadUserOrders();
+    }, [])
+  );
 
   const getTransactionIcon = (type: string, status: string) => {
     if (status === 'pending') {
