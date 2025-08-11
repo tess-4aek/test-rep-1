@@ -33,14 +33,7 @@ const StepItem: React.FC<StepItemProps> = ({ icon, title, status, isLast }) => {
         </View>
         
         <View style={styles.stepTextContainer}>
-          <Text 
-            style={styles.stepTitle}
-            adjustsFontSizeToFit
-            numberOfLines={1}
-            minimumFontScale={0.7}
-          >
-            {title}
-          </Text>
+          <Text style={styles.stepTitle}>{title}</Text>
           <Text style={[styles.stepStatus, { color: getStatusColor() }]}>
             {getStatusText()}
           </Text>
@@ -99,20 +92,8 @@ export default function ReviewPendingPage() {
       >
         {/* Header Section */}
         <View style={styles.headerContainer}>
-          <Text 
-            style={styles.heading}
-            adjustsFontSizeToFit
-            numberOfLines={2}
-            minimumFontScale={0.7}
-          >
-            {t('verificationInProgress')}
-          </Text>
-          <Text 
-            style={styles.description}
-            adjustsFontSizeToFit
-            numberOfLines={2}
-            minimumFontScale={0.7}
-          >
+          <Text style={styles.heading}>{t('verificationInProgress')}</Text>
+          <Text style={styles.description}>
             {t('allStepsCompleted')}
           </Text>
         </View>
@@ -133,20 +114,10 @@ export default function ReviewPendingPage() {
         {/* Loading Section */}
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#3D8BFF" />
-          <Text 
-            style={styles.loadingText}
-            adjustsFontSizeToFit
-            numberOfLines={2}
-            minimumFontScale={0.7}
-          >
+          <Text style={styles.loadingText}>
             {t('reviewingInfo')}
           </Text>
-          <Text 
-            style={styles.countdownText}
-            adjustsFontSizeToFit
-            numberOfLines={2}
-            minimumFontScale={0.7}
-          >
+          <Text style={styles.countdownText}>
             {t('redirectingIn')} {countdown} {t('seconds')}
           </Text>
         </View>

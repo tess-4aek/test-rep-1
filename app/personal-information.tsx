@@ -36,14 +36,7 @@ export default function PersonalInformationPage() {
         <TouchableOpacity onPress={handleBack} style={styles.backButton}>
           <ArrowLeft color="#0C1E3C" size={24} />
         </TouchableOpacity>
-        <Text 
-          style={styles.headerTitle}
-          adjustsFontSizeToFit
-          numberOfLines={1}
-          minimumFontScale={0.7}
-        >
-          {t('personalInformation')}
-        </Text>
+        <Text style={styles.headerTitle}>{t('personalInformation')}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -56,32 +49,13 @@ export default function PersonalInformationPage() {
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <MessageCircle color="#3D8BFF" size={24} />
-            <Text 
-              style={styles.cardTitle}
-              adjustsFontSizeToFit
-              numberOfLines={1}
-              minimumFontScale={0.7}
-            >
-              {t('telegramAccount')}
-            </Text>
+            <Text style={styles.cardTitle}>{t('telegramAccount')}</Text>
           </View>
           
           <View style={styles.infoContainer}>
             <View style={styles.infoRow}>
-              <Text 
-                style={styles.infoLabel}
-                adjustsFontSizeToFit
-                numberOfLines={1}
-                minimumFontScale={0.7}
-              >
-                {t('username')}
-              </Text>
-              <Text 
-                style={styles.infoValue}
-                adjustsFontSizeToFit
-                numberOfLines={1}
-                minimumFontScale={0.7}
-              >
+              <Text style={styles.infoLabel}>{t('username')}</Text>
+              <Text style={styles.infoValue}>
                 {userData?.username ? `@${userData.username}` : 'Not available'}
               </Text>
             </View>
@@ -93,114 +67,37 @@ export default function PersonalInformationPage() {
           <View style={styles.card}>
             <View style={styles.cardHeader}>
               <CreditCard color="#10B981" size={24} />
-              <Text 
-                style={styles.cardTitle}
-                adjustsFontSizeToFit
-                numberOfLines={1}
-                minimumFontScale={0.7}
-              >
-                {t('bankAccountDetails')}
-              </Text>
+              <Text style={styles.cardTitle}>{t('bankAccountDetails')}</Text>
             </View>
             
             <View style={styles.infoContainer}>
               <View style={styles.infoRow}>
-                <Text 
-                  style={styles.infoLabel}
-                  adjustsFontSizeToFit
-                  numberOfLines={1}
-                  minimumFontScale={0.7}
-                >
-                  {t('fullName')}
-                </Text>
-                <Text 
-                  style={styles.infoValue}
-                  adjustsFontSizeToFit
-                  numberOfLines={1}
-                  minimumFontScale={0.7}
-                >
-                  {userData?.bank_full_name || 'Not provided'}
-                </Text>
+                <Text style={styles.infoLabel}>{t('fullName')}</Text>
+                <Text style={styles.infoValue}>{userData?.bank_full_name || 'Not provided'}</Text>
               </View>
               
               <View style={styles.infoRow}>
-                <Text 
-                  style={styles.infoLabel}
-                  adjustsFontSizeToFit
-                  numberOfLines={1}
-                  minimumFontScale={0.7}
-                >
-                  {t('iban')}
-                </Text>
-                <Text 
-                  style={styles.infoValue}
-                  adjustsFontSizeToFit
-                  numberOfLines={1}
-                  minimumFontScale={0.7}
-                >
-                  {userData?.bank_iban || 'Not provided'}
-                </Text>
+                <Text style={styles.infoLabel}>{t('iban')}</Text>
+                <Text style={styles.infoValue}>{userData?.bank_iban || 'Not provided'}</Text>
               </View>
               
               {userData?.bank_swift_bic && (
                 <View style={styles.infoRow}>
-                  <Text 
-                    style={styles.infoLabel}
-                    adjustsFontSizeToFit
-                    numberOfLines={1}
-                    minimumFontScale={0.7}
-                  >
-                    {t('swiftBic')}
-                  </Text>
-                  <Text 
-                    style={styles.infoValue}
-                    adjustsFontSizeToFit
-                    numberOfLines={1}
-                    minimumFontScale={0.7}
-                  >
-                    {userData.bank_swift_bic}
-                  </Text>
+                  <Text style={styles.infoLabel}>{t('swiftBic')}</Text>
+                  <Text style={styles.infoValue}>{userData.bank_swift_bic}</Text>
                 </View>
               )}
               
               {userData?.bank_name && (
                 <View style={styles.infoRow}>
-                  <Text 
-                    style={styles.infoLabel}
-                    adjustsFontSizeToFit
-                    numberOfLines={1}
-                    minimumFontScale={0.7}
-                  >
-                    {t('bankName')}
-                  </Text>
-                  <Text 
-                    style={styles.infoValue}
-                    adjustsFontSizeToFit
-                    numberOfLines={1}
-                    minimumFontScale={0.7}
-                  >
-                    {userData.bank_name}
-                  </Text>
+                  <Text style={styles.infoLabel}>{t('bankName')}</Text>
+                  <Text style={styles.infoValue}>{userData.bank_name}</Text>
                 </View>
               )}
               
               <View style={styles.infoRow}>
-                <Text 
-                  style={styles.infoLabel}
-                  adjustsFontSizeToFit
-                  numberOfLines={1}
-                  minimumFontScale={0.7}
-                >
-                  {t('country')}
-                </Text>
-                <Text 
-                  style={styles.infoValue}
-                  adjustsFontSizeToFit
-                  numberOfLines={1}
-                  minimumFontScale={0.7}
-                >
-                  {userData?.bank_country || 'Not provided'}
-                </Text>
+                <Text style={styles.infoLabel}>{t('country')}</Text>
+                <Text style={styles.infoValue}>{userData?.bank_country || 'Not provided'}</Text>
               </View>
             </View>
           </View>
@@ -208,12 +105,7 @@ export default function PersonalInformationPage() {
 
         {/* Info Note */}
         <View style={styles.noteContainer}>
-          <Text 
-            style={styles.noteText}
-            adjustsFontSizeToFit
-            numberOfLines={2}
-            minimumFontScale={0.7}
-          >
+          <Text style={styles.noteText}>
             {t('updateInfoNote')}
           </Text>
         </View>

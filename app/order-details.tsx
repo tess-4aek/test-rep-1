@@ -102,38 +102,16 @@ export default function OrderDetailsPage() {
 
   if (!displayOrderData && !isLoadingOrder) {
     return (
-  <View style={styles.container}>
-    <StatusBar style="dark" />
-    <View style={styles.errorContainer}>
-      <Text 
-        style={styles.errorText}
-        adjustsFontSizeToFit
-        numberOfLines={2}
-        minimumFontScale={0.7}
-      >
-        Order not found
-      </Text>
-      <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-        <Text 
-          style={styles.backButtonText}
-          adjustsFontSizeToFit
-          numberOfLines={1}
-          minimumFontScale={0.7}
-        >
-          {t('goBack')}
-        </Text>
-        <Text
-          style={styles.questionButtonText}
-          adjustsFontSizeToFit
-          numberOfLines={1}
-          minimumFontScale={0.7}
-        >
-          {t('askQuestion')}
-        </Text>
-      </TouchableOpacity>
-    </View>
-  </View>
-);
+      <View style={styles.container}>
+        <StatusBar style="dark" />
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Order not found</Text>
+          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+            <Text style={styles.backButtonText}>{t('goBack')}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
   }
 
   if (isLoadingOrder) {
@@ -141,14 +119,7 @@ export default function OrderDetailsPage() {
       <View style={styles.container}>
         <StatusBar style="dark" />
         <View style={styles.errorContainer}>
-          <Text 
-            style={styles.loadingText}
-            adjustsFontSizeToFit
-            numberOfLines={1}
-            minimumFontScale={0.7}
-          >
-            Loading order details...
-          </Text>
+          <Text style={styles.loadingText}>Loading order details...</Text>
         </View>
       </View>
     );
@@ -163,14 +134,7 @@ export default function OrderDetailsPage() {
         <TouchableOpacity onPress={handleBack} style={styles.backButton}>
           <ArrowLeft color="#0C1E3C" size={24} />
         </TouchableOpacity>
-        <Text 
-          style={styles.headerTitle}
-          adjustsFontSizeToFit
-          numberOfLines={1}
-          minimumFontScale={0.7}
-        >
-          {t('orderDetails')}
-        </Text>
+        <Text style={styles.headerTitle}>{t('orderDetails')}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -181,115 +145,42 @@ export default function OrderDetailsPage() {
       >
         {/* Order Details Card */}
         <View style={styles.card}>
-          <Text 
-            style={styles.cardTitle}
-            adjustsFontSizeToFit
-            numberOfLines={1}
-            minimumFontScale={0.7}
-          >
-            {t('exchangeOrder')}
-          </Text>
+          <Text style={styles.cardTitle}>{t('exchangeOrder')}</Text>
           
           <View style={styles.detailsContainer}>
             <View style={styles.detailRow}>
-              <Text 
-                style={styles.detailLabel}
-                adjustsFontSizeToFit
-                numberOfLines={1}
-                minimumFontScale={0.7}
-              >
-                {t('amount')}
-              </Text>
-              <Text 
-                style={styles.detailValue}
-                adjustsFontSizeToFit
-                numberOfLines={1}
-                minimumFontScale={0.7}
-              >
+              <Text style={styles.detailLabel}>{t('amount')}</Text>
+              <Text style={styles.detailValue}>
                 {displayOrderData.direction === 'usdc-eur' ? displayOrderData.usdc_amount : displayOrderData.eur_amount} {displayOrderData.direction === 'usdc-eur' ? 'USDC' : 'EUR'}
               </Text>
             </View>
             
             <View style={styles.detailRow}>
-              <Text 
-                style={styles.detailLabel}
-                adjustsFontSizeToFit
-                numberOfLines={1}
-                minimumFontScale={0.7}
-              >
-                {t('currency')}
-              </Text>
-              <Text 
-                style={styles.detailValue}
-                adjustsFontSizeToFit
-                numberOfLines={1}
-                minimumFontScale={0.7}
-              >
+              <Text style={styles.detailLabel}>{t('currency')}</Text>
+              <Text style={styles.detailValue}>
                 {displayOrderData.direction === 'usdc-eur' ? 'USDC → EUR' : 'EUR → USDC'}
               </Text>
             </View>
             
             <View style={styles.detailRow}>
-              <Text 
-                style={styles.detailLabel}
-                adjustsFontSizeToFit
-                numberOfLines={1}
-                minimumFontScale={0.7}
-              >
-                {t('exchangeRate')}
-              </Text>
-              <Text 
-                style={styles.detailValue}
-                adjustsFontSizeToFit
-                numberOfLines={1}
-                minimumFontScale={0.7}
-              >
-                {displayOrderData.exchangeRate || displayOrderData.exchange_rate}
-              </Text>
+              <Text style={styles.detailLabel}>{t('exchangeRate')}</Text>
+              <Text style={styles.detailValue}>{displayOrderData.exchangeRate || displayOrderData.exchange_rate}</Text>
             </View>
             
             <View style={styles.detailRow}>
-              <Text 
-                style={styles.detailLabel}
-                adjustsFontSizeToFit
-                numberOfLines={1}
-                minimumFontScale={0.7}
-              >
-                {t('fee')}
-              </Text>
-              <Text 
-                style={styles.detailValue}
-                adjustsFontSizeToFit
-                numberOfLines={1}
-                minimumFontScale={0.7}
-              >
-                {displayOrderData.fee_percentage || 0.5}%
-              </Text>
+              <Text style={styles.detailLabel}>{t('fee')}</Text>
+              <Text style={styles.detailValue}>{displayOrderData.fee_percentage || 0.5}%</Text>
             </View>
             
             <View style={styles.detailRow}>
-              <Text 
-                style={styles.detailLabel}
-                adjustsFontSizeToFit
-                numberOfLines={1}
-                minimumFontScale={0.7}
-              >
-                {t('estimatedReceived')}
-              </Text>
+              <Text style={styles.detailLabel}>{t('estimatedReceived')}</Text>
               <Text style={[styles.detailValue, styles.highlightedValue]}>
                 {displayOrderData.estimatedReceived} {displayOrderData.direction === 'usdc-eur' ? 'EUR' : 'USDC'}
               </Text>
             </View>
             
             <View style={styles.detailRow}>
-              <Text 
-                style={styles.detailLabel}
-                adjustsFontSizeToFit
-                numberOfLines={1}
-                minimumFontScale={0.7}
-              >
-                {t('status')}
-              </Text>
+              <Text style={styles.detailLabel}>{t('status')}</Text>
               <View style={styles.statusContainer}>
                 <View style={[
                   styles.statusIndicator,
@@ -304,11 +195,7 @@ export default function OrderDetailsPage() {
                     color: displayOrderData.status === 'completed' ? '#10B981' : 
                            displayOrderData.status === 'pending' ? '#F59E0B' : '#6B7280'
                   }
-                ]}
-                adjustsFontSizeToFit
-                numberOfLines={1}
-                minimumFontScale={0.7}
-              >
+                ]}>
                   {displayOrderData.status === 'pending' ? t('pending') : 
                    displayOrderData.status === 'processing' ? t('processing') : 
                    displayOrderData.status === 'completed' ? t('completed') : displayOrderData.status}
@@ -320,20 +207,8 @@ export default function OrderDetailsPage() {
 
         {/* Additional Info Card */}
         <View style={styles.card}>
-          <Text 
-            style={styles.cardTitle}
-            adjustsFontSizeToFit
-            numberOfLines={1}
-            minimumFontScale={0.7}
-          >
-            {t('transactionInfo')}
-          </Text>
-          <Text 
-            style={styles.infoText}
-            adjustsFontSizeToFit
-            numberOfLines={2}
-            minimumFontScale={0.7}
-          >
+          <Text style={styles.cardTitle}>{t('transactionInfo')}</Text>
+          <Text style={styles.infoText}>
             {isExistingOrder 
               ? (displayOrderData.status === 'completed' 
                   ? 'This order has been completed successfully.' 
@@ -341,12 +216,7 @@ export default function OrderDetailsPage() {
               : t('orderProcessing')
             }
           </Text>
-          <Text 
-            style={styles.infoSubtext}
-            adjustsFontSizeToFit
-            numberOfLines={2}
-            minimumFontScale={0.7}
-          >
+          <Text style={styles.infoSubtext}>
             {isExistingOrder && displayOrderData.created_at
               ? `Order created: ${new Date(displayOrderData.created_at).toLocaleString()}`
               : t('processingTime')

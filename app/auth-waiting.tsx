@@ -116,38 +116,16 @@ export default function AuthWaitingPage() {
 
   if (!uuid) {
     return (
-  <View style={styles.container}>
-    <StatusBar style="dark" />
-    <View style={styles.errorContainer}>
-      <Text 
-        style={styles.errorText}
-        adjustsFontSizeToFit
-        numberOfLines={2}
-        minimumFontScale={0.7}
-      >
-        {error}
-      </Text>
-      <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-        <Text 
-          style={styles.backButtonText}
-          adjustsFontSizeToFit
-          numberOfLines={1}
-          minimumFontScale={0.7}
-        >
-          {t('goBack')}
-        </Text>
-        <Text
-          style={styles.retryButtonText}
-          adjustsFontSizeToFit
-          numberOfLines={1}
-          minimumFontScale={0.7}
-        >
-          {t('retry')}
-        </Text>
-      </TouchableOpacity>
-    </View>
-  </View>
-);
+      <View style={styles.container}>
+        <StatusBar style="dark" />
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{t('noAuthSession')}</Text>
+          <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+            <Text style={styles.backButtonText}>{t('goBack')}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
   }
 
   return (
@@ -159,14 +137,7 @@ export default function AuthWaitingPage() {
         <TouchableOpacity onPress={handleBack} style={styles.headerBackButton}>
           <ArrowLeft color="#0C1E3C" size={24} />
         </TouchableOpacity>
-        <Text 
-          style={styles.headerTitle}
-          adjustsFontSizeToFit
-          numberOfLines={1}
-          minimumFontScale={0.7}
-        >
-          {t('telegramAuth')}
-        </Text>
+        <Text style={styles.headerTitle}>{t('telegramAuth')}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -186,30 +157,13 @@ export default function AuthWaitingPage() {
             
             <ActivityIndicator size="large" color="#3D8BFF" style={styles.spinner} />
             
-            <Text 
-              style={styles.waitingText}
-              adjustsFontSizeToFit
-              numberOfLines={2}
-              minimumFontScale={0.7}
-            >
-              {t('waitingForTelegram')}
-            </Text>
-            <Text 
-              style={styles.instructionText}
-              adjustsFontSizeToFit
-              numberOfLines={2}
-              minimumFontScale={0.7}
-            >
+            <Text style={styles.waitingText}>{t('waitingForTelegram')}</Text>
+            <Text style={styles.instructionText}>
               {t('telegramInstructions')}
             </Text>
             
             <View style={styles.pollingInfo}>
-              <Text 
-                style={styles.pollingText}
-                adjustsFontSizeToFit
-                numberOfLines={2}
-                minimumFontScale={0.7}
-              >
+              <Text style={styles.pollingText}>
                 {t('checkingStatus')} ({pollCount.current + 1}/{maxPolls})
               </Text>
             </View>

@@ -53,14 +53,7 @@ const StepItem: React.FC<StepItemProps> = ({ icon, title, status, isLast }) => {
         </View>
         
         <View style={styles.stepTextContainer}>
-          <Text 
-            style={styles.stepTitle}
-            adjustsFontSizeToFit
-            numberOfLines={1}
-            minimumFontScale={0.7}
-          >
-            {title}
-          </Text>
+          <Text style={styles.stepTitle}>{title}</Text>
           <Text style={[styles.stepStatus, { color: getStatusColor() }]}>
             {getStatusText()}
           </Text>
@@ -96,83 +89,59 @@ export default function PostKYCPage() {
   ];
 
   return (
-  <View style={styles.container}>
-    <StatusBar style="dark" />
-    
-    <ScrollView 
-      style={styles.scrollView}
-      contentContainerStyle={styles.scrollContent}
-      showsVerticalScrollIndicator={false}
-    >
-      {/* Header Section */}
-      <View style={styles.headerContainer}>
-        <Text 
-          style={styles.heading}
-          adjustsFontSizeToFit
-          numberOfLines={2}
-          minimumFontScale={0.7}
-        >
-          {t('oneLastStep')}
-        </Text>
-        <Text 
-          style={styles.description}
-          adjustsFontSizeToFit
-          numberOfLines={2}
-          minimumFontScale={0.7}
-        >
-          {t('almostReady')}
-        </Text>
-      </View>
-
-      {/* Progress Steps */}
-      <View style={styles.stepsContainer}>
-        {steps.map((step, index) => (
-          <StepItem
-            key={index}
-            icon={step.icon}
-            title={step.title}
-            status={step.status}
-            isLast={index === steps.length - 1}
-          />
-        ))}
-      </View>
-    </ScrollView>
-
-    {/* CTA Section */}
-    <View style={styles.ctaContainer}>
-      <TouchableOpacity
-        style={styles.ctaButton}
-        onPress={handleAddBankDetails}
-        activeOpacity={0.9}
-      >
-        <LinearGradient
-          colors={['#3D8BFF', '#2A7FFF']}
-          style={styles.buttonGradient}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-        >
-          <Text 
-            style={styles.ctaButtonText}
-            adjustsFontSizeToFit
-            numberOfLines={1}
-            minimumFontScale={0.7}
-          >
-            {t('addBankDetails')}
-          </Text>
-        </LinearGradient>
-      </TouchableOpacity>
+    <View style={styles.container}>
+      <StatusBar style="dark" />
       
-      <Text 
-        style={styles.footerText}
-        adjustsFontSizeToFit
-        numberOfLines={2}
-        minimumFontScale={0.7}
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
       >
-        {t('secureProcess')}
-      </Text>
+        {/* Header Section */}
+        <View style={styles.headerContainer}>
+          <Text style={styles.heading}>{t('oneLastStep')}</Text>
+          <Text style={styles.description}>
+            {t('almostReady')}
+          </Text>
+        </View>
+
+        {/* Progress Steps */}
+        <View style={styles.stepsContainer}>
+          {steps.map((step, index) => (
+            <StepItem
+              key={index}
+              icon={step.icon}
+              title={step.title}
+              status={step.status}
+              isLast={index === steps.length - 1}
+            />
+          ))}
+        </View>
+      </ScrollView>
+
+      {/* CTA Section */}
+      <View style={styles.ctaContainer}>
+        <TouchableOpacity
+          style={styles.ctaButton}
+          onPress={handleAddBankDetails}
+          activeOpacity={0.9}
+        >
+          <LinearGradient
+            colors={['#3D8BFF', '#2A7FFF']}
+            style={styles.buttonGradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+          >
+            <Text style={styles.ctaButtonText}>{t('addBankDetails')}</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+        
+        <Text style={styles.footerText}>
+          {t('secureProcess')}
+        </Text>
+      </View>
     </View>
-  </View>
-);
+  );
 }
 
 const styles = StyleSheet.create({

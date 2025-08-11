@@ -85,14 +85,7 @@ export default function ProfilePage() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text 
-            style={styles.heading}
-            adjustsFontSizeToFit
-            numberOfLines={1}
-            minimumFontScale={0.7}
-          >
-            {t('profile')}
-          </Text>
+          <Text style={styles.heading}>{t('profile')}</Text>
         </View>
 
         {/* User Info Card */}
@@ -129,22 +122,8 @@ export default function ProfilePage() {
                 {item.icon}
               </View>
               <View style={styles.menuContent}>
-                <Text 
-                  style={styles.menuTitle}
-                  adjustsFontSizeToFit
-                  numberOfLines={1}
-                  minimumFontScale={0.7}
-                >
-                  {item.title}
-                </Text>
-                <Text 
-                  style={styles.menuSubtitle}
-                  adjustsFontSizeToFit
-                  numberOfLines={1}
-                  minimumFontScale={0.7}
-                >
-                  {item.subtitle}
-                </Text>
+                <Text style={styles.menuTitle}>{item.title}</Text>
+                <Text style={styles.menuSubtitle}>{item.subtitle}</Text>
               </View>
               <ChevronRight color="#9CA3AF" size={20} />
             </TouchableOpacity>
@@ -155,14 +134,7 @@ export default function ProfilePage() {
         <View style={styles.logoutContainer}>
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
             <LogOut color="#EF4444" size={20} />
-            <Text 
-              style={styles.logoutText}
-              adjustsFontSizeToFit
-              numberOfLines={1}
-              minimumFontScale={0.7}
-            >
-              {t('signOut')}
-            </Text>
+            <Text style={styles.logoutText}>{t('signOut')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

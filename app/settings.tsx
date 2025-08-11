@@ -55,14 +55,7 @@ export default function SettingsPage() {
         <TouchableOpacity onPress={handleBack} style={styles.backButton}>
           <ArrowLeft color="#0C1E3C" size={24} />
         </TouchableOpacity>
-        <Text 
-          style={styles.headerTitle}
-          adjustsFontSizeToFit
-          numberOfLines={1}
-          minimumFontScale={0.7}
-        >
-          {t('settings')}
-        </Text>
+        <Text style={styles.headerTitle}>{t('settings')}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -73,14 +66,7 @@ export default function SettingsPage() {
       >
         {/* Language Section */}
         <View style={styles.section}>
-          <Text 
-            style={styles.sectionTitle}
-            adjustsFontSizeToFit
-            numberOfLines={1}
-            minimumFontScale={0.7}
-          >
-            {t('changeLanguage')}
-          </Text>
+          <Text style={styles.sectionTitle}>{t('changeLanguage')}</Text>
           
           <View style={styles.languageContainer}>
             {languages.map((language) => (
@@ -99,11 +85,7 @@ export default function SettingsPage() {
                   styles.languageText,
                   selectedLanguage === language.code && styles.selectedLanguageText,
                   isChangingLanguage && styles.disabledLanguageText,
-                ]}
-                adjustsFontSizeToFit
-                numberOfLines={1}
-                minimumFontScale={0.7}
-              >
+                ]}>
                   {language.name}
                 </Text>
                 {selectedLanguage === language.code && (
