@@ -59,7 +59,7 @@ export default {
   redirectingIn: 'Redirecting in',
   seconds: 'seconds',
   transactionLimits: 'Transaction Limits',
-  dailyLimit: 'Daily Limit',
+  dailyLimit: 'One-time Limit',
   resetsAtMidnight: 'Resets at midnight UTC',
   resetsOn: 'Resets on',
   howToIncrease: 'How to Increase Limits',

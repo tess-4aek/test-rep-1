@@ -59,7 +59,7 @@ export default {
   redirectingIn: 'Перенаправлення через',
   seconds: 'секунд',
   transactionLimits: 'Ліміти транзакцій',
-  dailyLimit: 'Денний ліміт',
+  dailyLimit: 'Разовий ліміт',
   resetsAtMidnight: 'Оновлюється о півночі UTC',
   resetsOn: 'Оновлюється',
   howToIncrease: 'Як збільшити ліміти',
