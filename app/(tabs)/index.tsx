@@ -202,6 +202,9 @@ export default function HomePage() {
         console.log('Order created successfully:', createdOrder.id);
         setShowConfirmModal(false);
         
+        // Clear exchange input fields after successful order creation
+        setExchangeAmount('');
+        
         // Navigate to order details with the new order ID
         router.push({
           pathname: '/order-details',
