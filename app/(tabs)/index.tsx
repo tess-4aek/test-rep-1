@@ -389,17 +389,6 @@ export default function HomePage() {
         </View>
 
         {/* Bank Account Opening Button */}
-        <View style={styles.bankAccountContainer}>
-          <TouchableOpacity
-            style={styles.bankAccountButton}
-            onPress={handleOrderBankAccount}
-            activeOpacity={0.9}
-          >
-            <Text style={styles.bankAccountButtonText} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{t('orderBankAccount')}</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-
       {/* Confirmation Modal */}
       <Modal
         visible={showConfirmModal}
@@ -872,25 +861,5 @@ const styles = StyleSheet.create({
     color: '#EF4444',
     textAlign: 'center',
     lineHeight: 22,
-  },
-  bankAccountContainer: {
-    paddingHorizontal: 32,
-    marginBottom: 24,
-  },
-  bankAccountButton: {
-    width: '100%',
-    height: 56,
-    borderRadius: 16,
-    backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: '#3D8BFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  bankAccountButtonText: {
-    color: '#3D8BFF',
-    fontSize: 16,
-    fontWeight: '600',
-    letterSpacing: 0.5,
   },
 });
