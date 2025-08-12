@@ -110,8 +110,8 @@ export default function HistoryPage() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.heading}>{t('transactionHistory')}</Text>
-          <Text style={styles.subtitle}>{t('recentExchanges')}</Text>
+          <Text style={styles.heading} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('transactionHistory')}</Text>
+          <Text style={styles.subtitle} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{t('recentExchanges')}</Text>
         </View>
 
         {/* Transactions List */}
@@ -119,16 +119,16 @@ export default function HistoryPage() {
           {isLoading ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color="#3D8BFF" />
-              <Text style={styles.loadingText}>{t('loading')}</Text>
+              <Text style={styles.loadingText} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('loading')}</Text>
             </View>
           ) : error ? (
             <View style={styles.errorContainer}>
-              <Text style={styles.errorText}>{error}</Text>
+              <Text style={styles.errorText} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{error}</Text>
             </View>
           ) : orders.length === 0 ? (
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>{t('noOrdersYet')}</Text>
-              <Text style={styles.emptySubtext}>{t('startExchanging')}</Text>
+              <Text style={styles.emptyText} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('noOrdersYet')}</Text>
+              <Text style={styles.emptySubtext} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{t('startExchanging')}</Text>
             </View>
           ) : (
             orders.map((order) => {
@@ -148,7 +148,7 @@ export default function HistoryPage() {
               </View>
               
               <View style={styles.transactionDetails}>
-                <Text style={styles.transactionTitle}>{displayOrder.title}</Text>
+                <Text style={styles.transactionTitle} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{displayOrder.title}</Text>
                 <Text style={styles.transactionCrypto}>{displayOrder.crypto}</Text>
                 <Text style={styles.transactionTime}>{displayOrder.time}</Text>
               </View>
@@ -167,7 +167,7 @@ export default function HistoryPage() {
                            displayOrder.status === 'pending' ? '#F59E0B' : '#6B7280',
                     textTransform: 'capitalize'
                   }
-                ]}>
+                ]} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>
                   {displayOrder.status === 'pending' ? t('pending') : 
                    displayOrder.status === 'processing' ? t('processing') : 
                    t('completed')}

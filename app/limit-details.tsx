@@ -87,7 +87,7 @@ export default function LimitDetailsPage() {
         <TouchableOpacity onPress={handleBack} style={styles.backButton}>
           <ArrowLeft color="#0C1E3C" size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('transactionLimits')}</Text>
+        <Text style={styles.headerTitle} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('transactionLimits')}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -100,11 +100,11 @@ export default function LimitDetailsPage() {
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Calendar color="#3D8BFF" size={24} />
-            <Text style={styles.cardTitle}>{t('monthlyLimit')}</Text>
+            <Text style={styles.cardTitle} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('monthlyLimit')}</Text>
           </View>
           
           <View style={styles.limitContainer}>
-            <Text style={styles.limitAmount}>
+            <Text style={styles.limitAmount} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>
               {userData?.monthly_limit_used ? formatCurrency(userData.monthly_limit_used) : '€0'} / {userData?.monthly_limit ? formatCurrency(userData.monthly_limit) : '€5,000'}
             </Text>
             <View style={styles.progressBarContainer}>
@@ -113,7 +113,7 @@ export default function LimitDetailsPage() {
               </View>
               <Text style={styles.progressPercentage}>{Math.round(getMonthlyProgressPercentage())}%</Text>
             </View>
-            <Text style={styles.limitSubtext}>{t('resetsOn')} {getResetDateFormatted()}</Text>
+            <Text style={styles.limitSubtext} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{t('resetsOn')} {getResetDateFormatted()}</Text>
           </View>
         </View>
 
@@ -121,11 +121,11 @@ export default function LimitDetailsPage() {
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <Clock color="#10B981" size={24} />
-            <Text style={styles.cardTitle}>{t('dailyLimit')}</Text>
+            <Text style={styles.cardTitle} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('dailyLimit')}</Text>
           </View>
           
           <View style={styles.limitContainer}>
-            <Text style={styles.limitAmount}>
+            <Text style={styles.limitAmount} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>
               {userData?.daily_limit_used ? formatCurrency(userData.daily_limit_used) : '€0'} / {userData?.daily_limit ? formatCurrency(userData.daily_limit) : '€1,000'}
             </Text>
             <View style={styles.progressBarContainer}>
@@ -134,7 +134,7 @@ export default function LimitDetailsPage() {
               </View>
               <Text style={[styles.progressPercentage, { color: '#10B981' }]}>{Math.round(getDailyProgressPercentage())}%</Text>
             </View>
-            <Text style={styles.limitSubtext}>{t('resetsAtMidnight')}</Text>
+            <Text style={styles.limitSubtext} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{t('resetsAtMidnight')}</Text>
           </View>
         </View>
 
@@ -142,7 +142,7 @@ export default function LimitDetailsPage() {
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <TrendingUp color="#F59E0B" size={24} />
-            <Text style={styles.cardTitle}>{t('howToIncrease')}</Text>
+            <Text style={styles.cardTitle} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('howToIncrease')}</Text>
           </View>
           
           <View style={styles.explanationContainer}>
@@ -151,8 +151,8 @@ export default function LimitDetailsPage() {
                 <Text style={styles.stepNumberText}>1</Text>
               </View>
               <View style={styles.stepContent}>
-                <Text style={styles.stepTitle}>{t('enhancedVerification')}</Text>
-                <Text style={styles.stepDescription}>
+                <Text style={styles.stepTitle} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{t('enhancedVerification')}</Text>
+                <Text style={styles.stepDescription} adjustsFontSizeToFit numberOfLines={3} minimumFontScale={0.7}>
                   {t('enhancedVerificationDesc')}
                 </Text>
               </View>
@@ -163,8 +163,8 @@ export default function LimitDetailsPage() {
                 <Text style={styles.stepNumberText}>2</Text>
               </View>
               <View style={styles.stepContent}>
-                <Text style={styles.stepTitle}>{t('buildHistory')}</Text>
-                <Text style={styles.stepDescription}>
+                <Text style={styles.stepTitle} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{t('buildHistory')}</Text>
+                <Text style={styles.stepDescription} adjustsFontSizeToFit numberOfLines={3} minimumFontScale={0.7}>
                   {t('buildHistoryDesc')}
                 </Text>
               </View>
@@ -175,8 +175,8 @@ export default function LimitDetailsPage() {
                 <Text style={styles.stepNumberText}>3</Text>
               </View>
               <View style={styles.stepContent}>
-                <Text style={styles.stepTitle}>{t('manualReview')}</Text>
-                <Text style={styles.stepDescription}>
+                <Text style={styles.stepTitle} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{t('manualReview')}</Text>
+                <Text style={styles.stepDescription} adjustsFontSizeToFit numberOfLines={3} minimumFontScale={0.7}>
                   {t('manualReviewDesc')}
                 </Text>
               </View>
@@ -186,12 +186,12 @@ export default function LimitDetailsPage() {
 
         {/* Benefits Card */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>{t('higherLimitsBenefits')}</Text>
+          <Text style={styles.cardTitle} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{t('higherLimitsBenefits')}</Text>
           <View style={styles.benefitsList}>
-            <Text style={styles.benefitItem}>{t('largerAmounts')}</Text>
-            <Text style={styles.benefitItem}>{t('prioritySupport')}</Text>
-            <Text style={styles.benefitItem}>{t('reducedProcessing')}</Text>
-            <Text style={styles.benefitItem}>{t('advancedFeatures')}</Text>
+            <Text style={styles.benefitItem} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{t('largerAmounts')}</Text>
+            <Text style={styles.benefitItem} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{t('prioritySupport')}</Text>
+            <Text style={styles.benefitItem} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{t('reducedProcessing')}</Text>
+            <Text style={styles.benefitItem} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{t('advancedFeatures')}</Text>
           </View>
         </View>
       </ScrollView>
@@ -210,11 +210,11 @@ export default function LimitDetailsPage() {
             end={{ x: 1, y: 0 }}
           >
             <MessageCircle color="#FFFFFF" size={20} style={styles.buttonIcon} />
-            <Text style={styles.ctaButtonText}>{t('requestLimitIncrease')}</Text>
+            <Text style={styles.ctaButtonText} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{t('requestLimitIncrease')}</Text>
           </LinearGradient>
         </TouchableOpacity>
         
-        <Text style={styles.footerText}>
+        <Text style={styles.footerText} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>
           {t('reviewWithin24h')}
         </Text>
       </View>

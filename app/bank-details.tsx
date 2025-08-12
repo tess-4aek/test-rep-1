@@ -314,7 +314,7 @@ export default function BankDetailsFormPage() {
         <TouchableOpacity onPress={handleBack} style={styles.backButton}>
           <ArrowLeft color="#0C1E3C" size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('bankDetails')}</Text>
+        <Text style={styles.headerTitle} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('bankDetails')}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -326,15 +326,15 @@ export default function BankDetailsFormPage() {
       >
         {/* Main Content Container */}
         <View style={styles.mainContent}>
-          <Text style={styles.heading}>{t('enterBankDetails')}</Text>
-          <Text style={styles.description}>
+          <Text style={styles.heading} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{t('enterBankDetails')}</Text>
+          <Text style={styles.description} adjustsFontSizeToFit numberOfLines={3} minimumFontScale={0.7}>
             {t('bankDetailsDescription')}
           </Text>
 
           {/* Bank Requirements Info Block */}
           <View style={styles.infoBlock}>
-            <Text style={styles.infoBlockTitle}>{t('bankRequirements')}</Text>
-            <Text style={styles.infoBlockText}>
+            <Text style={styles.infoBlockTitle} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('bankRequirements')}</Text>
+            <Text style={styles.infoBlockText} adjustsFontSizeToFit numberOfLines={4} minimumFontScale={0.7}>
               {t('bankRequirementsText')}
             </Text>
           </View>
@@ -344,7 +344,7 @@ export default function BankDetailsFormPage() {
             {/* Full Name */}
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>
-                {t('fullName')} <Text style={styles.required}>*</Text>
+                <Text adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('fullName')}</Text> <Text style={styles.required}>*</Text>
               </Text>
               <TextInput
                 style={[
@@ -362,14 +362,14 @@ export default function BankDetailsFormPage() {
                 autoComplete="name"
               />
               {errors.fullName && (
-                <Text style={styles.errorText}>{errors.fullName}</Text>
+                <Text style={styles.errorText} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{errors.fullName}</Text>
               )}
             </View>
 
             {/* IBAN */}
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>
-                {t('iban')} <Text style={styles.required}>*</Text>
+                <Text adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('iban')}</Text> <Text style={styles.required}>*</Text>
               </Text>
               <TextInput
                 style={[
@@ -387,13 +387,13 @@ export default function BankDetailsFormPage() {
                 autoComplete="off"
               />
               {errors.iban && (
-                <Text style={styles.errorText}>{errors.iban}</Text>
+                <Text style={styles.errorText} adjustsFontSizeToFit numberOfLines={3} minimumFontScale={0.7}>{errors.iban}</Text>
               )}
             </View>
 
             {/* SWIFT/BIC */}
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>{t('swiftBic')}</Text>
+              <Text style={styles.inputLabel} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('swiftBic')}</Text>
               <TextInput
                 style={[
                   styles.textInput,
@@ -410,13 +410,13 @@ export default function BankDetailsFormPage() {
                 autoComplete="off"
               />
               {errors.swiftBic && (
-                <Text style={styles.errorText}>{errors.swiftBic}</Text>
+                <Text style={styles.errorText} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{errors.swiftBic}</Text>
               )}
             </View>
 
             {/* Bank Name */}
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>{t('bankName')}</Text>
+              <Text style={styles.inputLabel} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('bankName')}</Text>
               <TextInput
                 style={[
                   styles.textInput,
@@ -433,14 +433,14 @@ export default function BankDetailsFormPage() {
                 autoComplete="off"
               />
               {errors.bankName && (
-                <Text style={styles.errorText}>{errors.bankName}</Text>
+                <Text style={styles.errorText} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{errors.bankName}</Text>
               )}
             </View>
 
             {/* Country */}
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>
-                {t('country')} <Text style={styles.required}>*</Text>
+                <Text adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('country')}</Text> <Text style={styles.required}>*</Text>
               </Text>
               <TextInput
                 style={[
@@ -458,7 +458,7 @@ export default function BankDetailsFormPage() {
                 autoComplete="country"
               />
               {errors.country && (
-                <Text style={styles.errorText}>{errors.country}</Text>
+                <Text style={styles.errorText} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{errors.country}</Text>
               )}
             </View>
 
@@ -481,12 +481,12 @@ export default function BankDetailsFormPage() {
                 <Text style={[
                   styles.checkboxLabel,
                   errors.consentChecked && styles.checkboxLabelError,
-                ]}>
+                ]} adjustsFontSizeToFit numberOfLines={4} minimumFontScale={0.7}>
                   {t('consentCheckbox')}
                 </Text>
               </TouchableOpacity>
               {errors.consentChecked && (
-                <Text style={styles.errorText}>{errors.consentChecked}</Text>
+                <Text style={styles.errorText} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{errors.consentChecked}</Text>
               )}
             </View>
           </View>
@@ -509,7 +509,7 @@ export default function BankDetailsFormPage() {
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
             >
-              <Text style={styles.ctaButtonText}>
+              <Text style={styles.ctaButtonText} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>
                 {isSubmitting ? t('submitting') : t('submit')}
               </Text>
             </LinearGradient>
@@ -520,10 +520,10 @@ export default function BankDetailsFormPage() {
             onPress={handleOrderBankAccount}
             activeOpacity={0.9}
           >
-            <Text style={styles.secondaryButtonText}>{t('orderBankAccountOpening')}</Text>
+            <Text style={styles.secondaryButtonText} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{t('orderBankAccountOpening')}</Text>
           </TouchableOpacity>
           
-          <Text style={styles.footerText}>
+          <Text style={styles.footerText} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>
             {t('informationSecure')}
           </Text>
         </View>

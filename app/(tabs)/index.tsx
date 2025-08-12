@@ -238,13 +238,13 @@ export default function HomePage() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.greeting}>{t('greeting')}</Text>
-          <Text style={styles.subtitle}>{t('readyToExchange')}</Text>
+          <Text style={styles.greeting} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('greeting')}</Text>
+          <Text style={styles.subtitle} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{t('readyToExchange')}</Text>
         </View>
 
         {/* Monthly Transaction Limit Block */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>{t('monthlyLimit')}</Text>
+          <Text style={styles.cardTitle} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('monthlyLimit')}</Text>
           
           <View style={styles.progressBarContainer}>
             <View style={styles.progressBarBackground}>
@@ -273,14 +273,14 @@ export default function HomePage() {
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
             >
-              <Text style={styles.viewDetailsText}>{t('viewLimitDetails')}</Text>
+              <Text style={styles.viewDetailsText} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('viewLimitDetails')}</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
 
         {/* Exchange Rate Block */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>{t('exchangeRate')}</Text>
+          <Text style={styles.cardTitle} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('exchangeRate')}</Text>
           <View style={styles.rateContainer}>
             <TrendingUp color="#10B981" size={20} />
             <Text style={styles.rateText}>{getCurrentRate()}</Text>
@@ -289,11 +289,11 @@ export default function HomePage() {
 
         {/* Exchange Block */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>{t('exchange')}</Text>
+          <Text style={styles.cardTitle} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('exchange')}</Text>
           
           {/* From Input */}
           <View style={styles.exchangeInputContainer}>
-            <Text style={styles.inputLabel}>{t('youSend')}</Text>
+            <Text style={styles.inputLabel} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('youSend')}</Text>
             <View style={styles.inputWrapper}>
               <TextInput
                 style={styles.amountInput}
@@ -316,7 +316,7 @@ export default function HomePage() {
 
           {/* To Input */}
           <View style={styles.exchangeInputContainer}>
-            <Text style={styles.inputLabel}>{t('youReceive')}</Text>
+            <Text style={styles.inputLabel} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('youReceive')}</Text>
             <View style={styles.inputWrapper}>
               <TextInput
                 style={[styles.amountInput, styles.readOnlyInput]}
@@ -354,7 +354,7 @@ export default function HomePage() {
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
             >
-              <Text style={styles.createExchangeButtonText}>{t('createOrder')}</Text>
+              <Text style={styles.createExchangeButtonText} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('createOrder')}</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -366,7 +366,7 @@ export default function HomePage() {
             onPress={handleOrderBankAccount}
             activeOpacity={0.9}
           >
-            <Text style={styles.bankAccountButtonText}>{t('orderBankAccount')}</Text>
+            <Text style={styles.bankAccountButtonText} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{t('orderBankAccount')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -381,7 +381,7 @@ export default function HomePage() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{t('confirmExchange')}</Text>
+              <Text style={styles.modalTitle} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('confirmExchange')}</Text>
               <TouchableOpacity
                 style={styles.closeButton}
                 onPress={() => setShowConfirmModal(false)}
@@ -392,7 +392,7 @@ export default function HomePage() {
             
             <View style={styles.modalBody}>
               <View style={styles.exchangeSummary}>
-                <Text style={styles.summaryLabel}>{t('youSend')}</Text>
+                <Text style={styles.summaryLabel} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('youSend')}</Text>
                 <Text style={styles.summaryAmount}>
                   {exchangeAmount} {getFromCurrency()}
                 </Text>
@@ -403,14 +403,14 @@ export default function HomePage() {
               </View>
               
               <View style={styles.exchangeSummary}>
-                <Text style={styles.summaryLabel}>{t('youReceive')}</Text>
+                <Text style={styles.summaryLabel} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('youReceive')}</Text>
                 <Text style={styles.summaryAmount}>
                   {calculateReceiveAmount()} {getToCurrency()}
                 </Text>
               </View>
               
               <Text style={styles.rateInfo}>
-                {t('rate')}: {getCurrentRate()}
+                <Text adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('rate')}: {getCurrentRate()}</Text>
               </Text>
             </View>
             
@@ -419,7 +419,7 @@ export default function HomePage() {
                 style={styles.cancelButton}
                 onPress={() => setShowConfirmModal(false)}
               >
-                <Text style={styles.cancelButtonText}>{t('cancel')}</Text>
+                <Text style={styles.cancelButtonText} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('cancel')}</Text>
               </TouchableOpacity>
               
               <TouchableOpacity
@@ -433,7 +433,7 @@ export default function HomePage() {
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                 >
-                  <Text style={styles.confirmButtonText}>
+                  <Text style={styles.confirmButtonText} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>
                     {isCreatingOrder ? t('creatingOrder') : t('confirm')}
                   </Text>
                 </LinearGradient>
@@ -453,7 +453,7 @@ export default function HomePage() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{t('orderCreationFailed')}</Text>
+              <Text style={styles.modalTitle} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{t('orderCreationFailed')}</Text>
               <TouchableOpacity
                 style={styles.closeButton}
                 onPress={() => setShowErrorModal(false)}
@@ -463,7 +463,7 @@ export default function HomePage() {
             </View>
             
             <View style={styles.modalBody}>
-              <Text style={styles.errorText}>{errorMessage}</Text>
+              <Text style={styles.errorText} adjustsFontSizeToFit numberOfLines={3} minimumFontScale={0.7}>{errorMessage}</Text>
             </View>
             
             <View style={styles.modalActions}>
@@ -471,7 +471,7 @@ export default function HomePage() {
                 style={styles.cancelButton}
                 onPress={handleContactSupport}
               >
-                <Text style={styles.cancelButtonText}>{t('contactSupportOrder')}</Text>
+                <Text style={styles.cancelButtonText} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{t('contactSupportOrder')}</Text>
               </TouchableOpacity>
               
               <TouchableOpacity
@@ -484,7 +484,7 @@ export default function HomePage() {
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                 >
-                  <Text style={styles.confirmButtonText}>{t('retryOrder')}</Text>
+                  <Text style={styles.confirmButtonText} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('retryOrder')}</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </View>
