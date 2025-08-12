@@ -13,7 +13,7 @@ import { StatusBar } from 'expo-status-bar';
 import { CircleCheck as CheckCircle, Clock, Square } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { t } from '@/lib/i18n';
-import { getUserData, saveUserData, determineNextScreen } from '@/utils/auth';
+import { getUserData, saveUserData, determineNextScreen, User } from '@/utils/auth';
 import { checkUserExists } from '@/lib/supabase';
 
 interface StepItemProps {
@@ -128,10 +128,18 @@ export default function AuthProgressPage() {
 
   const handleContinueKYC = async () => {
     try {
-      // Mock user data - in real app this would come from auth context
-      const currentUser = {
-        user_id: 'a3b8e7f2-4c1d-4b9a-a2c3-7d5e9f8a1b2c',
-      };
+      // Get current authenticated user data
+      const currentUser = await getUserData();
+      
+      if (!currentUser || !currentUser.id) {
+        console.error('No authenticated user found or missing user ID');
+        Alert.alert(
+          'Error',
+          'User authentication error. Please try logging in again.',
+          [{ text: 'OK', onPress: () => router.replace('/') }]
+        );
+        return;
+      }
 
       console.log('Starting KYC process for user:', currentUser.id);
       
@@ -140,10 +148,9 @@ export default function AuthProgressPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // Add auth token if needed: 'Authorization': `Bearer ${authToken}`,
         },
         body: JSON.stringify({
-          user_id: currentUser.user_id,
+          user_id: currentUser.id,
         }),
       });
 
@@ -174,7 +181,7 @@ export default function AuthProgressPage() {
       console.error('Error generating KYC link:', error);
       Alert.alert(
         'Error',
-        'Не удалось получить ссылку для верификации. Попробуйте позже.',
+        'Failed to get verification link. Please try again later.',
         [{ text: 'OK' }]
       );
     }
