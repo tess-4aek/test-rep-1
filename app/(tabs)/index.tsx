@@ -387,17 +387,7 @@ export default function HomePage() {
             </LinearGradient>
           </TouchableOpacity>
         </View>
-
-        {/* Bank Account Opening Button */}
-        <View style={styles.bankAccountContainer}>
-          <TouchableOpacity
-            style={styles.bankAccountButton}
-            onPress={handleOrderBankAccount}
-            activeOpacity={0.9}
-          >
-            <Text style={styles.bankAccountButtonText} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{t('orderBankAccount')}</Text>
-          </TouchableOpacity>
-        </View>
+        
       </ScrollView>
 
       {/* Confirmation Modal */}
