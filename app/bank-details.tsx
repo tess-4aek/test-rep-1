@@ -6,8 +6,6 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
-  KeyboardAvoidingView,
-  Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
@@ -308,10 +306,7 @@ export default function BankDetailsFormPage() {
   };
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container} 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
+    <View style={styles.container}>
       <StatusBar style="dark" />
       
       {/* Header */}
@@ -329,8 +324,8 @@ export default function BankDetailsFormPage() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Main Content */}
-        <View style={styles.contentContainer}>
+        {/* Main Content Container */}
+        <View style={styles.mainContent}>
           <Text style={styles.heading}>{t('enterBankDetails')}</Text>
           <Text style={styles.description}>
             {t('bankDetailsDescription')}
@@ -496,44 +491,44 @@ export default function BankDetailsFormPage() {
             </View>
           </View>
         </View>
-      </ScrollView>
 
-      {/* Submit Button */}
-      <View style={styles.ctaContainer}>
-        <TouchableOpacity
-          style={[
-            styles.ctaButton,
-            (!isFormValid() || isSubmitting) && styles.disabledButton,
-          ]}
-          onPress={handleSubmit}
-          activeOpacity={0.9}
-          disabled={!isFormValid() || isSubmitting}
-        >
-          <LinearGradient
-            colors={(isFormValid() && !isSubmitting) ? ['#3D8BFF', '#2A7FFF'] : ['#9CA3AF', '#9CA3AF']}
-            style={styles.buttonGradient}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
+        {/* Submit Buttons - Now inside ScrollView */}
+        <View style={styles.ctaContainer}>
+          <TouchableOpacity
+            style={[
+              styles.ctaButton,
+              (!isFormValid() || isSubmitting) && styles.disabledButton,
+            ]}
+            onPress={handleSubmit}
+            activeOpacity={0.9}
+            disabled={!isFormValid() || isSubmitting}
           >
-            <Text style={styles.ctaButtonText}>
-              {isSubmitting ? t('submitting') : t('submit')}
-            </Text>
-          </LinearGradient>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={styles.secondaryButton}
-          onPress={handleOrderBankAccount}
-          activeOpacity={0.9}
-        >
-          <Text style={styles.secondaryButtonText}>{t('orderBankAccountOpening')}</Text>
-        </TouchableOpacity>
-        
-        <Text style={styles.footerText}>
-          {t('informationSecure')}
-        </Text>
-      </View>
-    </KeyboardAvoidingView>
+            <LinearGradient
+              colors={(isFormValid() && !isSubmitting) ? ['#3D8BFF', '#2A7FFF'] : ['#9CA3AF', '#9CA3AF']}
+              style={styles.buttonGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            >
+              <Text style={styles.ctaButtonText}>
+                {isSubmitting ? t('submitting') : t('submit')}
+              </Text>
+            </LinearGradient>
+          </TouchableOpacity>
+          
+          <TouchableOpacity
+            style={styles.secondaryButton}
+            onPress={handleOrderBankAccount}
+            activeOpacity={0.9}
+          >
+            <Text style={styles.secondaryButtonText}>{t('orderBankAccountOpening')}</Text>
+          </TouchableOpacity>
+          
+          <Text style={styles.footerText}>
+            {t('informationSecure')}
+          </Text>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
@@ -582,9 +577,9 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingBottom: 20,
+    paddingBottom: 50,
   },
-  contentContainer: {
+  mainContent: {
     paddingHorizontal: 32,
     paddingTop: 32,
   },
@@ -687,13 +682,10 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   ctaContainer: {
-    backgroundColor: '#F4F6F9',
-    paddingHorizontal: 32,
+    paddingHorizontal: 0,
     paddingTop: 24,
-    paddingBottom: 50,
+    paddingBottom: 20,
     alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: '#E5E7EB',
   },
   ctaButton: {
     width: '100%',
