@@ -49,8 +49,7 @@ export default function HomePage() {
   };
 
   const getProgressPercentage = () => {
-    if (!userData?.monthly_limit || userData.monthly_limit === 0) return 0;
-    if (!userData?.monthly_limit_used) return 0;
+    if (!userData?.monthly_limit || !userData?.monthly_limit_used) return 0;
     return (userData.monthly_limit_used / userData.monthly_limit) * 100;
   };
 

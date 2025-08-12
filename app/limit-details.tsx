@@ -50,14 +50,12 @@ export default function LimitDetailsPage() {
   };
 
   const getMonthlyProgressPercentage = () => {
-    if (!userData?.monthly_limit || userData.monthly_limit === 0) return 0;
-    if (!userData?.monthly_limit_used) return 0;
+    if (!userData?.monthly_limit || !userData?.monthly_limit_used) return 0;
     return (userData.monthly_limit_used / userData.monthly_limit) * 100;
   };
 
   const getDailyProgressPercentage = () => {
-    if (!userData?.daily_limit || userData.daily_limit === 0) return 0;
-    if (!userData?.daily_limit_used) return 0;
+    if (!userData?.daily_limit || !userData?.daily_limit_used) return 0;
     return (userData.daily_limit_used / userData.daily_limit) * 100;
   };
 
