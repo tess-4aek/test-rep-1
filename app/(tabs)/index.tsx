@@ -283,7 +283,9 @@ export default function HomePage() {
           </View>
           
           <Text style={styles.limitUsageText}>
-            {userData?.monthly_limit_used ? formatCurrency(userData.monthly_limit_used) : '€0'} / {userData?.monthly_limit ? formatCurrency(userData.monthly_limit) : '€5,000'} {t('limitUsed')}
+            {userData?.monthly_limit && userData?.monthly_limit_used 
+              ? formatCurrency(userData.monthly_limit - userData.monthly_limit_used) 
+              : userData?.monthly_limit ? formatCurrency(userData.monthly_limit) : '€5,000'} / {userData?.monthly_limit ? formatCurrency(userData.monthly_limit) : '€5,000'} {t('limitRemaining')}
           </Text>
           <Text style={styles.limitResetText}>
             {t('limitResets')} {getDaysUntilReset()} {t('days')}

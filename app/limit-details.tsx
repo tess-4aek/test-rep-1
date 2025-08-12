@@ -108,7 +108,9 @@ const getDailyProgressPercentage = () => {
           
           <View style={styles.limitContainer}>
             <Text style={styles.limitAmount} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>
-              {userData?.monthly_limit_used ? formatCurrency(userData.monthly_limit_used) : '€0'} / {userData?.monthly_limit ? formatCurrency(userData.monthly_limit) : '€5,000'}
+              {userData?.monthly_limit && userData?.monthly_limit_used 
+                ? formatCurrency(userData.monthly_limit - userData.monthly_limit_used) 
+                : userData?.monthly_limit ? formatCurrency(userData.monthly_limit) : '€5,000'} / {userData?.monthly_limit ? formatCurrency(userData.monthly_limit) : '€5,000'}
             </Text>
             <View style={styles.progressBarContainer}>
               <View style={styles.progressBarBackground}>
@@ -129,7 +131,9 @@ const getDailyProgressPercentage = () => {
           
           <View style={styles.limitContainer}>
             <Text style={styles.limitAmount} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>
-              {userData?.daily_limit_used ? formatCurrency(userData.daily_limit_used) : '€0'} / {userData?.daily_limit ? formatCurrency(userData.daily_limit) : '€1,000'}
+              {userData?.daily_limit && userData?.daily_limit_used 
+                ? formatCurrency(userData.daily_limit - userData.daily_limit_used) 
+                : userData?.daily_limit ? formatCurrency(userData.daily_limit) : '€1,000'} / {userData?.daily_limit ? formatCurrency(userData.daily_limit) : '€1,000'}
             </Text>
             <View style={styles.progressBarContainer}>
               <View style={styles.progressBarBackground}>

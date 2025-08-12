@@ -8,7 +8,7 @@ export default {
   transactionHistory: 'Transaction History',
   recentExchanges: 'Your recent crypto exchanges',
   monthlyLimit: 'Monthly Transaction Limit',
-  limitUsed: 'used',
+  limitRemaining: 'remaining',
   limitResets: 'Your monthly limit resets in',
   days: 'days',
   exchangeRate: 'Exchange Rate',

@@ -8,7 +8,7 @@ export default {
   transactionHistory: 'Історія транзакцій',
   recentExchanges: 'Ваші останні обміни криптовалют',
   monthlyLimit: 'Місячний ліміт транзакцій',
-  limitUsed: 'використано',
+  limitRemaining: 'залишилось',
   limitResets: 'Ваш місячний ліміт оновиться через',
   days: 'днів',
   exchangeRate: 'Курс обміну',
