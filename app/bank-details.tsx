@@ -682,7 +682,7 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   ctaContainer: {
-    paddingHorizontal: 0,
+    paddingHorizontal: 32,
     paddingTop: 24,
     paddingBottom: 20,
     alignItems: 'center',
