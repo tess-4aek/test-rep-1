@@ -14,6 +14,8 @@ import { Linking } from 'react-native';
 import * as Crypto from 'expo-crypto';
 import { t } from '@/lib/i18n';
 
+import { resetAll } from '../scripts/resetAll.ts';
+
 const { width: screenWidth } = Dimensions.get('window');
 
 export default function IntroPage() {
@@ -42,6 +44,8 @@ export default function IntroPage() {
   ];
 
   useEffect(() => {
+  resetAll();
+    
     const interval = setInterval(() => {
       currentIndex.current = (currentIndex.current + 1) % slides.length;
       
