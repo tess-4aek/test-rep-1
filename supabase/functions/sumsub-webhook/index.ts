@@ -94,11 +94,11 @@ Deno.serve(async (req: Request) => {
       finalKycStatus: kycStatus,
     });
 
-    // Update user KYC status in database using telegram_id
+    // Update user KYC status in database
     const { data, error } = await supabase
       .from("users")
       .update({ kyc_status: kycStatus })
-      .eq("telegram_id", externalUserId)
+      .eq("id", externalUserId)
       .select();
 
     if (error) {
@@ -113,7 +113,7 @@ Deno.serve(async (req: Request) => {
     }
 
     if (!data || data.length === 0) {
-      console.warn("No user found with telegram_id:", externalUserId);
+      console.warn("No user found with ID:", externalUserId);
       return new Response("OK", {
         status: 200,
         headers: {
@@ -124,7 +124,7 @@ Deno.serve(async (req: Request) => {
     }
 
     console.log("Successfully updated KYC status for user:", {
-      telegramId: externalUserId,
+      userId: externalUserId,
       newStatus: kycStatus,
       updatedRows: data.length,
     });
