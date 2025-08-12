@@ -389,6 +389,7 @@ export default function HomePage() {
         </View>
 
         {/* Bank Account Opening Button */}
+      </ScrollView>
       {/* Confirmation Modal */}
       <Modal
         visible={showConfirmModal}
