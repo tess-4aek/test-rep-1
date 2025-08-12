@@ -152,12 +152,39 @@ export default function HomePage() {
       return;
     }
 
+    // Calculate EUR amount for limit validation
+    const amount = Number(exchangeAmount);
+    const receiveAmount = Number(calculateReceiveAmount());
+    const eurAmount = exchangeDirection === 'usdc-eur' ? receiveAmount : amount;
+
+    // Check one-time limit first
+    const oneTimeLimit = userData?.daily_limit || 0;
+    if (oneTimeLimit > 0 && eurAmount > oneTimeLimit) {
+      setErrorMessage(t('oneTimeLimitExceeded', { 
+        amount: formatCurrency(eurAmount), 
+        limit: formatCurrency(oneTimeLimit) 
+      }));
+      setShowErrorModal(true);
+      return;
+    }
+
+    // Check monthly limit
+    const monthlyLimit = userData?.monthly_limit || 0;
+    const monthlyUsed = userData?.monthly_limit_used || 0;
+    const remainingMonthlyLimit = monthlyLimit - monthlyUsed;
+    
+    if (monthlyLimit > 0 && eurAmount > remainingMonthlyLimit) {
+      setErrorMessage(t('monthlyLimitExceeded', { 
+        amount: formatCurrency(eurAmount), 
+        remaining: formatCurrency(remainingMonthlyLimit),
+        limit: formatCurrency(monthlyLimit)
+      }));
+      setShowErrorModal(true);
+      return;
+    }
     setIsCreatingOrder(true);
     
     try {
-      const amount = Number(exchangeAmount);
-      const receiveAmount = Number(calculateReceiveAmount());
-      
       const orderData: CreateOrderData = {
         user_id: userData.id,
         telegram_id: userData.telegram_id,
