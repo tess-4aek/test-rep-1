@@ -395,7 +395,7 @@ export default function HomePage() {
             onPress={handleOrderBankAccount}
             activeOpacity={0.9}
           >
-            <Text style={styles.bankAccountButtonText} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('orderBankAccount')}</Text>
+            <Text style={styles.bankAccountButtonText} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{t('orderBankAccount')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
