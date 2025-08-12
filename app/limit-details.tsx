@@ -49,17 +49,20 @@ export default function LimitDetailsPage() {
     }).format(amount);
   };
 
-  const getMonthlyProgressPercentage = () => {
-    if (!userData?.monthly_limit || userData.monthly_limit === 0) return 0;
-    if (!userData?.monthly_limit_used) return 0;
-    return (userData.monthly_limit_used / userData.monthly_limit) * 100;
-  };
+ const getMonthlyProgressPercentage = () => {
+  const limit = Number(userData?.monthly_limit) || 0;
+  const used = Number(userData?.monthly_limit_used) || 0;
+  if (limit <= 0) return 0;
+  return (used / limit) * 100;
+};
 
-  const getDailyProgressPercentage = () => {
-    if (!userData?.daily_limit || userData.daily_limit === 0) return 0;
-    if (!userData?.daily_limit_used) return 0;
-    return (userData.daily_limit_used / userData.daily_limit) * 100;
-  };
+const getDailyProgressPercentage = () => {
+  const limit = Number(userData?.daily_limit) || 0;
+  const used = Number(userData?.daily_limit_used) || 0;
+  if (limit <= 0) return 0;
+  return (used / limit) * 100;
+};
+
 
   const getDaysUntilReset = () => {
     if (!userData?.limit_reset_date) return 0;
