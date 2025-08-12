@@ -31,7 +31,7 @@ export default function LimitDetailsPage() {
 
   const handleRequestIncrease = async () => {
     const message = encodeURIComponent(t('increaseLimit'));
-    const telegramUrl = `https://t.me/your_bot_username?start=${message}`;
+    const telegramUrl = `https://t.me/xpaid_manager?text=${message}`;
     
     try {
       await Linking.openURL(telegramUrl);

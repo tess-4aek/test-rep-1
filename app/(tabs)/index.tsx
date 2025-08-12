@@ -234,7 +234,7 @@ export default function HomePage() {
   const handleContactSupport = async () => {
     setShowErrorModal(false);
     const message = encodeURIComponent(t('contactSupport'));
-    const telegramUrl = `tg://resolve?domain=YourBotUsername&text=${message}`;
+    const telegramUrl = `https://t.me/xpaid_manager?text=${message}`;
     
     try {
       await Linking.openURL(telegramUrl);
@@ -248,7 +248,7 @@ export default function HomePage() {
 
   const handleOrderBankAccount = async () => {
     const message = encodeURIComponent(t('orderBankAccount'));
-    const telegramUrl = `tg://resolve?domain=YourBotUsername&text=${message}`;
+    const telegramUrl = `https://t.me/xpaid_manager?text=${message}`;
     
     try {
       await Linking.openURL(telegramUrl);

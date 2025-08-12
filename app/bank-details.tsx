@@ -281,8 +281,8 @@ export default function BankDetailsFormPage() {
   };
 
   const handleOrderBankAccount = async () => {
-    const message = encodeURIComponent('Привіт, я хочу замовити послугу відкриття банківського рахунку.');
-    const telegramUrl = `tg://resolve?domain=YourBotUsername&start=${message}`;
+    const message = encodeURIComponent(t('orderBankAccount'));
+    const telegramUrl = `https://t.me/xpaid_manager?text=${message}`;
     
     try {
       await Linking.openURL(telegramUrl);

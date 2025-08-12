@@ -91,7 +91,7 @@ export default function OrderDetailsPage() {
 
   const handleAskQuestion = async () => {
     const message = encodeURIComponent(t('askQuestion'));
-    const telegramUrl = `tg://resolve?domain=YourBotUsername&text=${message}`;
+    const telegramUrl = `https://t.me/xpaid_manager?text=${message}`;
     
     try {
       await Linking.openURL(telegramUrl);

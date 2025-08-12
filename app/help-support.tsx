@@ -41,7 +41,7 @@ export default function HelpAndSupportPage() {
 
   const handleContactSupport = async () => {
     const message = encodeURIComponent(t('contactSupport'));
-    const telegramUrl = `tg://resolve?domain=YourBotUsername&text=${message}`;
+    const telegramUrl = `https://t.me/xpaid_manager?text=${message}`;
     
     try {
       await Linking.openURL(telegramUrl);
