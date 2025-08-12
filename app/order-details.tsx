@@ -90,7 +90,8 @@ export default function OrderDetailsPage() {
   };
 
   const handleAskQuestion = async () => {
-    const message = encodeURIComponent(t('askQuestion'));
+    const orderId = displayOrderData?.id || 'unknown';
+    const message = encodeURIComponent(`${t('askQuestion')} (Order ID: ${orderId})`);
     const telegramUrl = `https://t.me/xpaid_manager?text=${message}`;
     
     try {
@@ -201,6 +202,13 @@ export default function OrderDetailsPage() {
                    displayOrderData.status === 'completed' ? t('completed') : displayOrderData.status}
                 </Text>
               </View>
+            </View>
+            
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Order ID</Text>
+              <Text style={[styles.detailValue, styles.orderIdValue]}>
+                {displayOrderData?.id || 'N/A'}
+              </Text>
             </View>
           </View>
         </View>
