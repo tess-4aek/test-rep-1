@@ -84,15 +84,14 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    // Determine KYC status - only set to true if verification is genuinely successful
-    const kycStatus = reviewStatus === 'completed' && reviewResult?.reviewAnswer === 'GREEN';
+    // Determine KYC status to set
+    const kycStatus = reviewResult?.reviewAnswer || reviewStatus;
 
     console.log("Processing KYC webhook:", {
       externalUserId,
       reviewStatus,
       reviewAnswer: reviewResult?.reviewAnswer,
       finalKycStatus: kycStatus,
-      isApproved: kycStatus
     });
 
     // Update user KYC status in database
