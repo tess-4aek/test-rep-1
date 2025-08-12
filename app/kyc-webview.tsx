@@ -11,8 +11,6 @@ import { StatusBar } from 'expo-status-bar';
 import { ArrowLeft, X } from 'lucide-react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { t } from '@/lib/i18n';
-import { updateUserKYCStatus } from '@/lib/supabase';
-import { getUserData, saveUserData } from '@/utils/auth';
 
 export default function KYCWebViewPage() {
   const { url } = useLocalSearchParams<{ url: string }>();
@@ -24,48 +22,8 @@ export default function KYCWebViewPage() {
   };
 
   const handleClose = () => {
-    handleKYCCompletion();
-  };
-
-  const handleKYCCompletion = async () => {
-    try {
-      // Get current user data
-      const currentUser = await getUserData();
-      if (!currentUser) {
-        console.error('No user data found');
-        router.push('/');
-        return;
-      }
-
-      if (!currentUser.telegram_id) {
-        console.error('No telegram_id found for user');
-        router.push('/post-kyc');
-        return;
-      }
-
-      console.log('Updating KYC status for telegram_id:', currentUser.telegram_id);
-      
-      // Update KYC status in Supabase
-      const updatedUser = await updateUserKYCStatus(currentUser.telegram_id);
-      if (!updatedUser) {
-        console.error('Failed to update KYC status');
-        // Still navigate but show error
-        router.push('/post-kyc');
-        return;
-      }
-
-      // Update local user data
-      await saveUserData(updatedUser);
-      console.log('KYC status updated successfully');
-
-      // Navigate to post-KYC page
-      router.push('/post-kyc');
-      
-    } catch (error) {
-      console.error('Error completing KYC:', error);
-      // Still navigate on error to avoid blocking user
-      router.push('/post-kyc');
-    }
+    // Simply navigate back to auth progress to check updated status
+    router.push('/auth-progress');
   };
 
   const handleLoadStart = () => {
@@ -92,8 +50,8 @@ export default function KYCWebViewPage() {
     // Check if KYC process is completed based on URL patterns
     if (navState.url.includes('success') || navState.url.includes('completed')) {
       console.log('🎉 KYC verification appears to be completed');
-      // Auto-complete KYC when success URL is detected
-      handleKYCCompletion();
+      // Navigate back to auth progress to check updated status from webhook
+      router.push('/auth-progress');
     }
   };
 

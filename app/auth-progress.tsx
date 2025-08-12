@@ -1,4 +1,5 @@
 import React from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   Text,
@@ -12,6 +13,8 @@ import { StatusBar } from 'expo-status-bar';
 import { CircleCheck as CheckCircle, Clock, Square } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { t } from '@/lib/i18n';
+import { getUserData, saveUserData, determineNextScreen } from '@/utils/auth';
+import { checkUserExists } from '@/lib/supabase';
 
 interface StepItemProps {
   icon: React.ReactNode;
@@ -71,6 +74,58 @@ const StepItem: React.FC<StepItemProps> = ({ icon, title, status, isLast }) => {
 };
 
 export default function AuthProgressPage() {
+  const [userData, setUserData] = React.useState(null);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  // Re-fetch user data when screen is focused to get latest KYC status from webhook
+  useFocusEffect(
+    React.useCallback(() => {
+      const refreshUserData = async () => {
+        try {
+          setIsLoading(true);
+          console.log('🔄 Refreshing user data to check KYC status...');
+          
+          // Get current user data
+          const currentUser = await getUserData();
+          if (!currentUser?.id) {
+            console.error('No user data found');
+            router.replace('/');
+            return;
+          }
+
+          // Fetch latest user data from database (includes webhook updates)
+          const latestUserData = await checkUserExists(currentUser.id);
+          if (latestUserData) {
+            // Update local storage with latest data
+            await saveUserData(latestUserData);
+            setUserData(latestUserData);
+            
+            console.log('📊 Latest user KYC status:', latestUserData.kyc_status);
+            
+            // Check if user should be redirected to next screen
+            const nextScreen = determineNextScreen(latestUserData);
+            if (nextScreen !== '/auth-progress') {
+              console.log('🏠 User status changed, navigating to:', nextScreen);
+              router.replace(nextScreen as any);
+              return;
+            }
+          } else {
+            setUserData(currentUser);
+          }
+        } catch (error) {
+          console.error('❌ Error refreshing user data:', error);
+          // Use cached data on error
+          const cachedUser = await getUserData();
+          setUserData(cachedUser);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      refreshUserData();
+    }, [])
+  );
+
   const handleContinueKYC = async () => {
     try {
       // Mock user data - in real app this would come from auth context
@@ -125,6 +180,24 @@ export default function AuthProgressPage() {
     }
   };
 
+  // Determine KYC status dynamically based on user data
+  const getKYCStatus = () => {
+    if (isLoading) return 'pending';
+    if (!userData) return 'pending';
+    
+    // Check if KYC is completed (webhook sets this to true when verification passes)
+    if (userData.kyc_status === true || userData.kyc_verified === true) {
+      return 'completed';
+    }
+    
+    // If KYC verification URL exists, it means process was started
+    if (userData.kyc_verification_url) {
+      return 'pending';
+    }
+    
+    return 'pending';
+  };
+
   const steps = [
     {
       icon: <CheckCircle />,
@@ -134,7 +207,7 @@ export default function AuthProgressPage() {
     {
       icon: <Clock />,
       title: t('kycVerification'),
-      status: 'pending' as const,
+      status: getKYCStatus() as 'completed' | 'pending' | 'not-started',
     },
     {
       icon: <Square />,
@@ -142,6 +215,18 @@ export default function AuthProgressPage() {
       status: 'not-started' as const,
     },
   ];
+
+  // Show loading state while fetching user data
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <StatusBar style="dark" />
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Checking verification status...</Text>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -180,14 +265,17 @@ export default function AuthProgressPage() {
           style={styles.ctaButton}
           onPress={handleContinueKYC}
           activeOpacity={0.9}
+          disabled={getKYCStatus() === 'completed'}
         >
           <LinearGradient
-            colors={['#3D8BFF', '#2A7FFF']}
+            colors={getKYCStatus() === 'completed' ? ['#9CA3AF', '#9CA3AF'] : ['#3D8BFF', '#2A7FFF']}
             style={styles.buttonGradient}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
           >
-            <Text style={styles.ctaButtonText}>{t('continueKyc')}</Text>
+            <Text style={styles.ctaButtonText}>
+              {getKYCStatus() === 'completed' ? t('completed') : t('continueKyc')}
+            </Text>
           </LinearGradient>
         </TouchableOpacity>
         
@@ -203,6 +291,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F4F6F9',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 32,
+  },
+  loadingText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#6B7280',
+    textAlign: 'center',
   },
   scrollView: {
     flex: 1,

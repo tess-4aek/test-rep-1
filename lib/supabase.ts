@@ -54,31 +54,6 @@ export async function checkUserExists(userId: string): Promise<User | null> {
   }
 }
 
-export async function updateUserKYCStatus(telegramId: string): Promise<User | null> {
-  try {
-    const { data, error } = await supabase
-      .from('users')
-      .update({ 
-        kyc_status: true,
-        updated_at: new Date().toISOString()
-      })
-      .eq('telegram_id', telegramId)
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error updating KYC status for telegram_id:', telegramId, error);
-      throw error;
-    }
-
-    console.log('Successfully updated KYC status for telegram_id:', telegramId);
-    return data as User;
-  } catch (error) {
-    console.error('Error updating KYC status for telegram_id:', telegramId, error);
-    return null;
-  }
-}
-
 export async function updateUserBankDetailsStatus(telegramId: string, bankDetails: {
   fullName: string;
   iban: string;
