@@ -105,6 +105,12 @@ Deno.serve(async (req)=>{
     if (user.kyc_verified) {
       console.log(`✅ User already has KYC verified`);
       return new Response(JSON.stringify({
+    // Check if user has telegram_id
+    if (!user.telegram_id) {
+      console.error('❌ User does not have telegram_id:', user_id);
+      throw new Error('User must have telegram_id to proceed with KYC verification');
+    }
+    
         success: false,
         error: 'User already has KYC verified',
         user_id: user.id,
@@ -117,9 +123,9 @@ Deno.serve(async (req)=>{
         status: 400
       });
     }
-    // Use the user's own ID as the external user ID for easy identification in webhooks
-    const externalUserId = user.id;
-    console.log(`🆔 Using user ID as external user ID: ${externalUserId}`);
+    // Use the user's telegram_id as the external user ID for consistent identification in webhooks
+    const externalUserId = user.telegram_id;
+    console.log(`🆔 Using telegram_id as external user ID: ${externalUserId}`);
     // Update user with external user ID if not already set
     if (user.sumsub_external_user_id !== externalUserId) {
       const { error: updateError } = await supabase.from('users').update({
