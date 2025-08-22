@@ -10,10 +10,10 @@ import { StatusBar } from 'expo-status-bar';
 import { User, CreditCard, Shield, Settings, CircleHelp as HelpCircle, LogOut, ChevronRight } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { t } from '@/lib/i18n';
-import { getUserData, User as UserType, clearUserData, clearUserUUID } from '@/utils/auth';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function ProfilePage() {
-  const [userData, setUserData] = React.useState<UserType | null>(null);
+  const { user, signOut } = useAuth();
 
   const menuItems = [
     {
@@ -33,14 +33,6 @@ export default function ProfilePage() {
     },
   ];
 
-  React.useEffect(() => {
-    const loadUserData = async () => {
-      const user = await getUserData();
-      setUserData(user);
-    };
-    loadUserData();
-  }, []);
-
   const handleMenuItemPress = (index: number) => {
     switch (index) {
       case 0: // Personal Information
@@ -57,23 +49,18 @@ export default function ProfilePage() {
 
   const handleLogout = async () => {
     try {
-      console.log('🚪 Logging out user...');
-      
-      // Clear all user data and auth status
-      await clearUserData();
-      await clearUserUUID();
-      
-      console.log('✅ User logged out successfully');
-      
-      // Navigate to intro/sign-in screen
-      router.replace('/');
-      
+      const { error } = await signOut();
+      if (error) {
+        console.error('Error signing out:', error);
+      } else {
+        router.replace('/auth/sign-in');
+      }
     } catch (error) {
-      console.error('❌ Error during logout:', error);
-      // Still navigate to intro/sign-in on error
-      router.replace('/');
+      console.error('Error during logout:', error);
+      router.replace('/auth/sign-in');
     }
   };
+  
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
@@ -96,12 +83,10 @@ export default function ProfilePage() {
             </View>
           </View>
           <Text style={styles.userName}>
-            {userData?.first_name && userData?.last_name 
-              ? `${userData.first_name} ${userData.last_name}` 
-              : userData?.first_name || userData?.last_name || 'User'}
+            {user?.email?.split('@')[0] || 'User'}
           </Text>
           <Text style={styles.userEmail}>
-            {userData?.username ? `@${userData.username}` : 'No username'}
+            {user?.email || 'No email'}
           </Text>
           <View style={styles.verificationBadge}>
             <Shield color="#10B981" size={16} />
