@@ -10,11 +10,9 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { Zap, Shield, TrendingUp } from 'lucide-react-native';
 import { router } from 'expo-router';
-import { Linking, Modal } from 'react-native';
+import { Linking } from 'react-native';
+import * as Crypto from 'expo-crypto';
 import { t } from '@/lib/i18n';
-import AuthProviders from '@/components/AuthProviders';
-import { supabase } from '@/lib/supabase';
-import { saveUserData } from '@/utils/auth';
 
 import { resetAll } from '../scripts/resetAll.ts';
 
@@ -22,8 +20,6 @@ const { width: screenWidth } = Dimensions.get('window');
 
 export default function IntroPage() {
   const scrollViewRef = useRef<ScrollView>(null);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authLoading, setAuthLoading] = useState(false);
   const currentIndex = useRef(0);
 
   const slides = [
@@ -64,68 +60,34 @@ export default function IntroPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleTelegramSignIn = async () => {
+  const handleSignIn = async () => {
     try {
-      const { createClient } = await import('@supabase/supabase-js');
-      const * as Crypto from 'expo-crypto';
-      
+      // Generate unique UUID for this authentication session
       const authUuid = Crypto.randomUUID();
+      console.log('Generated auth UUID:', authUuid);
+      
+      // Create Telegram bot URL with the UUID
       const telegramUrl = `tg://resolve?domain=xPaid_app_test_bot&start=${authUuid}`;
+      console.log('Opening Telegram with URL:', telegramUrl);
+      
+      // Open Telegram
       await Linking.openURL(telegramUrl);
       
+      // Navigate to waiting screen with the UUID
       router.push({
         pathname: '/auth-waiting',
         params: { uuid: authUuid }
       });
+      
     } catch (error) {
       console.error('Error opening Telegram:', error);
-      const * as Crypto from 'expo-crypto';
+      // Fallback: still navigate to waiting screen for testing
       const authUuid = Crypto.randomUUID();
       router.push({
         pathname: '/auth-waiting',
         params: { uuid: authUuid }
       });
     }
-  };
-
-  const handleAuthSuccess = async () => {
-    setAuthLoading(true);
-    try {
-      // Get the current session
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
-      if (error) {
-        console.error('Error getting session:', error);
-        return;
-      }
-
-      if (session?.user) {
-        // Create or update user in our database
-        const userData = {
-          id: session.user.id,
-          email: session.user.email,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        };
-
-        // Save user data locally
-        await saveUserData(userData as any);
-        
-        setShowAuthModal(false);
-        
-        // Navigate to appropriate screen based on user status
-        router.replace('/(tabs)');
-      }
-    } catch (error) {
-      console.error('Error handling auth success:', error);
-    } finally {
-      setAuthLoading(false);
-    }
-  };
-
-  const handleAuthError = (error: string) => {
-    console.error('Auth error:', error);
-    // You can show a toast or alert here
   };
 
   return (
@@ -166,51 +128,16 @@ export default function IntroPage() {
       <View style={styles.ctaContainer}>
         <TouchableOpacity
           style={styles.signInButton}
-          onPress={() => setShowAuthModal(true)}
+          onPress={handleSignIn}
           activeOpacity={0.9}
         >
           <Text style={styles.signInButtonText}>{t('signIn')}</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity
-          style={styles.telegramButton}
-          onPress={handleTelegramSignIn}
-          activeOpacity={0.9}
-        >
-          <Text style={styles.telegramButtonText}>{t('continueWithTelegram')}</Text>
         </TouchableOpacity>
         
         <Text style={styles.footerText}>
           {t('secureAuth')}
         </Text>
       </View>
-
-      {/* Auth Modal */}
-      <Modal
-        visible={showAuthModal}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setShowAuthModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{t('signIn')}</Text>
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={() => setShowAuthModal(false)}
-              >
-                <Text style={styles.closeButtonText}>×</Text>
-              </TouchableOpacity>
-            </View>
-            
-            <AuthProviders
-              onAuthSuccess={handleAuthSuccess}
-              onAuthError={handleAuthError}
-            />
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -331,23 +258,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     letterSpacing: 0.5,
   },
-  telegramButton: {
-    width: '100%',
-    height: 56,
-    backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: '#3D8BFF',
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  telegramButtonText: {
-    color: '#3D8BFF',
-    fontSize: 18,
-    fontWeight: '600',
-    letterSpacing: 0.5,
-  },
   footerText: {
     marginTop: 16,
     fontSize: 14,
@@ -355,44 +265,5 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     textAlign: 'center',
     letterSpacing: 0.3,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingHorizontal: 32,
-    paddingTop: 24,
-    paddingBottom: 50,
-    maxHeight: '90%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 32,
-  },
-  modalTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#0C1E3C',
-  },
-  closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#F4F6F9',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  closeButtonText: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#6B7280',
-    lineHeight: 20,
   },
 });

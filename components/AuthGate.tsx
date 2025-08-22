@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
-import { getAuthStatus, getUserData, determineNextScreen, checkSupabaseAuth } from '@/utils/auth';
-import { supabase } from '@/lib/supabase';
+import { getAuthStatus, getUserData, determineNextScreen } from '@/utils/auth';
 
 export default function AuthGate() {
   const [isLoading, setIsLoading] = useState(true);
@@ -12,32 +11,13 @@ export default function AuthGate() {
       try {
         console.log('🔍 Checking authentication status...');
         
-        // Check both local auth status and Supabase session
-        const [isLocallyAuthenticated, isSupabaseAuthenticated] = await Promise.all([
-          getAuthStatus(),
-          checkSupabaseAuth()
-        ]);
-        
-        console.log('Local auth status:', isLocallyAuthenticated);
-        console.log('Supabase auth status:', isSupabaseAuthenticated);
-        
-        const isAuthenticated = isLocallyAuthenticated || isSupabaseAuthenticated;
+        // Check if user is authenticated
+        const isAuthenticated = await getAuthStatus();
+        console.log('Auth status:', isAuthenticated);
         
         if (isAuthenticated) {
-          let userData = await getUserData();
-          
-          // If no local user data but Supabase session exists, get from Supabase
-          if (!userData && isSupabaseAuthenticated) {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session?.user) {
-              userData = {
-                id: session.user.id,
-                email: session.user.email,
-                created_at: session.user.created_at,
-                updated_at: new Date().toISOString(),
-              } as any;
-            }
-          }
+          // User is authenticated, get user data to determine next screen
+          const userData = await getUserData();
           
           if (userData) {
             // Determine the appropriate screen based on user completion status
