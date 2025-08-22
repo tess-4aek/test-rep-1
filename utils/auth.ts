@@ -1,118 +1,313 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { supabase } from './supabase';
 import * as SecureStore from 'expo-secure-store';
-import { User as SupabaseUser } from '@/lib/supabase';
+import { Session, User, AuthError } from '@supabase/supabase-js';
 
-// Re-export User type for convenience
-export type User = SupabaseUser;
+const SESSION_KEY = 'supabase_session';
 
-const USER_STORAGE_KEY = 'authenticated_user';
-const USER_UUID_KEY = 'userUUID';
-const AUTH_STATUS_KEY = 'is_auth';
-
-/**
- * Set authentication status
- */
-export async function setAuthStatus(isAuthenticated: boolean): Promise<void> {
-  try {
-    await AsyncStorage.setItem(AUTH_STATUS_KEY, isAuthenticated ? 'true' : 'false');
-    console.log('Auth status set to:', isAuthenticated);
-  } catch (error) {
-    console.error('Error setting auth status:', error);
-  }
+export interface AuthUser {
+  id: string;
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+  kyc_status?: boolean;
+  bank_details_status?: boolean;
+  bank_full_name?: string;
+  bank_iban?: string;
+  bank_swift_bic?: string;
+  bank_name?: string;
+  bank_country?: string;
+  monthly_limit?: number;
+  daily_limit?: number;
+  monthly_limit_used?: number;
+  daily_limit_used?: number;
+  limit_reset_date?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
-/**
- * Get authentication status
- */
-export async function getAuthStatus(): Promise<boolean> {
-  try {
-    const status = await AsyncStorage.getItem(AUTH_STATUS_KEY);
-    return status === 'true';
-  } catch (error) {
-    console.error('Error getting auth status:', error);
-    return false;
-  }
+export interface AuthResponse {
+  success: boolean;
+  error?: string;
+  user?: AuthUser;
+  needsEmailVerification?: boolean;
 }
 
-/**
- * Save user UUID to secure storage
- */
-export async function saveUserUUID(uuid: string): Promise<void> {
-  try {
-    await SecureStore.setItemAsync(USER_UUID_KEY, uuid);
-    console.log('User UUID saved to secure storage');
-  } catch (error) {
-    console.error('Error saving user UUID:', error);
-  }
-}
+// Email validation
+export const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
 
-/**
- * Get user UUID from secure storage
- */
-export async function getUserUUID(): Promise<string | null> {
-  try {
-    return await SecureStore.getItemAsync(USER_UUID_KEY);
-  } catch (error) {
-    console.error('Error loading user UUID:', error);
-    return null;
-  }
-}
+// Password validation
+export const isValidPassword = (password: string): boolean => {
+  return password.length >= 8 && /\d/.test(password);
+};
 
-/**
- * Clear user UUID from secure storage
- */
-export async function clearUserUUID(): Promise<void> {
-  try {
-    await SecureStore.deleteItemAsync(USER_UUID_KEY);
-    console.log('User UUID cleared from secure storage');
-  } catch (error) {
-    console.error('Error clearing user UUID:', error);
+// Map Supabase errors to user-friendly messages
+const mapAuthError = (error: AuthError): string => {
+  switch (error.message) {
+    case 'Invalid login credentials':
+      return 'Invalid email or password';
+    case 'Email not confirmed':
+      return 'Please verify your email address';
+    case 'User already registered':
+      return 'An account with this email already exists';
+    case 'Password should be at least 6 characters':
+      return 'Password must be at least 8 characters with at least 1 digit';
+    default:
+      return error.message || 'An unexpected error occurred';
   }
-}
-export async function saveUserData(user: SupabaseUser): Promise<void> {
-  try {
-    await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
-    await setAuthStatus(true);
-    console.log('User data saved to storage');
-  } catch (error) {
-    console.error('Error saving user data:', error);
-  }
-}
+};
 
-export async function getUserData(): Promise<SupabaseUser | null> {
+// Store session securely
+const storeSession = async (session: Session | null): Promise<void> => {
   try {
-    const userData = await AsyncStorage.getItem(USER_STORAGE_KEY);
-    if (userData) {
-      return JSON.parse(userData) as SupabaseUser;
+    if (session) {
+      await SecureStore.setItemAsync(SESSION_KEY, JSON.stringify(session));
+    } else {
+      await SecureStore.deleteItemAsync(SESSION_KEY);
     }
-    return null;
   } catch (error) {
-    console.error('Error loading user data:', error);
-    return null;
+    console.error('Error storing session:', error);
   }
-}
+};
 
-export async function clearUserData(): Promise<void> {
+// Get stored session
+const getStoredSession = async (): Promise<Session | null> => {
   try {
-    await AsyncStorage.removeItem(USER_STORAGE_KEY);
-    await setAuthStatus(false);
-    console.log('User data cleared from storage');
+    const sessionData = await SecureStore.getItemAsync(SESSION_KEY);
+    return sessionData ? JSON.parse(sessionData) : null;
   } catch (error) {
-    console.error('Error clearing user data:', error);
+    console.error('Error getting stored session:', error);
+    return null;
   }
-}
+};
 
-export function determineNextScreen(user: SupabaseUser): string {
+// Sign up with email and password
+export const signUp = async (email: string, password: string): Promise<AuthResponse> => {
+  try {
+    if (!isValidEmail(email)) {
+      return { success: false, error: 'Please enter a valid email address' };
+    }
+
+    if (!isValidPassword(password)) {
+      return { success: false, error: 'Password must be at least 8 characters with at least 1 digit' };
+    }
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (error) {
+      return { success: false, error: mapAuthError(error) };
+    }
+
+    if (data.session) {
+      await storeSession(data.session);
+      const user = await getCurrentUser();
+      return { success: true, user };
+    }
+
+    // Email confirmation required
+    return { 
+      success: true, 
+      needsEmailVerification: true 
+    };
+  } catch (error) {
+    return { success: false, error: 'An unexpected error occurred' };
+  }
+};
+
+// Sign in with email and password
+export const signIn = async (email: string, password: string): Promise<AuthResponse> => {
+  try {
+    if (!isValidEmail(email)) {
+      return { success: false, error: 'Please enter a valid email address' };
+    }
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      return { success: false, error: mapAuthError(error) };
+    }
+
+    if (data.session) {
+      await storeSession(data.session);
+      const user = await getCurrentUser();
+      return { success: true, user };
+    }
+
+    return { success: false, error: 'Failed to sign in' };
+  } catch (error) {
+    return { success: false, error: 'An unexpected error occurred' };
+  }
+};
+
+// Sign out
+export const signOut = async (): Promise<void> => {
+  try {
+    await supabase.auth.signOut();
+    await storeSession(null);
+  } catch (error) {
+    console.error('Error signing out:', error);
+    // Clear session even if signOut fails
+    await storeSession(null);
+  }
+};
+
+// Reset password
+export const resetPassword = async (email: string): Promise<AuthResponse> => {
+  try {
+    if (!isValidEmail(email)) {
+      return { success: false, error: 'Please enter a valid email address' };
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+
+    if (error) {
+      return { success: false, error: mapAuthError(error) };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: 'An unexpected error occurred' };
+  }
+};
+
+// Update password (for reset password flow)
+export const updatePassword = async (newPassword: string): Promise<AuthResponse> => {
+  try {
+    if (!isValidPassword(newPassword)) {
+      return { success: false, error: 'Password must be at least 8 characters with at least 1 digit' };
+    }
+
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+
+    if (error) {
+      return { success: false, error: mapAuthError(error) };
+    }
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: 'An unexpected error occurred' };
+  }
+};
+
+// Get current session
+export const getSession = async (): Promise<Session | null> => {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+      await storeSession(session);
+      return session;
+    }
+    
+    // Try to get from secure store if Supabase doesn't have it
+    return await getStoredSession();
+  } catch (error) {
+    console.error('Error getting session:', error);
+    return null;
+  }
+};
+
+// Get current user with profile data
+export const getCurrentUser = async (): Promise<AuthUser | null> => {
+  try {
+    const session = await getSession();
+    if (!session?.user) {
+      return null;
+    }
+
+    // Get user profile from database
+    const { data: profile, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', session.user.id)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      console.error('Error fetching user profile:', error);
+    }
+
+    return {
+      id: session.user.id,
+      email: session.user.email,
+      ...profile,
+    };
+  } catch (error) {
+    console.error('Error getting current user:', error);
+    return null;
+  }
+};
+
+// Initialize session on app start
+export const initializeAuth = async (): Promise<Session | null> => {
+  try {
+    // First try to get session from Supabase
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (session) {
+      await storeSession(session);
+      return session;
+    }
+
+    // If no session from Supabase, try stored session
+    const storedSession = await getStoredSession();
+    if (storedSession) {
+      // Validate stored session by setting it
+      const { error } = await supabase.auth.setSession(storedSession);
+      if (!error) {
+        return storedSession;
+      } else {
+        // Invalid stored session, clear it
+        await storeSession(null);
+      }
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error initializing auth:', error);
+    return null;
+  }
+};
+
+// Helper for authenticated fetch requests
+export const authFetch = async (url: string, options: RequestInit = {}): Promise<Response> => {
+  const session = await getSession();
+  
+  const headers = {
+    'Content-Type': 'application/json',
+    ...options.headers,
+  };
+
+  if (session?.access_token) {
+    headers['Authorization'] = `Bearer ${session.access_token}`;
+  }
+
+  return fetch(url, {
+    ...options,
+    headers,
+  });
+};
+
+// Determine next screen based on user status
+export const determineNextScreen = (user: AuthUser): string => {
   // Check KYC status first
-  if (!user.kyc_status || user.kyc_status === false) {
+  if (!user.kyc_status) {
     return '/auth-progress';
   }
   
   // Then check bank details status
-  if (!user.bank_details_status || user.bank_details_status === false) {
+  if (!user.bank_details_status) {
     return '/bank-details';
   }
   
   // If both are complete, go to main app
   return '/(tabs)';
-}
+};

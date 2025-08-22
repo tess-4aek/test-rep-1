@@ -1,93 +1,24 @@
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  Dimensions,
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { Zap, Shield, TrendingUp } from 'lucide-react-native';
+import { Zap, Shield, TrendingUp, ArrowRight } from 'lucide-react-native';
 import { router } from 'expo-router';
-import { Linking } from 'react-native';
-import * as Crypto from 'expo-crypto';
 import { t } from '@/lib/i18n';
-
-import { resetAll } from '../scripts/resetAll.ts';
-
-const { width: screenWidth } = Dimensions.get('window');
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function IntroPage() {
-  const scrollViewRef = useRef<ScrollView>(null);
-  const currentIndex = useRef(0);
+  const handleSignIn = () => {
+    router.push('/sign-in');
+  };
 
-  const slides = [
-    {
-      id: 1,
-      title: t('instantExchange'),
-      subtitle: t('instantExchangeDesc'),
-      icon: <Zap color="#3D8BFF" size={48} />,
-    },
-    {
-      id: 2,
-      title: t('bankGradeSecurity'),
-      subtitle: t('bankGradeSecurityDesc'),
-      icon: <Shield color="#10B981" size={48} />,
-    },
-    {
-      id: 3,
-      title: t('bestRates'),
-      subtitle: t('bestRatesDesc'),
-      icon: <TrendingUp color="#F59E0B" size={48} />,
-    },
-  ];
-
-  useEffect(() => {
-  resetAll();
-    
-    const interval = setInterval(() => {
-      currentIndex.current = (currentIndex.current + 1) % slides.length;
-      
-      if (scrollViewRef.current) {
-        scrollViewRef.current.scrollTo({
-          x: currentIndex.current * screenWidth,
-          animated: true,
-        });
-      }
-    }, 4500);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleSignIn = async () => {
-    try {
-      // Generate unique UUID for this authentication session
-      const authUuid = Crypto.randomUUID();
-      console.log('Generated auth UUID:', authUuid);
-      
-      // Create Telegram bot URL with the UUID
-      const telegramUrl = `tg://resolve?domain=xPaid_app_test_bot&start=${authUuid}`;
-      console.log('Opening Telegram with URL:', telegramUrl);
-      
-      // Open Telegram
-      await Linking.openURL(telegramUrl);
-      
-      // Navigate to waiting screen with the UUID
-      router.push({
-        pathname: '/auth-waiting',
-        params: { uuid: authUuid }
-      });
-      
-    } catch (error) {
-      console.error('Error opening Telegram:', error);
-      // Fallback: still navigate to waiting screen for testing
-      const authUuid = Crypto.randomUUID();
-      router.push({
-        pathname: '/auth-waiting',
-        params: { uuid: authUuid }
-      });
-    }
+  const handleSignUp = () => {
+    router.push('/sign-up');
   };
 
   return (
@@ -100,43 +31,58 @@ export default function IntroPage() {
         <Text style={styles.tagline}>{t('tagline')}</Text>
       </View>
 
-      {/* Horizontal Slider */}
-      <View style={styles.sliderContainer}>
-        <ScrollView
-          ref={scrollViewRef}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          scrollEventThrottle={16}
-          style={styles.slider}
-        >
-          {slides.map((slide) => (
-            <View key={slide.id} style={styles.slide}>
-              <View style={styles.slideContent}>
-                <View style={styles.iconContainer}>
-                  {slide.icon}
-                </View>
-                <Text style={styles.slideTitle}>{slide.title}</Text>
-                <Text style={styles.slideSubtitle}>{slide.subtitle}</Text>
-              </View>
-            </View>
-          ))}
-        </ScrollView>
+      {/* Features */}
+      <View style={styles.featuresContainer}>
+        <View style={styles.featureItem}>
+          <View style={styles.featureIcon}>
+            <Zap color="#3D8BFF" size={32} />
+          </View>
+          <Text style={styles.featureTitle}>{t('instantExchange')}</Text>
+          <Text style={styles.featureDescription}>{t('instantExchangeDesc')}</Text>
+        </View>
+        
+        <View style={styles.featureItem}>
+          <View style={styles.featureIcon}>
+            <Shield color="#10B981" size={32} />
+          </View>
+          <Text style={styles.featureTitle}>{t('bankGradeSecurity')}</Text>
+          <Text style={styles.featureDescription}>{t('bankGradeSecurityDesc')}</Text>
+        </View>
+        
+        <View style={styles.featureItem}>
+          <View style={styles.featureIcon}>
+            <TrendingUp color="#F59E0B" size={32} />
+          </View>
+          <Text style={styles.featureTitle}>{t('bestRates')}</Text>
+          <Text style={styles.featureDescription}>{t('bestRatesDesc')}</Text>
+        </View>
       </View>
 
-      {/* Sign In Button */}
+      {/* CTA Buttons */}
       <View style={styles.ctaContainer}>
         <TouchableOpacity
           style={styles.signInButton}
           onPress={handleSignIn}
           activeOpacity={0.9}
         >
-          <Text style={styles.signInButtonText}>{t('signIn')}</Text>
+          <LinearGradient
+            colors={['#3D8BFF', '#2A7FFF']}
+            style={styles.buttonGradient}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+          >
+            <Text style={styles.signInButtonText}>{t('signIn')}</Text>
+            <ArrowRight color="#FFFFFF" size={20} />
+          </LinearGradient>
         </TouchableOpacity>
         
-        <Text style={styles.footerText}>
-          {t('secureAuth')}
-        </Text>
+        <TouchableOpacity
+          style={styles.signUpButton}
+          onPress={handleSignUp}
+          activeOpacity={0.9}
+        >
+          <Text style={styles.signUpButtonText}>Create Account</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -150,7 +96,7 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: 32,
     paddingTop: 80,
-    marginBottom: 60,
+    marginBottom: 40,
     alignItems: 'center',
   },
   appName: {
@@ -168,27 +114,24 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     textAlign: 'center',
   },
-  sliderContainer: {
-    height: 320,
-    marginBottom: 60,
-  },
-  slider: {
+  featuresContainer: {
     flex: 1,
-  },
-  slide: {
-    width: screenWidth,
-    justifyContent: 'center',
-    alignItems: 'center',
     paddingHorizontal: 32,
-  },
-  slideContent: {
-    alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F8FAFC',
-    borderRadius: 24,
-    padding: 40,
-    width: '100%',
-    maxWidth: 320,
+    gap: 32,
+  },
+  featureItem: {
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  featureIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 24,
     shadowColor: '#0C1E3C',
     shadowOffset: {
       width: 0,
@@ -198,50 +141,33 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 4,
   },
-  iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 20,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 24,
-    shadowColor: '#0C1E3C',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  slideTitle: {
-    fontSize: 24,
+  featureTitle: {
+    fontSize: 20,
     fontWeight: '700',
     color: '#0C1E3C',
     textAlign: 'center',
     marginBottom: 12,
-    lineHeight: 28,
+    lineHeight: 24,
   },
-  slideSubtitle: {
-    fontSize: 16,
+  featureDescription: {
+    fontSize: 14,
     fontWeight: '400',
     color: '#6B7280',
     textAlign: 'center',
-    lineHeight: 24,
+    lineHeight: 20,
   },
   ctaContainer: {
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 32,
-    paddingBottom: 60,
+    paddingBottom: 50,
     alignItems: 'center',
+    gap: 16,
   },
   signInButton: {
     width: '100%',
     height: 56,
     backgroundColor: '#3D8BFF',
     borderRadius: 16,
-    justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#3D8BFF',
     shadowOffset: {
@@ -252,18 +178,32 @@ const styles = StyleSheet.create({
     shadowRadius: 16,
     elevation: 8,
   },
+  buttonGradient: {
+    flex: 1,
+    borderRadius: 16,
+    flexDirection: 'row',
+    gap: 8,
+  },
   signInButtonText: {
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: '600',
     letterSpacing: 0.5,
   },
-  footerText: {
-    marginTop: 16,
-    fontSize: 14,
-    color: '#6B7280',
-    fontWeight: '500',
-    textAlign: 'center',
-    letterSpacing: 0.3,
+  signUpButton: {
+    width: '100%',
+    height: 56,
+    borderRadius: 16,
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderColor: '#3D8BFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  signUpButtonText: {
+    color: '#3D8BFF',
+    fontSize: 18,
+    fontWeight: '600',
+    letterSpacing: 0.5,
   },
 });
