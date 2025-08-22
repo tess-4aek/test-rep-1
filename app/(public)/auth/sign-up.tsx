@@ -15,8 +15,6 @@ import SocialButton from '../../../components/auth/SocialButton';
 import DividerOr from '../../../components/auth/DividerOr';
 import { validateEmail } from '../../../utils/validation/email';
 import { validatePassword, validatePasswordConfirmation } from '../../../utils/validation/password';
-import googleIcon from '../../../assets/auth/google.png';
-import appleIcon from '../../../assets/auth/apple.png';
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('');
@@ -146,7 +144,7 @@ export default function SignUpPage() {
           {/* Social Sign Up */}
           <View style={styles.socialContainer}>
             <SocialButton
-              icon={googleIcon}
+              badgeText="G"
               label="Continue with Google"
               onPress={handleGoogleSignUp}
               loading={loadingGoogle}
@@ -155,7 +153,7 @@ export default function SignUpPage() {
             />
             
             <SocialButton
-              icon={appleIcon}
+              badgeText=""
               label="Continue with Apple"
               onPress={handleAppleSignUp}
               loading={loadingApple}
