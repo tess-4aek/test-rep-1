@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
-import { User as SupabaseUser } from '@/lib/supabase';
+import { User as SupabaseUser, supabase } from '@/lib/supabase';
 
 // Re-export User type for convenience
 export type User = SupabaseUser;
@@ -94,6 +94,9 @@ export async function getUserData(): Promise<SupabaseUser | null> {
 
 export async function clearUserData(): Promise<void> {
   try {
+    // Sign out from Supabase
+    await supabase.auth.signOut();
+    
     await AsyncStorage.removeItem(USER_STORAGE_KEY);
     await setAuthStatus(false);
     console.log('User data cleared from storage');
@@ -115,4 +118,17 @@ export function determineNextScreen(user: SupabaseUser): string {
   
   // If both are complete, go to main app
   return '/(tabs)';
+}
+
+/**
+ * Check if user is authenticated via Supabase
+ */
+export async function checkSupabaseAuth(): Promise<boolean> {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    return !!session;
+  } catch (error) {
+    console.error('Error checking Supabase auth:', error);
+    return false;
+  }
 }
