@@ -4,7 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { initializeLanguage } from '@/lib/i18n';
-import { AuthProvider } from '@/contexts/AuthContext';
+import AuthGate from '@/components/AuthGate';
 
 export default function RootLayout() {
   useFrameworkReady();
@@ -35,18 +35,13 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
+    <>
+      <AuthGate />
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="auth/sign-in" />
-        <Stack.Screen name="auth/sign-up" />
-        <Stack.Screen name="auth/forgot-password" />
-        <Stack.Screen name="auth/reset-password" />
-        <Stack.Screen name="(tabs)" />
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="auto" />
-    </AuthProvider>
+    </>
   );
 }
 
