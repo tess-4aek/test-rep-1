@@ -2,7 +2,6 @@ import React, { useRef } from 'react';
 import { Modal, View, StyleSheet, TouchableOpacity, Text, SafeAreaView, Alert } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { X } from 'lucide-react-native';
-import { BASE_URL } from '../lib/baseUrl';
 import * as SecureStore from 'expo-secure-store';
 import { router } from 'expo-router';
 
@@ -45,7 +44,7 @@ export default function AuthWebView({ visible, provider, onClose }: AuthWebViewP
     }
   };
 
-  const startUrl = `${BASE_URL}/auth/${provider}/start`;
+  const startUrl = `http://localhost:3000/auth/${provider}/start`;
 
   return (
     <Modal

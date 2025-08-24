@@ -1,55 +1,16 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
-// CORS headers for development
-function getCorsHeaders() {
-  return {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  };
-}
-
-// CORS wrapper for handlers
-function withCors(handler: (req: Request) => Promise<Response>) {
-  return async (req: Request): Promise<Response> => {
-    // Handle preflight OPTIONS request
-    if (req.method === 'OPTIONS') {
-      return new Response(null, {
-        status: 204,
-        headers: getCorsHeaders(),
-      });
-    }
-
-    try {
-      const response = await handler(req);
-      
-      // Add CORS headers to all responses
-      const corsHeaders = getCorsHeaders();
-      Object.entries(corsHeaders).forEach(([key, value]) => {
-        response.headers.set(key, value);
-      });
-      
-      return response;
-    } catch (error) {
-      console.error('Handler error:', error);
-      return new Response(JSON.stringify({ error: 'Authentication failed' }), {
-        status: 500,
-        headers: {
-          ...getCorsHeaders(),
-          'Content-Type': 'application/json',
-        },
-      });
-    }
-  };
-}
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
 }
 
-async function handleAppleStart(req: Request): Promise<Response> {
+serve(async (req: Request) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
   try {
     // Generate Apple OAuth URL
     const authUrl = `https://appleid.apple.com/auth/authorize?` +
@@ -64,6 +25,7 @@ async function handleAppleStart(req: Request): Promise<Response> {
     return new Response(null, {
       status: 302,
       headers: {
+        ...corsHeaders,
         'Location': authUrl
       }
     })
@@ -71,10 +33,7 @@ async function handleAppleStart(req: Request): Promise<Response> {
     console.error('Apple auth start error:', error)
     return new Response(JSON.stringify({ error: 'Authentication failed' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
   }
-}
-
-// Export the CORS-wrapped handler
-serve(withCors(handleAppleStart));
+})

@@ -16,53 +16,6 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 import { compare } from 'npm:bcryptjs@2.4.3';
 import { create } from 'https://deno.land/x/djwt@v2.8/mod.ts';
 
-// CORS headers for development
-function getCorsHeaders() {
-  return {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  };
-}
-
-// CORS wrapper for handlers
-function withCors(handler: (req: Request) => Promise<Response>) {
-  return async (req: Request): Promise<Response> => {
-    // Handle preflight OPTIONS request
-    if (req.method === 'OPTIONS') {
-      return new Response(null, {
-        status: 204,
-        headers: getCorsHeaders(),
-      });
-    }
-
-    try {
-      const response = await handler(req);
-      
-      // Add CORS headers to all responses
-      const corsHeaders = getCorsHeaders();
-      Object.entries(corsHeaders).forEach(([key, value]) => {
-        response.headers.set(key, value);
-      });
-      
-      return response;
-    } catch (error) {
-      console.error('Handler error:', error);
-      return new Response(JSON.stringify({ 
-        ok: false, 
-        code: 'INTERNAL_ERROR',
-        message: 'An unexpected error occurred'
-      }), {
-        status: 500,
-        headers: {
-          ...getCorsHeaders(),
-          'Content-Type': 'application/json',
-        },
-      });
-    }
-  };
-}
-
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -73,11 +26,16 @@ const corsHeaders = {
 const RATE_LIMIT_ATTEMPTS = 5;
 const RATE_LIMIT_WINDOW = 10 * 60 * 1000; // 10 minutes in ms
 
-async function handleLogin(req: Request): Promise<Response> {
+Deno.serve(async (req: Request) => {
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ ok: false, code: 'METHOD_NOT_ALLOWED' }), {
       status: 405,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
 
@@ -102,7 +60,7 @@ async function handleLogin(req: Request): Promise<Response> {
     } catch {
       return new Response(JSON.stringify({ ok: false, code: 'INVALID_JSON' }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
@@ -112,7 +70,7 @@ async function handleLogin(req: Request): Promise<Response> {
     if (!email || !password) {
       return new Response(JSON.stringify({ ok: false, code: 'MISSING_FIELDS' }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
@@ -137,6 +95,7 @@ async function handleLogin(req: Request): Promise<Response> {
       return new Response(JSON.stringify({ ok: false, code: 'RATE_LIMITED' }), {
         status: 429,
         headers: { 
+          ...corsHeaders, 
           'Content-Type': 'application/json',
           'Retry-After': '600' // 10 minutes
         }
@@ -166,7 +125,7 @@ async function handleLogin(req: Request): Promise<Response> {
     if (!user || !user.password_hash) {
       return new Response(JSON.stringify({ ok: false, code: 'INVALID_CREDENTIALS' }), {
         status: 401,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
@@ -176,7 +135,7 @@ async function handleLogin(req: Request): Promise<Response> {
     if (!passwordMatch) {
       return new Response(JSON.stringify({ ok: false, code: 'INVALID_CREDENTIALS' }), {
         status: 401,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
@@ -208,17 +167,14 @@ async function handleLogin(req: Request): Promise<Response> {
     const token = await create({ alg: 'HS256', typ: 'JWT' }, payload, key);
 
     return new Response(JSON.stringify({ ok: true, token }), {
-      headers: { 'Content-Type': 'application/json' }
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
 
   } catch (error) {
     console.error('Login error:', error);
     return new Response(JSON.stringify({ ok: false, code: 'INTERNAL_ERROR' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
-}
-
-// Export the CORS-wrapped handler
-Deno.serve(withCors(handleLogin));
+});

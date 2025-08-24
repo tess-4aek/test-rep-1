@@ -2,85 +2,17 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "npm:@supabase/supabase-js@2"
 import { create, verify } from "https://deno.land/x/djwt@v2.8/mod.ts"
 
-// CORS headers for development
-function getCorsHeaders() {
-  return {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  };
-}
-
-// CORS wrapper for handlers
-function withCors(handler: (req: Request) => Promise<Response>) {
-  return async (req: Request): Promise<Response> => {
-    // Handle preflight OPTIONS request
-    if (req.method === 'OPTIONS') {
-      return new Response(null, {
-        status: 204,
-        headers: getCorsHeaders(),
-      });
-    }
-
-    try {
-      const response = await handler(req);
-      
-      // Add CORS headers to all responses
-      const corsHeaders = getCorsHeaders();
-      Object.entries(corsHeaders).forEach(([key, value]) => {
-        response.headers.set(key, value);
-      });
-      
-      return response;
-    } catch (error) {
-      console.error('Handler error:', error);
-      return new Response(getErrorHtml('Authentication failed'), {
-        status: 500,
-        headers: {
-          ...getCorsHeaders(),
-          'Content-Type': 'text/html',
-        },
-      });
-    }
-  };
-}
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
-};
-
-function getErrorHtml(errorMessage: string): string {
-  return `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <title>Authentication Error</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      </head>
-      <body>
-        <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif;">
-          <div style="text-align: center;">
-            <h2>Authentication Failed</h2>
-            <p>${errorMessage}</p>
-          </div>
-        </div>
-        <script>
-          if (window.ReactNativeWebView) {
-            window.ReactNativeWebView.postMessage(JSON.stringify({
-              ok: false,
-              error: '${errorMessage}'
-            }));
-          }
-          setTimeout(() => { window.close?.(); }, 300);
-        </script>
-      </body>
-    </html>
-  `;
 }
 
-async function handleGoogleCallback(req: Request): Promise<Response> {
+serve(async (req: Request) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
   try {
     const url = new URL(req.url)
     const code = url.searchParams.get('code')
@@ -219,6 +151,7 @@ async function handleGoogleCallback(req: Request): Promise<Response> {
 
     return new Response(html, {
       headers: {
+        ...corsHeaders,
         'Content-Type': 'text/html'
       }
     })
@@ -226,14 +159,39 @@ async function handleGoogleCallback(req: Request): Promise<Response> {
   } catch (error) {
     console.error('Google callback error:', error)
     
-    return new Response(getErrorHtml(error.message), {
+    const errorHtml = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Authentication Error</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body>
+          <div style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif;">
+            <div style="text-align: center;">
+              <h2>Authentication Failed</h2>
+              <p>${error.message}</p>
+            </div>
+          </div>
+          <script>
+            if (window.ReactNativeWebView) {
+              window.ReactNativeWebView.postMessage(JSON.stringify({
+                ok: false,
+                error: '${error.message}'
+              }));
+            }
+            setTimeout(() => { window.close?.(); }, 300);
+          </script>
+        </body>
+      </html>
+    `
+
+    return new Response(errorHtml, {
       status: 500,
       headers: {
+        ...corsHeaders,
         'Content-Type': 'text/html'
       }
     })
   }
-}
-
-// Export the CORS-wrapped handler
-serve(withCors(handleGoogleCallback));
+})

@@ -2,49 +2,6 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import passport from "npm:passport@0.6.0"
 import { Strategy as GoogleStrategy } from "npm:passport-google-oauth20@2.0.0"
 
-// CORS headers for development
-function getCorsHeaders() {
-  return {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  };
-}
-
-// CORS wrapper for handlers
-function withCors(handler: (req: Request) => Promise<Response>) {
-  return async (req: Request): Promise<Response> => {
-    // Handle preflight OPTIONS request
-    if (req.method === 'OPTIONS') {
-      return new Response(null, {
-        status: 204,
-        headers: getCorsHeaders(),
-      });
-    }
-
-    try {
-      const response = await handler(req);
-      
-      // Add CORS headers to all responses
-      const corsHeaders = getCorsHeaders();
-      Object.entries(corsHeaders).forEach(([key, value]) => {
-        response.headers.set(key, value);
-      });
-      
-      return response;
-    } catch (error) {
-      console.error('Handler error:', error);
-      return new Response(JSON.stringify({ error: 'Authentication failed' }), {
-        status: 500,
-        headers: {
-          ...getCorsHeaders(),
-          'Content-Type': 'application/json',
-        },
-      });
-    }
-  };
-}
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -60,7 +17,11 @@ passport.use(new GoogleStrategy({
   return done(null, profile)
 }))
 
-async function handleGoogleStart(req: Request): Promise<Response> {
+serve(async (req: Request) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
   try {
     // Generate Google OAuth URL
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
@@ -74,6 +35,7 @@ async function handleGoogleStart(req: Request): Promise<Response> {
     return new Response(null, {
       status: 302,
       headers: {
+        ...corsHeaders,
         'Location': authUrl
       }
     })
@@ -81,10 +43,7 @@ async function handleGoogleStart(req: Request): Promise<Response> {
     console.error('Google auth start error:', error)
     return new Response(JSON.stringify({ error: 'Authentication failed' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
   }
-}
-
-// Export the CORS-wrapped handler
-serve(withCors(handleGoogleStart));
+})
