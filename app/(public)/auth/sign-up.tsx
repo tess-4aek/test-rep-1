@@ -10,18 +10,18 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
-import { postJSON, ApiError } from '@/lib/api';
-import TextField from '@/components/auth/TextField';
-import FormButton from '@/components/auth/FormButton';
-import DividerOr from '@/components/auth/DividerOr';
-import GoogleSignInButton from '@/components/GoogleSignInButton';
-import AppleSignInButton from '@/components/AppleSignInButton';
-import AuthWebView from '@/components/AuthWebView';
-import { validateEmail } from '@/utils/validation/email';
-import { validatePassword, validatePasswordConfirmation } from '@/utils/validation/password';
-import { t } from '@/lib/i18n';
+import { postJSON, ApiError } from '../../../lib/api';
+import TextField from '../../../components/auth/TextField';
+import FormButton from '../../../components/auth/FormButton';
+import DividerOr from '../../../components/auth/DividerOr';
+import GoogleSignInButton from '../../../components/GoogleSignInButton';
+import AppleSignInButton from '../../../components/AppleSignInButton';
+import AuthWebView from '../../../components/AuthWebView';
+import { validateEmail } from '../../../utils/validation/email';
+import { validatePassword, validatePasswordConfirmation } from '../../../utils/validation/password';
+import { t } from '../../../lib/i18n';
 
-export default function SignUpScreen() {
+export default function SignUpPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

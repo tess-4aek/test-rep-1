@@ -6,7 +6,7 @@ import {
   View,
   ActivityIndicator,
 } from 'react-native';
-import { t } from '@/lib/i18n';
+import { t } from '../lib/i18n';
 
 interface AppleSignInButtonProps {
   onPress: () => void;

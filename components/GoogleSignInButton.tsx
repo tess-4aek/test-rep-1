@@ -8,7 +8,7 @@ import {
   Platform,
 } from 'react-native';
 import { SvgXml } from 'react-native-svg';
-import { t } from '@/lib/i18n';
+import { t } from '../lib/i18n';
 
 const GOOGLE_G_SVG = `<svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
   <g fill="none" fill-rule="evenodd">

@@ -6,9 +6,7 @@
   "scripts": {
     "dev": "EXPO_NO_TELEMETRY=1 expo start",
     "build:web": "expo export --platform web",
-    "lint": "expo lint",
-    "reset:metro": "watchman watch-del-all || true && rm -rf $TMPDIR/metro-* && rm -rf node_modules/.cache/metro && rm -rf .expo",
-    "reset": "rm -rf node_modules && npm i && npm run reset:metro"
+    "lint": "expo lint"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",

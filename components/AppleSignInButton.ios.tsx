@@ -1,6 +1,6 @@
 import React from 'react';
 import * as AppleAuthentication from 'expo-apple-authentication';
-import { t } from '@/lib/i18n';
+import { t } from '../lib/i18n';
 
 interface AppleSignInButtonProps {
   onPress: () => void;

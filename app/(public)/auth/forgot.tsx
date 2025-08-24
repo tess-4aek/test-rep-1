@@ -9,11 +9,11 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
 import { ArrowLeft } from 'lucide-react-native';
-import TextField from '@/components/auth/TextField';
-import FormButton from '@/components/auth/FormButton';
-import { validateEmail } from '@/utils/validation/email';
+import TextField from '../../../components/auth/TextField';
+import FormButton from '../../../components/auth/FormButton';
+import { validateEmail } from '../../../utils/validation/email';
 
-export default function ForgotPasswordScreen() {
+export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [formError, setFormError] = useState('');

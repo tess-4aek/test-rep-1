@@ -12,11 +12,11 @@ import { Zap, Shield, TrendingUp } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { t } from '@/lib/i18n';
 
-import { resetAll } from '@/scripts/resetAll';
+import { resetAll } from '../scripts/resetAll.ts';
 
 const { width: screenWidth } = Dimensions.get('window');
 
-export default function IntroScreen() {
+export default function IntroPage() {
   const scrollViewRef = useRef<ScrollView>(null);
   const currentIndex = useRef(0);
 
