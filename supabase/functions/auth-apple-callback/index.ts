@@ -1,6 +1,6 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from "npm:@supabase/supabase-js@2"
-import { create } from "https://deno.land/x/djwt@v2.8/mod.ts"
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "npm:@supabase/supabase-js@2";
+import { create } from "https://deno.land/x/djwt@v2.8/mod.ts";
 
 // CORS headers for development
 function getCorsHeaders() {
@@ -76,49 +76,50 @@ function getErrorHtml(errorMessage: string): string {
   `;
 }
 
+const additionalCorsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
-}
+};
 
 async function handleAppleCallback(req: Request): Promise<Response> {
   try {
-    const formData = await req.formData()
-    const code = formData.get('code')?.toString()
-    const error = formData.get('error')?.toString()
-    const user = formData.get('user')?.toString()
+    const formData = await req.formData();
+    const code = formData.get('code')?.toString();
+    const error = formData.get('error')?.toString();
+    const user = formData.get('user')?.toString();
 
     if (error) {
-      throw new Error(`OAuth error: ${error}`)
+      throw new Error(`OAuth error: ${error}`);
     }
 
     if (!code) {
-      throw new Error('No authorization code received')
+      throw new Error('No authorization code received');
     }
 
     // Parse user data if provided (only on first auth)
-    let userData = null
+    let userData = null;
     if (user) {
       try {
-        userData = JSON.parse(user)
+        userData = JSON.parse(user);
       } catch (e) {
-        console.warn('Failed to parse user data:', e)
+        console.warn('Failed to parse user data:', e);
       }
     }
 
     // Create client secret JWT for Apple
-    const now = Math.floor(Date.now() / 1000)
+    const now = Math.floor(Date.now() / 1000);
     const clientSecretPayload = {
       iss: Deno.env.get('APPLE_TEAM_ID'),
       iat: now,
       exp: now + 3600, // 1 hour
       aud: 'https://appleid.apple.com',
       sub: Deno.env.get('APPLE_CLIENT_ID')
-    }
+    };
 
     // Note: In production, you'd need to sign this with your Apple private key
     // For now, we'll use a placeholder
-    const clientSecret = 'placeholder_client_secret'
+    const clientSecret = 'placeholder_client_secret';
 
     // Exchange code for access token
     const tokenResponse = await fetch('https://appleid.apple.com/auth/token', {
@@ -133,23 +134,23 @@ async function handleAppleCallback(req: Request): Promise<Response> {
         grant_type: 'authorization_code',
         redirect_uri: 'http://localhost:3000/auth/apple/callback'
       })
-    })
+    });
 
-    const tokenData = await tokenResponse.json()
+    const tokenData = await tokenResponse.json();
     
     if (!tokenData.id_token) {
-      throw new Error('Failed to get ID token')
+      throw new Error('Failed to get ID token');
     }
 
     // Decode ID token (simplified - in production use proper JWT verification)
-    const idTokenParts = tokenData.id_token.split('.')
-    const payload = JSON.parse(atob(idTokenParts[1]))
+    const idTokenParts = tokenData.id_token.split('.');
+    const payload = JSON.parse(atob(idTokenParts[1]));
 
     // Initialize Supabase client
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    )
+    );
 
     // Upsert user in database
     const { data: dbUser, error: dbError } = await supabase
@@ -165,22 +166,22 @@ async function handleAppleCallback(req: Request): Promise<Response> {
         ignoreDuplicates: false
       })
       .select()
-      .single()
+      .single();
 
     if (dbError) {
-      console.error('Database error:', dbError)
-      throw new Error('Failed to save user')
+      console.error('Database error:', dbError);
+      throw new Error('Failed to save user');
     }
 
     // Create JWT
-    const jwtSecret = Deno.env.get('JWT_SECRET')!
+    const jwtSecret = Deno.env.get('JWT_SECRET')!;
     const key = await crypto.subtle.importKey(
       "raw",
       new TextEncoder().encode(jwtSecret),
       { name: "HMAC", hash: "SHA-256" },
       false,
       ["sign", "verify"]
-    )
+    );
 
     const jwtPayload = {
       sub: dbUser.id,
@@ -188,9 +189,9 @@ async function handleAppleCallback(req: Request): Promise<Response> {
       name: dbUser.name,
       provider: 'apple',
       exp: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60) // 7 days
-    }
+    };
 
-    const jwt = await create({ alg: "HS256", typ: "JWT" }, jwtPayload, key)
+    const jwt = await create({ alg: "HS256", typ: "JWT" }, jwtPayload, key);
 
     // Return HTML that posts message to React Native WebView
     const html = `
@@ -236,23 +237,23 @@ async function handleAppleCallback(req: Request): Promise<Response> {
           </script>
         </body>
       </html>
-    `
+    `;
 
     return new Response(html, {
       headers: {
         'Content-Type': 'text/html'
       }
-    })
+    });
 
   } catch (error) {
-    console.error('Apple callback error:', error)
+    console.error('Apple callback error:', error);
     
     return new Response(getErrorHtml(error.message), {
       status: 500,
       headers: {
         'Content-Type': 'text/html'
       }
-    })
+    });
   }
 }
 
