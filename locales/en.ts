@@ -172,4 +172,5 @@ export default {
   monthlyLimitExceeded: 'Order amount {{amount}} exceeds your remaining monthly limit of {{remaining}} ({{limit}} total). Please reduce the amount or wait for your limit to reset.',
   continueWithGoogle: 'Continue with Google',
   continueWithApple: 'Continue with Apple',
+  signInWithGoogle: 'Sign in with Google',
 };

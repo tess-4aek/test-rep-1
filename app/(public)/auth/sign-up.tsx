@@ -90,10 +90,12 @@ export default function SignUpPage() {
   };
 
   const handleGoogleSignUp = () => {
+    setLoadingGoogle(true);
     setShowGoogleAuth(true);
   };
 
   const handleAppleSignUp = () => {
+    setLoadingApple(true);
     setShowAppleAuth(true);
   };
 
@@ -130,11 +132,13 @@ export default function SignUpPage() {
           <View style={styles.socialContainer}>
             <GoogleSignInButton
               onPress={handleGoogleSignUp}
+              loading={loadingGoogle}
               disabled={loading}
             />
             
             <AppleSignInButton
               onPress={handleAppleSignUp}
+              loading={loadingApple}
               disabled={loading}
             />
           </View>
@@ -209,13 +213,19 @@ export default function SignUpPage() {
       <AuthWebView
         visible={showGoogleAuth}
         provider="google"
-        onClose={() => setShowGoogleAuth(false)}
+        onClose={() => {
+          setShowGoogleAuth(false);
+          setLoadingGoogle(false);
+        }}
       />
       
       <AuthWebView
         visible={showAppleAuth}
         provider="apple"
-        onClose={() => setShowAppleAuth(false)}
+        onClose={() => {
+          setShowAppleAuth(false);
+          setLoadingApple(false);
+        }}
       />
     </View>
   );
