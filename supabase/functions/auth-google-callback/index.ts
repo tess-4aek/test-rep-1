@@ -45,7 +45,11 @@ function withCors(handler: (req: Request) => Promise<Response>) {
   };
 }
 
-const corsHeaders = getCorsHeaders();
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
+};
 
 function getErrorHtml(errorMessage: string): string {
   return `
@@ -74,11 +78,6 @@ function getErrorHtml(errorMessage: string): string {
       </body>
     </html>
   `;
-}
-
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS"
 }
 
 async function handleGoogleCallback(req: Request): Promise<Response> {
