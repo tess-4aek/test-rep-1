@@ -173,4 +173,10 @@ export default {
   continueWithGoogle: 'Continue with Google',
   continueWithApple: 'Continue with Apple',
   signInWithGoogle: 'Sign in with Google',
+  // Error messages
+  emailTaken: 'Email is already in use',
+  invalidCredentials: 'Invalid email or password',
+  rateLimited: 'Too many attempts. Please try again later',
+  networkError: 'Network error. Please check your connection',
+  somethingWentWrong: 'Something went wrong, try again',
 };
