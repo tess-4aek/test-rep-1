@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { Modal, View, StyleSheet, TouchableOpacity, Text, SafeAreaView, Alert } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { X } from 'lucide-react-native';
-import { BASE_URL } from '../lib/baseUrl';
+import { BASE_URL } from '@/lib/baseUrl';
 import * as SecureStore from 'expo-secure-store';
 import { router } from 'expo-router';
 
