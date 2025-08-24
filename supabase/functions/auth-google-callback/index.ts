@@ -68,12 +68,11 @@ serve(async (req: Request) => {
       .upsert({
         id: crypto.randomUUID(),
         email: profile.email,
-        first_name: profile.given_name,
-        last_name: profile.family_name,
+        name: profile.name,
         google_id: profile.id,
-        updated_at: new Date().toISOString()
+        created_at: new Date().toISOString()
       }, {
-        onConflict: 'email',
+        onConflict: 'google_id',
         ignoreDuplicates: false
       })
       .select()
@@ -97,7 +96,7 @@ serve(async (req: Request) => {
     const payload = {
       sub: user.id,
       email: profile.email,
-      name: `${profile.given_name} ${profile.family_name}`,
+      name: profile.name,
       provider: 'google',
       exp: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60) // 7 days
     }
@@ -122,27 +121,29 @@ serve(async (req: Request) => {
           <script>
             if (window.ReactNativeWebView) {
               window.ReactNativeWebView.postMessage(JSON.stringify({
-                type: 'AUTH_SUCCESS',
+                ok: true,
                 token: '${jwt}',
                 user: {
                   id: '${user.id}',
                   email: '${profile.email}',
-                  name: '${profile.given_name} ${profile.family_name}',
+                  name: '${profile.name}',
                   provider: 'google'
                 }
               }));
             } else {
               // Fallback for testing in browser
               console.log('Auth success:', {
+                ok: true,
                 token: '${jwt}',
                 user: {
                   id: '${user.id}',
                   email: '${profile.email}',
-                  name: '${profile.given_name} ${profile.family_name}',
+                  name: '${profile.name}',
                   provider: 'google'
                 }
               });
             }
+            setTimeout(() => { window.close?.(); }, 300);
           </script>
         </body>
       </html>
@@ -175,10 +176,11 @@ serve(async (req: Request) => {
           <script>
             if (window.ReactNativeWebView) {
               window.ReactNativeWebView.postMessage(JSON.stringify({
-                type: 'AUTH_ERROR',
+                ok: false,
                 error: '${error.message}'
               }));
             }
+            setTimeout(() => { window.close?.(); }, 300);
           </script>
         </body>
       </html>
