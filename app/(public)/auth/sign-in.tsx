@@ -9,15 +9,16 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
-import { Platform } from 'react-native';
+import { Platform, Alert } from 'react-native';
 import TextField from '../../../components/auth/TextField';
 import FormButton from '../../../components/auth/FormButton';
 import SocialButton from '../../../components/auth/SocialButton';
 import DividerOr from '../../../components/auth/DividerOr';
+import OAuthWebView from '../../../components/auth/OAuthWebView';
 import { validateEmail } from '../../../utils/validation/email';
 import { validatePassword } from '../../../utils/validation/password';
-import { supabase } from '../../../lib/supabase';
-import { getRedirectTo } from '../../../utils/oauthRedirect';
+import { storeAuthToken, storeAuthUser } from '../../../utils/auth/tokenStorage';
+import { t } from '../../../lib/i18n';
 
 export default function SignInPage() {
   const [email, setEmail] = useState('');
@@ -27,6 +28,15 @@ export default function SignInPage() {
   const [loading, setLoading] = useState(false);
   const [loadingGoogle, setLoadingGoogle] = useState(false);
   const [loadingApple, setLoadingApple] = useState(false);
+  const [oauthWebView, setOauthWebView] = useState<{
+    visible: boolean;
+    url: string;
+    title: string;
+  }>({
+    visible: false,
+    url: '',
+    title: '',
+  });
 
   const emailRef = useRef<any>(null);
   const passwordRef = useRef<any>(null);
@@ -74,42 +84,46 @@ export default function SignInPage() {
   };
 
   const handleGoogleSignIn = async () => {
-    setLoadingGoogle(true);
-    setFormError('');
-
-    try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: getRedirectTo(),
-          skipBrowserRedirect: false, // let Supabase handle browser/native web flow
-        },
-      });
-      // On web, Supabase will redirect the page; on native, it will open the system browser.
-      // You may not get control back here immediately.
-      if (error) throw error;
-      
-      console.log('Google OAuth initiated successfully');
-    } catch (error) {
-      console.error('Google sign-in error:', error);
-      // show a friendly error banner
-      setFormError('Google sign-in failed. Please try again.');
-    } finally {
-      setLoadingGoogle(false);
-    }
+    setOauthWebView({
+      visible: true,
+      url: 'http://localhost:3000/auth/google/start',
+      title: t('signIn') + ' - Google',
+    });
   };
 
   const handleAppleSignIn = async () => {
-    setLoadingApple(true);
+    setOauthWebView({
+      visible: true,
+      url: 'http://localhost:3000/auth/apple/start',
+      title: t('signIn') + ' - Apple',
+    });
+  };
+
+  const handleOAuthMessage = async (data: any) => {
+    setOauthWebView({ visible: false, url: '', title: '' });
     
-    // Simulate API call
-    setTimeout(() => {
-      console.log('apple');
-      setLoadingApple(false);
-      
-      // Navigate to protected route
-      router.replace('/(tabs)/history');
-    }, 800);
+    if (data.type === 'AUTH_SUCCESS') {
+      try {
+        // Store token and user data
+        await storeAuthToken(data.token);
+        await storeAuthUser(data.user);
+        
+        console.log('OAuth success:', data.user);
+        
+        // Navigate to protected route
+        router.replace('/(tabs)/history');
+      } catch (error) {
+        console.error('Failed to store auth data:', error);
+        setFormError('Authentication failed. Please try again.');
+      }
+    } else if (data.type === 'AUTH_ERROR') {
+      console.error('OAuth error:', data.error);
+      setFormError(data.error || 'Authentication failed. Please try again.');
+    }
+  };
+
+  const handleCloseWebView = () => {
+    setOauthWebView({ visible: false, url: '', title: '' });
   };
 
   const handleForgotPassword = () => {
@@ -149,7 +163,7 @@ export default function SignInPage() {
           <View style={styles.socialContainer}>
             <SocialButton
               badgeText="G"
-              label="Continue with Google"
+              label={t('continueWithGoogle') || 'Continue with Google'}
               onPress={handleGoogleSignIn}
               loading={loadingGoogle}
               disabled={loading || loadingApple}
@@ -158,7 +172,7 @@ export default function SignInPage() {
             
             <SocialButton
               badgeText=""
-              label="Continue with Apple"
+              label={t('continueWithApple') || 'Continue with Apple'}
               onPress={handleAppleSignIn}
               loading={loadingApple}
               disabled={loading || loadingGoogle}
@@ -226,6 +240,14 @@ export default function SignInPage() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      
+      <OAuthWebView
+        visible={oauthWebView.visible}
+        url={oauthWebView.url}
+        title={oauthWebView.title}
+        onClose={handleCloseWebView}
+        onMessage={handleOAuthMessage}
+      />
     </View>
   );
 }

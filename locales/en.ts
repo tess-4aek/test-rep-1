@@ -170,4 +170,6 @@ export default {
   startExchanging: 'Start exchanging to see your transaction history here',
   oneTimeLimitExceeded: 'Order amount {{amount}} exceeds your one-time limit of {{limit}}. Please reduce the amount or contact support to increase your limit.',
   monthlyLimitExceeded: 'Order amount {{amount}} exceeds your remaining monthly limit of {{remaining}} ({{limit}} total). Please reduce the amount or wait for your limit to reset.',
+  continueWithGoogle: 'Continue with Google',
+  continueWithApple: 'Continue with Apple',
 };
