@@ -10,6 +10,7 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
+import { postJSON, ApiError } from '../../../lib/api';
 import TextField from '../../../components/auth/TextField';
 import FormButton from '../../../components/auth/FormButton';
 import DividerOr from '../../../components/auth/DividerOr';
@@ -78,19 +79,11 @@ export default function SignUpPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3000/auth/email/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email.trim(),
-          password,
-          name: name.trim() || undefined,
-        }),
+      const data = await postJSON('/auth/email/register', {
+        email: email.trim(),
+        password,
+        name: name.trim() || undefined,
       });
-
-      const data = await response.json();
 
       if (data.ok && data.token) {
         // Store JWT in SecureStore
@@ -99,7 +92,7 @@ export default function SignUpPage() {
         // Navigate to main app
         router.replace('/(tabs)/history');
       } else {
-        // Handle error codes
+        // Handle server response without ok flag
         let errorMessage = 'Something went wrong, try again';
         
         switch (data.code) {
@@ -122,9 +115,39 @@ export default function SignUpPage() {
         
         setFormError(errorMessage);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Registration error:', error);
-      setFormError('Network error. Please check your connection');
+      
+      // Handle API errors with proper user messages
+      let errorMessage = 'Something went wrong, try again';
+      
+      if (error.code) {
+        switch (error.code) {
+          case 'EMAIL_TAKEN':
+            errorMessage = 'Email is already in use';
+            break;
+          case 'RATE_LIMITED':
+            errorMessage = 'Too many attempts. Please try again later';
+            break;
+          case 'MISSING_FIELDS':
+            errorMessage = 'Please fill in all required fields';
+            break;
+          case 'INVALID_EMAIL':
+            errorMessage = 'Please enter a valid email address';
+            break;
+          case 'PASSWORD_TOO_SHORT':
+            errorMessage = 'Password must be at least 8 characters long';
+            break;
+          case 'TIMEOUT':
+            errorMessage = 'Request timed out. Please try again';
+            break;
+          case 'NETWORK_ERROR':
+            errorMessage = 'Network error. Please check your connection';
+            break;
+        }
+      }
+      
+      setFormError(errorMessage);
     } finally {
       setLoading(false);
     }

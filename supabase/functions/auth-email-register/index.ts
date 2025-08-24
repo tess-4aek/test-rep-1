@@ -18,7 +18,55 @@ import { createClient } from 'npm:@supabase/supabase-js@2';
 import { hash } from 'npm:bcryptjs@2.4.3';
 import { create } from 'https://deno.land/x/djwt@v2.8/mod.ts';
 
-const corsHeaders = {
+// CORS headers for development
+function getCorsHeaders() {
+  return {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  };
+}
+
+// CORS wrapper for handlers
+function withCors(handler: (req: Request) => Promise<Response>) {
+  return async (req: Request): Promise<Response> => {
+    // Handle preflight OPTIONS request
+    if (req.method === 'OPTIONS') {
+      return new Response(null, {
+        status: 204,
+        headers: getCorsHeaders(),
+      });
+    }
+
+    try {
+      const response = await handler(req);
+      
+      // Add CORS headers to all responses
+      const corsHeaders = getCorsHeaders();
+      Object.entries(corsHeaders).forEach(([key, value]) => {
+        response.headers.set(key, value);
+      });
+      
+      return response;
+    } catch (error) {
+      console.error('Handler error:', error);
+      return new Response(JSON.stringify({ 
+        ok: false, 
+        code: 'INTERNAL_ERROR',
+        message: 'An unexpected error occurred'
+      }), {
+        status: 500,
+        headers: {
+          ...getCorsHeaders(),
+          'Content-Type': 'application/json',
+        },
+      });
+    }
+  };
+}
+
+const corsHeaders = getCorsHeaders();
+
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS'
@@ -31,16 +79,11 @@ const EMAIL_REGEX = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-
 const RATE_LIMIT_ATTEMPTS = 5;
 const RATE_LIMIT_WINDOW = 10 * 60 * 1000; // 10 minutes in ms
 
-Deno.serve(async (req: Request) => {
-  // Handle CORS preflight requests
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
-  }
-
+async function handleRegister(req: Request): Promise<Response> {
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ ok: false, code: 'METHOD_NOT_ALLOWED' }), {
       status: 405,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' }
     });
   }
 
@@ -65,7 +108,7 @@ Deno.serve(async (req: Request) => {
     } catch {
       return new Response(JSON.stringify({ ok: false, code: 'INVALID_JSON' }), {
         status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
@@ -75,7 +118,7 @@ Deno.serve(async (req: Request) => {
     if (!email || !password) {
       return new Response(JSON.stringify({ ok: false, code: 'MISSING_FIELDS' }), {
         status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
@@ -86,7 +129,7 @@ Deno.serve(async (req: Request) => {
     if (!EMAIL_REGEX.test(normalizedEmail)) {
       return new Response(JSON.stringify({ ok: false, code: 'INVALID_EMAIL' }), {
         status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
@@ -94,7 +137,7 @@ Deno.serve(async (req: Request) => {
     if (password.length < 8) {
       return new Response(JSON.stringify({ ok: false, code: 'PASSWORD_TOO_SHORT' }), {
         status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
@@ -116,7 +159,6 @@ Deno.serve(async (req: Request) => {
       return new Response(JSON.stringify({ ok: false, code: 'RATE_LIMITED' }), {
         status: 429,
         headers: { 
-          ...corsHeaders, 
           'Content-Type': 'application/json',
           'Retry-After': '600' // 10 minutes
         }
@@ -145,7 +187,7 @@ Deno.serve(async (req: Request) => {
       if (existingUser.password_hash) {
         return new Response(JSON.stringify({ ok: false, code: 'EMAIL_TAKEN' }), {
           status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: { 'Content-Type': 'application/json' }
         });
       }
       
@@ -196,7 +238,7 @@ Deno.serve(async (req: Request) => {
       const token = await create({ alg: 'HS256', typ: 'JWT' }, payload, key);
 
       return new Response(JSON.stringify({ ok: true, token }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
@@ -248,14 +290,17 @@ Deno.serve(async (req: Request) => {
 
     return new Response(JSON.stringify({ ok: true, token }), {
       status: 201,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' }
     });
 
   } catch (error) {
     console.error('Registration error:', error);
     return new Response(JSON.stringify({ ok: false, code: 'INTERNAL_ERROR' }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' }
     });
   }
-});
+}
+
+// Export the CORS-wrapped handler
+Deno.serve(withCors(handleRegister));
