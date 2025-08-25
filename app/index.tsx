@@ -10,6 +10,8 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { Zap, Shield, TrendingUp } from 'lucide-react-native';
 import { router } from 'expo-router';
+import { Linking } from 'react-native';
+import * as Crypto from 'expo-crypto';
 import { t } from '@/lib/i18n';
 
 import { resetAll } from '../scripts/resetAll.ts';
@@ -58,9 +60,34 @@ export default function IntroPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleSignIn = () => {
-    // Navigate to email sign-in screen
-    router.push('/(public)/auth/sign-in');
+  const handleSignIn = async () => {
+    try {
+      // Generate unique UUID for this authentication session
+      const authUuid = Crypto.randomUUID();
+      console.log('Generated auth UUID:', authUuid);
+      
+      // Create Telegram bot URL with the UUID
+      const telegramUrl = `tg://resolve?domain=xPaid_app_test_bot&start=${authUuid}`;
+      console.log('Opening Telegram with URL:', telegramUrl);
+      
+      // Open Telegram
+      await Linking.openURL(telegramUrl);
+      
+      // Navigate to waiting screen with the UUID
+      router.push({
+        pathname: '/auth-waiting',
+        params: { uuid: authUuid }
+      });
+      
+    } catch (error) {
+      console.error('Error opening Telegram:', error);
+      // Fallback: still navigate to waiting screen for testing
+      const authUuid = Crypto.randomUUID();
+      router.push({
+        pathname: '/auth-waiting',
+        params: { uuid: authUuid }
+      });
+    }
   };
 
   return (
@@ -108,7 +135,7 @@ export default function IntroPage() {
         </TouchableOpacity>
         
         <Text style={styles.footerText}>
-          Secure email authentication
+          {t('secureAuth')}
         </Text>
       </View>
     </View>
