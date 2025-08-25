@@ -1,143 +1,328 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  Dimensions,
-  TouchableOpacity,
   ScrollView,
+  TouchableOpacity,
+  Alert,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { Zap, Shield, TrendingUp } from 'lucide-react-native';
 import { router } from 'expo-router';
-import { Linking } from 'react-native';
-import * as Crypto from 'expo-crypto';
-import { t } from '@/lib/i18n';
+import { supabase } from '../../../lib/supabase';
+import * as SecureStore from 'expo-secure-store';
+import TextField from '../../../components/auth/TextField';
+import FormButton from '../../../components/auth/FormButton';
+import DividerOr from '../../../components/auth/DividerOr';
+import GoogleSignInButton from '../../../components/GoogleSignInButton';
+import AppleSignInButton from '../../../components/AppleSignInButton';
+import AuthWebView from '../../../components/AuthWebView';
+import { validateEmail } from '../../../utils/validation/email';
+import { validatePassword } from '../../../utils/validation/password';
+import { t } from '../../../lib/i18n';
 
-import { resetAll } from '../scripts/resetAll.ts';
+export default function SignInPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [magicLinkEmail, setMagicLinkEmail] = useState('');
+  const [magicLinkEmail, setMagicLinkEmail] = useState('');
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [formError, setFormError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [magicLinkLoading, setMagicLinkLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [appleLoading, setAppleLoading] = useState(false);
+  const [magicLinkLoading, setMagicLinkLoading] = useState(false);
+  const [loadingGoogle, setLoadingGoogle] = useState(false);
+  const [loadingApple, setLoadingApple] = useState(false);
+  const [showGoogleAuth, setShowGoogleAuth] = useState(false);
+  const [showAppleAuth, setShowAppleAuth] = useState(false);
 
-const { width: screenWidth } = Dimensions.get('window');
+  const emailRef = useRef<any>(null);
+  const passwordRef = useRef<any>(null);
+  const magicLinkEmailRef = useRef<any>(null);
+  const magicLinkEmailRef = useRef<any>(null);
 
-export default function IntroPage() {
-  const scrollViewRef = useRef<ScrollView>(null);
-  const currentIndex = useRef(0);
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
 
-  const slides = [
-    {
-      id: 1,
-      title: t('instantExchange'),
-      subtitle: t('instantExchangeDesc'),
-      icon: <Zap color="#3D8BFF" size={48} />,
-    },
-    {
-      id: 2,
-      title: t('bankGradeSecurity'),
-      subtitle: t('bankGradeSecurityDesc'),
-      icon: <Shield color="#10B981" size={48} />,
-    },
-    {
-      id: 3,
-      title: t('bestRates'),
-      subtitle: t('bestRatesDesc'),
-      icon: <TrendingUp color="#F59E0B" size={48} />,
-    },
-  ];
+    const emailError = validateEmail(email);
+    if (emailError) newErrors.email = emailError;
 
-  useEffect(() => {
-  resetAll();
-    
-    const interval = setInterval(() => {
-      currentIndex.current = (currentIndex.current + 1) % slides.length;
-      
-      if (scrollViewRef.current) {
-        scrollViewRef.current.scrollTo({
-          x: currentIndex.current * screenWidth,
-          animated: true,
-        });
-      }
-    }, 4500);
+    const passwordError = validatePassword(password);
+    if (passwordError) newErrors.password = passwordError;
 
-    return () => clearInterval(interval);
-  }, []);
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-  const handleSignIn = async () => {
-    try {
-      // Generate unique UUID for this authentication session
-      const authUuid = Crypto.randomUUID();
-      console.log('Generated auth UUID:', authUuid);
-      
-      // Create Telegram bot URL with the UUID
-      const telegramUrl = `tg://resolve?domain=xPaid_app_test_bot&start=${authUuid}`;
-      console.log('Opening Telegram with URL:', telegramUrl);
-      
-      // Open Telegram
-      await Linking.openURL(telegramUrl);
-      
-      // Navigate to waiting screen with the UUID
-      router.push({
-        pathname: '/auth-waiting',
-        params: { uuid: authUuid }
-      });
-      
-    } catch (error) {
-      console.error('Error opening Telegram:', error);
-      // Fallback: still navigate to waiting screen for testing
-      const authUuid = Crypto.randomUUID();
-      router.push({
-        pathname: '/auth-waiting',
-        params: { uuid: authUuid }
-      });
+  const focusFirstError = () => {
+    if (errors.email && emailRef.current) {
+      emailRef.current.focus();
+    } else if (errors.password && passwordRef.current) {
+      passwordRef.current.focus();
     }
+  };
+
+  const handleSubmit = async () => {
+    setFormError('');
+    
+    if (!validateForm()) {
+      setFormError('Please fix the errors above');
+      setTimeout(focusFirstError, 100);
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:3000/auth/email/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.ok && data.token) {
+        // Store JWT in SecureStore
+        await SecureStore.setItemAsync('auth_token', data.token);
+        
+        // Navigate to main app
+        router.replace('/(tabs)/history');
+      } else {
+        // Handle error codes
+        let errorMessage = 'Something went wrong, try again';
+        
+        switch (data.code) {
+          case 'INVALID_CREDENTIALS':
+            errorMessage = 'Invalid email or password';
+            break;
+          case 'RATE_LIMITED':
+            errorMessage = 'Too many attempts. Please try again later';
+            break;
+          case 'MISSING_FIELDS':
+            errorMessage = 'Please fill in all fields';
+            break;
+          case 'INVALID_EMAIL':
+            errorMessage = 'Please enter a valid email address';
+            break;
+        }
+        
+        setFormError(errorMessage);
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setFormError('Network error. Please check your connection');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMagicLinkSubmit = async () => {
+    const emailError = validateEmail(magicLinkEmail);
+    if (emailError) {
+      Alert.alert('Invalid Email', emailError);
+      return;
+    }
+
+    setMagicLinkLoading(true);
+
+    try {
+      // Simulate magic link API call
+      console.log('Magic Link Email:', magicLinkEmail);
+      
+      // Mock success
+      setTimeout(() => {
+        setMagicLinkLoading(false);
+        Alert.alert(
+          'Check your email',
+          'We sent you a magic link to sign in. Please check your email and click the link to continue.',
+          [{ text: 'OK' }]
+        );
+        setMagicLinkEmail('');
+      }, 800);
+    } catch (error) {
+      console.error('Magic link error:', error);
+      setMagicLinkLoading(false);
+      Alert.alert('Error', 'Failed to send magic link. Please try again.');
+    }
+  };
+
+  const handleGoogleSignIn = () => {
+    setLoadingGoogle(true);
+    setShowGoogleAuth(true);
+  };
+
+  const handleAppleSignIn = () => {
+    setLoadingApple(true);
+    setShowAppleAuth(true);
+  };
+
+  const handleForgotPassword = () => {
+    router.push('/(public)/auth/forgot');
+  };
+
+  const handleCreateAccount = () => {
+    router.push('/(public)/auth/sign-up');
   };
 
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
       
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.appName}>{t('appName')}</Text>
-        <Text style={styles.tagline}>{t('tagline')}</Text>
-      </View>
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.title}>Welcome Back</Text>
+          <Text style={styles.subtitle}>Sign in to your account</Text>
+        </View>
 
-      {/* Horizontal Slider */}
-      <View style={styles.sliderContainer}>
-        <ScrollView
-          ref={scrollViewRef}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          scrollEventThrottle={16}
-          style={styles.slider}
-        >
-          {slides.map((slide) => (
-            <View key={slide.id} style={styles.slide}>
-              <View style={styles.slideContent}>
-                <View style={styles.iconContainer}>
-                  {slide.icon}
-                </View>
-                <Text style={styles.slideTitle}>{slide.title}</Text>
-                <Text style={styles.slideSubtitle}>{slide.subtitle}</Text>
-              </View>
-            </View>
-          ))}
-        </ScrollView>
-      </View>
+        {/* Form Error */}
+        {formError && (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{formError}</Text>
+          </View>
+        )}
 
-      {/* Sign In Button */}
-      <View style={styles.ctaContainer}>
-        <TouchableOpacity
-          style={styles.signInButton}
-          onPress={handleSignIn}
-          activeOpacity={0.9}
-        >
-          <Text style={styles.signInButtonText}>{t('signIn')}</Text>
-        </TouchableOpacity>
-        
-        <Text style={styles.footerText}>
-          {t('secureAuth')}
-        </Text>
-      </View>
+        {/* Form */}
+        <View style={styles.form}>
+          {/* Social Sign In */}
+          <View style={styles.socialContainer}>
+            <GoogleSignInButton
+              onPress={handleGoogleSignIn}
+              loading={loadingGoogle}
+              disabled={loading}
+            />
+            
+            <AppleSignInButton
+              onPress={handleAppleSignIn}
+              loading={loadingApple}
+              disabled={loading}
+            />
+          </View>
+          
+          <DividerOr />
+          
+          {/* Email Form */}
+          <TextField
+            ref={emailRef}
+            label="Email"
+            value={email}
+            onChangeText={setEmail}
+            error={errors.email}
+            testID="signIn-email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+            returnKeyType="next"
+            onSubmitEditing={() => passwordRef.current?.focus()}
+          />
+
+          <TextField
+            ref={passwordRef}
+            label="Password"
+            value={password}
+            onChangeText={setPassword}
+            error={errors.password}
+            testID="signIn-password"
+            secureTextEntry
+            autoCapitalize="none"
+            autoComplete="password"
+            returnKeyType="done"
+            onSubmitEditing={handleSubmit}
+          />
+
+          <TouchableOpacity 
+            style={styles.forgotPasswordButton}
+            onPress={handleForgotPassword}
+            testID="signIn-forgotPassword"
+          >
+            <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+          </TouchableOpacity>
+
+          <FormButton
+            title="Sign In"
+            loadingTitle="Signing in..."
+            onPress={handleSubmit}
+            loading={loading}
+            testID="signIn-submit"
+          />
+
+          {/* Magic Link Section */}
+          <View style={styles.magicLinkSection}>
+            <DividerOr />
+            
+            <Text style={styles.magicLinkTitle}>Or sign in with magic link</Text>
+            <Text style={styles.magicLinkSubtitle}>
+              Enter your email and we'll send you a secure link to sign in
+            </Text>
+            
+            <TextField
+              ref={magicLinkEmailRef}
+              label="Email for magic link"
+              value={magicLinkEmail}
+              onChangeText={setMagicLinkEmail}
+              testID="signIn-magicLinkEmail"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoComplete="email"
+              returnKeyType="done"
+              onSubmitEditing={handleMagicLinkSubmit}
+              placeholder="Enter your email address"
+            />
+            
+            <FormButton
+              title="Send Magic Link"
+              loadingTitle="Sending magic link..."
+              onPress={handleMagicLinkSubmit}
+              loading={magicLinkLoading}
+              variant="secondary"
+              testID="signIn-magicLink"
+            />
+          </View>
+        </View>
+
+        {/* Footer */}
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>Don't have an account? </Text>
+          <TouchableOpacity 
+            onPress={handleCreateAccount}
+            testID="signIn-createAccount"
+          >
+            <Text style={styles.footerLink}>Create account</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+      
+      {/* OAuth WebViews */}
+      <AuthWebView
+        visible={showGoogleAuth}
+        provider="google"
+        onClose={() => {
+          setShowGoogleAuth(false);
+          setLoadingGoogle(false);
+        }}
+      />
+      
+      <AuthWebView
+        visible={showAppleAuth}
+        provider="apple"
+        onClose={() => {
+          setShowAppleAuth(false);
+          setLoadingApple(false);
+        }}
+      />
     </View>
   );
 }
@@ -145,15 +330,22 @@ export default function IntroPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F4F6F9',
   },
-  header: {
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: 32,
     paddingTop: 80,
-    marginBottom: 60,
-    alignItems: 'center',
+    paddingBottom: 40,
   },
-  appName: {
+  header: {
+    alignItems: 'center',
+    marginBottom: 40,
+  },
+  title: {
     fontSize: 32,
     fontWeight: '700',
     color: '#0C1E3C',
@@ -161,109 +353,77 @@ const styles = StyleSheet.create({
     lineHeight: 38,
     textAlign: 'center',
   },
-  tagline: {
+  subtitle: {
     fontSize: 16,
     fontWeight: '400',
     color: '#6B7280',
     lineHeight: 22,
     textAlign: 'center',
   },
-  sliderContainer: {
-    height: 320,
-    marginBottom: 60,
-  },
-  slider: {
-    flex: 1,
-  },
-  slide: {
-    width: screenWidth,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 32,
-  },
-  slideContent: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F8FAFC',
-    borderRadius: 24,
-    padding: 40,
-    width: '100%',
-    maxWidth: 320,
-    shadowColor: '#0C1E3C',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  iconContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 20,
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
+  errorContainer: {
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FECACA',
+    borderRadius: 12,
+    padding: 16,
     marginBottom: 24,
-    shadowColor: '#0C1E3C',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 3,
   },
-  slideTitle: {
-    fontSize: 24,
-    fontWeight: '700',
+  errorText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#DC2626',
+    textAlign: 'center',
+  },
+  form: {
+    marginBottom: 32,
+  },
+  socialContainer: {
+    gap: 12,
+    marginBottom: 8,
+  },
+  forgotPasswordButton: {
+    alignSelf: 'flex-end',
+    marginBottom: 24,
+  },
+  forgotPasswordText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#3D8BFF',
+  },
+  magicLinkSection: {
+    marginTop: 8,
+  },
+  magicLinkTitle: {
+    fontSize: 18,
+    fontWeight: '600',
     color: '#0C1E3C',
     textAlign: 'center',
-    marginBottom: 12,
-    lineHeight: 28,
+    marginBottom: 8,
+    lineHeight: 22,
   },
-  slideSubtitle: {
-    fontSize: 16,
+  magicLinkSubtitle: {
+    fontSize: 14,
     fontWeight: '400',
     color: '#6B7280',
     textAlign: 'center',
-    lineHeight: 24,
+    marginBottom: 24,
+    lineHeight: 20,
+    paddingHorizontal: 16,
   },
-  ctaContainer: {
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 32,
-    paddingBottom: 60,
-    alignItems: 'center',
-  },
-  signInButton: {
-    width: '100%',
-    height: 56,
-    backgroundColor: '#3D8BFF',
-    borderRadius: 16,
+  footer: {
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#3D8BFF',
-    shadowOffset: {
-      width: 0,
-      height: 8,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 8,
-  },
-  signInButtonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: '600',
-    letterSpacing: 0.5,
+    marginTop: 'auto',
   },
   footerText: {
-    marginTop: 16,
-    fontSize: 14,
+    fontSize: 16,
+    fontWeight: '400',
     color: '#6B7280',
-    fontWeight: '500',
-    textAlign: 'center',
-    letterSpacing: 0.3,
+  },
+  footerLink: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#3D8BFF',
   },
 });
