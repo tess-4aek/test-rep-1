@@ -25,12 +25,14 @@ export default function SignInPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [magicLinkEmail, setMagicLinkEmail] = useState('');
+  const [magicLinkEmail, setMagicLinkEmail] = useState('');
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [formError, setFormError] = useState('');
   const [loading, setLoading] = useState(false);
   const [magicLinkLoading, setMagicLinkLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [appleLoading, setAppleLoading] = useState(false);
+  const [magicLinkLoading, setMagicLinkLoading] = useState(false);
   const [loadingGoogle, setLoadingGoogle] = useState(false);
   const [loadingApple, setLoadingApple] = useState(false);
   const [showGoogleAuth, setShowGoogleAuth] = useState(false);
@@ -39,9 +41,11 @@ export default function SignInPage() {
   const emailRef = useRef<any>(null);
   const passwordRef = useRef<any>(null);
   const magicLinkEmailRef = useRef<any>(null);
+  const magicLinkEmailRef = useRef<any>(null);
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
+import { t } from '../lib/i18n';
 
     const emailError = validateEmail(email);
     if (emailError) newErrors.email = emailError;
