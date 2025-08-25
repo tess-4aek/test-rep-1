@@ -5,73 +5,45 @@ import {
   StyleSheet,
   View,
   ActivityIndicator,
-  Platform,
 } from 'react-native';
-import { SvgXml } from 'react-native-svg';
 import { t } from '../lib/i18n';
-
-const GOOGLE_G_SVG = `<svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-  <g fill="none" fill-rule="evenodd">
-    <path d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
-    <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
-    <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
-    <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.582C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
-  </g>
-</svg>`;
 
 interface GoogleSignInButtonProps {
   onPress: () => void;
-  variant?: 'default' | 'compact';
-  style?: any;
-  loading?: boolean;
   disabled?: boolean;
+  loading?: boolean;
 }
 
-export default function GoogleSignInButton({
-  onPress,
-  variant = 'default',
-  style,
-  loading = false,
-  disabled = false,
-}: GoogleSignInButtonProps) {
-  const isCompact = variant === 'compact';
-  const buttonHeight = isCompact ? 40 : 48;
-  const fontSize = isCompact ? 14 : 16;
-  const isDisabled = loading || disabled;
-
-  const buttonLabel = t('continueWithGoogle');
-
+export default function GoogleSignInButton({ onPress, disabled, loading }: GoogleSignInButtonProps) {
   return (
     <Pressable
       style={({ pressed }) => [
         styles.button,
-        { height: buttonHeight },
-        pressed && !isDisabled && styles.buttonPressed,
-        isDisabled && styles.buttonDisabled,
-        style,
+        pressed && styles.buttonPressed,
+        disabled && styles.buttonDisabled,
       ]}
       onPress={onPress}
-      disabled={isDisabled}
-      accessibilityRole="button"
-      accessibilityLabel={buttonLabel}
+      disabled={disabled || loading}
+      accessibilityLabel={t('continueWithGoogle')}
       testID="google-signin-button"
-      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-      android_ripple={Platform.OS === 'android' ? {
-        color: '#E8F0FE',
-        borderless: false,
-        radius: 200,
-      } : undefined}
     >
       <View style={styles.content}>
-        <View style={styles.iconContainer}>
-          {loading ? (
-            <ActivityIndicator size="small" color="#4285F4" />
-          ) : (
-            <SvgXml xml={GOOGLE_G_SVG} width={18} height={18} />
-          )}
-        </View>
-        <Text style={[styles.label, { fontSize }]} numberOfLines={1}>
-          {buttonLabel}
+        {loading ? (
+          <ActivityIndicator 
+            size="small" 
+            color="#6B7280" 
+            style={styles.badge} 
+          />
+        ) : (
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>G</Text>
+          </View>
+        )}
+        <Text style={[
+          styles.label,
+          disabled && styles.labelDisabled,
+        ]}>
+          {t('continueWithGoogle')}
         </Text>
       </View>
     </Pressable>
@@ -80,23 +52,22 @@ export default function GoogleSignInButton({
 
 const styles = StyleSheet.create({
   button: {
+    height: 56,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#DADCE0',
-    borderRadius: 6,
-    shadowColor: '#000000',
+    borderColor: '#E5E7EB',
+    borderRadius: 12,
+    shadowColor: '#0C1E3C',
     shadowOffset: {
       width: 0,
       height: 1,
     },
-    shadowOpacity: 0.04,
-    shadowRadius: 2,
-    elevation: 1,
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   buttonPressed: {
-    opacity: 0.92,
-    shadowOpacity: 0.08,
-    elevation: 2,
+    backgroundColor: '#F9FAFB',
   },
   buttonDisabled: {
     opacity: 0.6,
@@ -107,18 +78,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
   },
-  iconContainer: {
-    width: 18,
-    height: 18,
-    marginRight: 12,
+  badge: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    backgroundColor: '#F9FAFB',
     justifyContent: 'center',
     alignItems: 'center',
+    marginRight: 12,
+  },
+  badgeText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#374151',
+    textAlign: 'center',
   },
   label: {
-    flex: 1,
-    color: '#1F1F1F',
+    fontSize: 16,
     fontWeight: '600',
+    color: '#0C1E3C',
     lineHeight: 20,
-    textAlign: 'left',
+  },
+  labelDisabled: {
+    color: '#9CA3AF',
   },
 });

@@ -172,5 +172,4 @@ export default {
   monthlyLimitExceeded: 'Сума ордеру {{amount}} перевищує ваш залишковий місячний ліміт {{remaining}} ({{limit}} загалом). Будь ласка, зменшіть суму або дочекайтеся оновлення ліміту.',
   continueWithGoogle: 'Продовжити з Google',
   continueWithApple: 'Продовжити з Apple',
-  signInWithGoogle: 'Увійти через Google',
 };
