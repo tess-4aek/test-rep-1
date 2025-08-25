@@ -55,71 +55,8 @@ export default function SignInPage() {
 
   const focusFirstError = () => {
     if (errors.email && emailRef.current) {
-      emailRef.current.focus();
-    } else if (errors.password && passwordRef.current) {
-      passwordRef.current.focus();
     }
-  };
-
-  const handleSubmit = async () => {
-    setFormError('');
-    
-    if (!validateForm()) {
-      setFormError('Please fix the errors above');
-      setTimeout(focusFirstError, 100);
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const response = await fetch('http://localhost:3000/auth/email/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email.trim(),
-          password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.ok && data.token) {
-        // Store JWT in SecureStore
-        await SecureStore.setItemAsync('auth_token', data.token);
-        
-        // Navigate to main app
-        router.replace('/(tabs)/history');
-      } else {
-        // Handle error codes
-        let errorMessage = 'Something went wrong, try again';
-        
-        switch (data.code) {
-          case 'INVALID_CREDENTIALS':
-            errorMessage = 'Invalid email or password';
-            break;
-          case 'RATE_LIMITED':
-            errorMessage = 'Too many attempts. Please try again later';
-            break;
-          case 'MISSING_FIELDS':
-            errorMessage = 'Please fill in all fields';
-            break;
-          case 'INVALID_EMAIL':
-            errorMessage = 'Please enter a valid email address';
-            break;
-        }
-        
-        setFormError(errorMessage);
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      setFormError('Network error. Please check your connection');
-    } finally {
-      setLoading(false);
-    }
-  };
+  }
 
   const handleMagicLinkSubmit = async () => {
     const emailError = validateEmail(magicLinkEmail);
@@ -131,23 +68,28 @@ export default function SignInPage() {
     setMagicLinkLoading(true);
 
     try {
-      // Simulate magic link API call
-      console.log('Magic Link Email:', magicLinkEmail);
-      
-      // Mock success
-      setTimeout(() => {
-        setMagicLinkLoading(false);
+      const { error } = await supabase.auth.signInWithOtp({
+        email: magicLinkEmail.trim(),
+        options: {
+          emailRedirectTo: 'myapp://auth/callback',
+        },
+      });
+
+      if (error) {
+        Alert.alert('Error', error.message);
+      } else {
         Alert.alert(
           'Check your email',
           'We sent you a magic link to sign in. Please check your email and click the link to continue.',
           [{ text: 'OK' }]
         );
         setMagicLinkEmail('');
-      }, 800);
+      }
     } catch (error) {
       console.error('Magic link error:', error);
-      setMagicLinkLoading(false);
       Alert.alert('Error', 'Failed to send magic link. Please try again.');
+    } finally {
+      setMagicLinkLoading(false);
     }
   };
 
@@ -159,10 +101,6 @@ export default function SignInPage() {
   const handleAppleSignIn = () => {
     setLoadingApple(true);
     setShowAppleAuth(true);
-  };
-
-  const handleForgotPassword = () => {
-    router.push('/(public)/auth/forgot');
   };
 
   const handleCreateAccount = () => {
@@ -182,15 +120,8 @@ export default function SignInPage() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>Welcome Back</Text>
-          <Text style={styles.subtitle}>Sign in to your account</Text>
+          <Text style={styles.subtitle}>Choose your sign in method</Text>
         </View>
-
-        {/* Form Error */}
-        {formError && (
-          <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>{formError}</Text>
-          </View>
-        )}
 
         {/* Form */}
         <View style={styles.form}>
@@ -199,75 +130,28 @@ export default function SignInPage() {
             <GoogleSignInButton
               onPress={handleGoogleSignIn}
               loading={loadingGoogle}
-              disabled={loading}
+              disabled={magicLinkLoading}
             />
             
             <AppleSignInButton
               onPress={handleAppleSignIn}
               loading={loadingApple}
-              disabled={loading}
+              disabled={magicLinkLoading}
             />
           </View>
           
           <DividerOr />
           
-          {/* Email Form */}
-          <TextField
-            ref={emailRef}
-            label="Email"
-            value={email}
-            onChangeText={setEmail}
-            error={errors.email}
-            testID="signIn-email"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoComplete="email"
-            returnKeyType="next"
-            onSubmitEditing={() => passwordRef.current?.focus()}
-          />
-
-          <TextField
-            ref={passwordRef}
-            label="Password"
-            value={password}
-            onChangeText={setPassword}
-            error={errors.password}
-            testID="signIn-password"
-            secureTextEntry
-            autoCapitalize="none"
-            autoComplete="password"
-            returnKeyType="done"
-            onSubmitEditing={handleSubmit}
-          />
-
-          <TouchableOpacity 
-            style={styles.forgotPasswordButton}
-            onPress={handleForgotPassword}
-            testID="signIn-forgotPassword"
-          >
-            <Text style={styles.forgotPasswordText}>Forgot password?</Text>
-          </TouchableOpacity>
-
-          <FormButton
-            title="Sign In"
-            loadingTitle="Signing in..."
-            onPress={handleSubmit}
-            loading={loading}
-            testID="signIn-submit"
-          />
-
           {/* Magic Link Section */}
           <View style={styles.magicLinkSection}>
-            <DividerOr />
-            
-            <Text style={styles.magicLinkTitle}>Or sign in with magic link</Text>
+            <Text style={styles.magicLinkTitle}>Sign in with magic link</Text>
             <Text style={styles.magicLinkSubtitle}>
               Enter your email and we'll send you a secure link to sign in
             </Text>
             
             <TextField
               ref={magicLinkEmailRef}
-              label="Email for magic link"
+              label="Email"
               value={magicLinkEmail}
               onChangeText={setMagicLinkEmail}
               testID="signIn-magicLinkEmail"
@@ -284,7 +168,6 @@ export default function SignInPage() {
               loadingTitle="Sending magic link..."
               onPress={handleMagicLinkSubmit}
               loading={magicLinkLoading}
-              variant="secondary"
               testID="signIn-magicLink"
             />
           </View>
@@ -376,19 +259,10 @@ const styles = StyleSheet.create({
   },
   socialContainer: {
     gap: 12,
-    marginBottom: 8,
-  },
-  forgotPasswordButton: {
-    alignSelf: 'flex-end',
-    marginBottom: 24,
-  },
-  forgotPasswordText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#3D8BFF',
+    marginBottom: 16,
   },
   magicLinkSection: {
-    marginTop: 8,
+    marginTop: 0,
   },
   magicLinkTitle: {
     fontSize: 18,

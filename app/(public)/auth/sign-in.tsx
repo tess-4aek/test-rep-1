@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
-import { supabase } from '../../../lib/supabase';
 import * as SecureStore from 'expo-secure-store';
 import TextField from '../../../components/auth/TextField';
 import FormButton from '../../../components/auth/FormButton';
@@ -29,8 +28,6 @@ export default function SignInPage() {
   const [formError, setFormError] = useState('');
   const [loading, setLoading] = useState(false);
   const [magicLinkLoading, setMagicLinkLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const [appleLoading, setAppleLoading] = useState(false);
   const [loadingGoogle, setLoadingGoogle] = useState(false);
   const [loadingApple, setLoadingApple] = useState(false);
   const [showGoogleAuth, setShowGoogleAuth] = useState(false);
