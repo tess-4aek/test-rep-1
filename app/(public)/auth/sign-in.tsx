@@ -11,12 +11,8 @@ import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
 import TextField from '../../../components/auth/TextField';
 import FormButton from '../../../components/auth/FormButton';
-import SocialButton from '../../../components/auth/SocialButton';
-import DividerOr from '../../../components/auth/DividerOr';
 import { validateEmail } from '../../../utils/validation/email';
 import { validatePassword } from '../../../utils/validation/password';
-import googleIcon from '../../../assets/auth/google.png';
-import appleIcon from '../../../assets/auth/apple.png';
 
 export default function SignInPage() {
   const [email, setEmail] = useState('');
@@ -24,8 +20,6 @@ export default function SignInPage() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [formError, setFormError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [loadingGoogle, setLoadingGoogle] = useState(false);
-  const [loadingApple, setLoadingApple] = useState(false);
 
   const emailRef = useRef<any>(null);
   const passwordRef = useRef<any>(null);
@@ -72,32 +66,6 @@ export default function SignInPage() {
     }, 800);
   };
 
-  const handleGoogleSignIn = async () => {
-    setLoadingGoogle(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      console.log('google');
-      setLoadingGoogle(false);
-      
-      // Navigate to protected route
-      router.replace('/(tabs)/history');
-    }, 800);
-  };
-
-  const handleAppleSignIn = async () => {
-    setLoadingApple(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      console.log('apple');
-      setLoadingApple(false);
-      
-      // Navigate to protected route
-      router.replace('/(tabs)/history');
-    }, 800);
-  };
-
   const handleForgotPassword = () => {
     router.push('/(public)/auth/forgot');
   };
@@ -131,30 +99,6 @@ export default function SignInPage() {
 
         {/* Form */}
         <View style={styles.form}>
-          {/* Social Sign In */}
-          <View style={styles.socialContainer}>
-            <SocialButton
-              icon={googleIcon}
-              label="Continue with Google"
-              onPress={handleGoogleSignIn}
-              loading={loadingGoogle}
-              disabled={loading || loadingApple}
-              testID="social-google"
-            />
-            
-            <SocialButton
-              icon={appleIcon}
-              label="Continue with Apple"
-              onPress={handleAppleSignIn}
-              loading={loadingApple}
-              disabled={loading || loadingGoogle}
-              testID="social-apple"
-            />
-          </View>
-          
-          <DividerOr />
-          
-          {/* Email Form */}
           <TextField
             ref={emailRef}
             label="Email"
@@ -196,7 +140,6 @@ export default function SignInPage() {
             loadingTitle="Signing in..."
             onPress={handleSubmit}
             loading={loading}
-            disabled={loadingGoogle || loadingApple}
             testID="signIn-submit"
           />
         </View>
@@ -265,10 +208,6 @@ const styles = StyleSheet.create({
   },
   form: {
     marginBottom: 32,
-  },
-  socialContainer: {
-    gap: 12,
-    marginBottom: 8,
   },
   forgotPasswordButton: {
     alignSelf: 'flex-end',

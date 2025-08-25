@@ -11,12 +11,8 @@ import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
 import TextField from '../../../components/auth/TextField';
 import FormButton from '../../../components/auth/FormButton';
-import SocialButton from '../../../components/auth/SocialButton';
-import DividerOr from '../../../components/auth/DividerOr';
 import { validateEmail } from '../../../utils/validation/email';
 import { validatePassword, validatePasswordConfirmation } from '../../../utils/validation/password';
-import googleIcon from '../../../assets/auth/google.png';
-import appleIcon from '../../../assets/auth/apple.png';
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('');
@@ -25,8 +21,6 @@ export default function SignUpPage() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [formError, setFormError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [loadingGoogle, setLoadingGoogle] = useState(false);
-  const [loadingApple, setLoadingApple] = useState(false);
 
   const emailRef = useRef<any>(null);
   const passwordRef = useRef<any>(null);
@@ -88,32 +82,6 @@ export default function SignUpPage() {
     }, 800);
   };
 
-  const handleGoogleSignUp = async () => {
-    setLoadingGoogle(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      console.log('google');
-      setLoadingGoogle(false);
-      
-      // Navigate to protected route
-      router.replace('/(tabs)/history');
-    }, 800);
-  };
-
-  const handleAppleSignUp = async () => {
-    setLoadingApple(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      console.log('apple');
-      setLoadingApple(false);
-      
-      // Navigate to protected route
-      router.replace('/(tabs)/history');
-    }, 800);
-  };
-
   const handleSignIn = () => {
     router.push('/(public)/auth/sign-in');
   };
@@ -143,30 +111,6 @@ export default function SignUpPage() {
 
         {/* Form */}
         <View style={styles.form}>
-          {/* Social Sign Up */}
-          <View style={styles.socialContainer}>
-            <SocialButton
-              icon={googleIcon}
-              label="Continue with Google"
-              onPress={handleGoogleSignUp}
-              loading={loadingGoogle}
-              disabled={loading || loadingApple}
-              testID="social-google"
-            />
-            
-            <SocialButton
-              icon={appleIcon}
-              label="Continue with Apple"
-              onPress={handleAppleSignUp}
-              loading={loadingApple}
-              disabled={loading || loadingGoogle}
-              testID="social-apple"
-            />
-          </View>
-          
-          <DividerOr />
-          
-          {/* Email Form */}
           <TextField
             ref={emailRef}
             label="Email"
@@ -214,7 +158,6 @@ export default function SignUpPage() {
             loadingTitle="Creating account..."
             onPress={handleSubmit}
             loading={loading}
-            disabled={loadingGoogle || loadingApple}
             testID="signUp-submit"
           />
         </View>
@@ -283,10 +226,6 @@ const styles = StyleSheet.create({
   },
   form: {
     marginBottom: 32,
-  },
-  socialContainer: {
-    gap: 12,
-    marginBottom: 8,
   },
   footer: {
     flexDirection: 'row',
