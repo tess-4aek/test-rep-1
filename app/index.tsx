@@ -9,17 +9,17 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
-import { supabase } from '../../../lib/supabase';
+import { supabase } from '../lib/supabase';
 import * as SecureStore from 'expo-secure-store';
-import TextField from '../../../components/auth/TextField';
-import FormButton from '../../../components/auth/FormButton';
-import DividerOr from '../../../components/auth/DividerOr';
-import GoogleSignInButton from '../../../components/GoogleSignInButton';
-import AppleSignInButton from '../../../components/AppleSignInButton';
-import AuthWebView from '../../../components/AuthWebView';
-import { validateEmail } from '../../../utils/validation/email';
-import { validatePassword } from '../../../utils/validation/password';
-import { t } from '../../../lib/i18n';
+import TextField from '../components/auth/TextField';
+import FormButton from '../components/auth/FormButton';
+import DividerOr from '../components/auth/DividerOr';
+import GoogleSignInButton from '../components/GoogleSignInButton';
+import AppleSignInButton from '../components/AppleSignInButton';
+import AuthWebView from '../components/AuthWebView';
+import { validateEmail } from '../utils/validation/email';
+import { validatePassword } from '../utils/validation/password';
+import { t } from '../lib/i18n';
 
 export default function SignInPage() {
   const [email, setEmail] = useState('');
@@ -31,7 +31,6 @@ export default function SignInPage() {
   const [magicLinkLoading, setMagicLinkLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [appleLoading, setAppleLoading] = useState(false);
-  const [magicLinkLoading, setMagicLinkLoading] = useState(false);
   const [loadingGoogle, setLoadingGoogle] = useState(false);
   const [loadingApple, setLoadingApple] = useState(false);
   const [showGoogleAuth, setShowGoogleAuth] = useState(false);
@@ -39,7 +38,6 @@ export default function SignInPage() {
 
   const emailRef = useRef<any>(null);
   const passwordRef = useRef<any>(null);
-  const magicLinkEmailRef = useRef<any>(null);
   const magicLinkEmailRef = useRef<any>(null);
 
   const validateForm = () => {
