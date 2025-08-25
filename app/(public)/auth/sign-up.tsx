@@ -9,15 +9,12 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
-import { Platform } from 'react-native';
 import TextField from '../../../components/auth/TextField';
 import FormButton from '../../../components/auth/FormButton';
 import SocialButton from '../../../components/auth/SocialButton';
 import DividerOr from '../../../components/auth/DividerOr';
 import { validateEmail } from '../../../utils/validation/email';
 import { validatePassword, validatePasswordConfirmation } from '../../../utils/validation/password';
-import { supabase } from '../../../lib/supabase';
-import { getRedirectTo } from '../../../utils/oauthRedirect';
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('');
@@ -91,28 +88,15 @@ export default function SignUpPage() {
 
   const handleGoogleSignUp = async () => {
     setLoadingGoogle(true);
-    setFormError('');
-
-    try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: getRedirectTo(),
-          skipBrowserRedirect: false, // let Supabase handle browser/native web flow
-        },
-      });
-      // On web, Supabase will redirect the page; on native, it will open the system browser.
-      // You may not get control back here immediately.
-      if (error) throw error;
-      
-      console.log('Google OAuth initiated successfully');
-    } catch (error) {
-      console.error('Google sign-up error:', error);
-      // show a friendly error banner
-      setFormError('Google sign-up failed. Please try again.');
-    } finally {
+    
+    // Simulate API call
+    setTimeout(() => {
+      console.log('google');
       setLoadingGoogle(false);
-    }
+      
+      // Navigate to protected route
+      router.replace('/(tabs)/history');
+    }, 800);
   };
 
   const handleAppleSignUp = async () => {
