@@ -122,6 +122,42 @@ export default function SignUpPage() {
         
         setFormError(errorMessage);
       }
+          name: name.trim() || undefined,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.ok && data.token) {
+        // Store JWT in SecureStore
+        await SecureStore.setItemAsync('auth_token', data.token);
+        
+        // Navigate to main app
+        router.replace('/(tabs)/history');
+      } else {
+        // Handle error codes
+        let errorMessage = 'Something went wrong, try again';
+        
+        switch (data.code) {
+          case 'EMAIL_TAKEN':
+            errorMessage = 'Email is already in use';
+            break;
+          case 'RATE_LIMITED':
+            errorMessage = 'Too many attempts. Please try again later';
+            break;
+          case 'MISSING_FIELDS':
+            errorMessage = 'Please fill in all required fields';
+            break;
+          case 'INVALID_EMAIL':
+            errorMessage = 'Please enter a valid email address';
+            break;
+          case 'PASSWORD_TOO_SHORT':
+            errorMessage = 'Password must be at least 8 characters long';
+            break;
+        }
+        
+        setFormError(errorMessage);
+      }
     } catch (error) {
       console.error('Registration error:', error);
       setFormError('Network error. Please check your connection');
