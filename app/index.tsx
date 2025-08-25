@@ -11,7 +11,7 @@ import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
 import { supabase } from '../../../lib/supabase';
 import * as SecureStore from 'expo-secure-store';
-import TextField from '../../../components/auth/TextField';
+import TextField from '../components/auth/TextField';
 import FormButton from '../../../components/auth/FormButton';
 import DividerOr from '../../../components/auth/DividerOr';
 import GoogleSignInButton from '../../../components/GoogleSignInButton';
