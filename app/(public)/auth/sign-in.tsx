@@ -107,38 +107,6 @@ export default function SignInPage() {
         
         setFormError(errorMessage);
       }
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.ok && data.token) {
-        // Store JWT in SecureStore
-        await SecureStore.setItemAsync('auth_token', data.token);
-        
-        // Navigate to main app
-        router.replace('/(tabs)/history');
-      } else {
-        // Handle error codes
-        let errorMessage = 'Something went wrong, try again';
-        
-        switch (data.code) {
-          case 'INVALID_CREDENTIALS':
-            errorMessage = 'Invalid email or password';
-            break;
-          case 'RATE_LIMITED':
-            errorMessage = 'Too many attempts. Please try again later';
-            break;
-          case 'MISSING_FIELDS':
-            errorMessage = 'Please fill in all fields';
-            break;
-          case 'INVALID_EMAIL':
-            errorMessage = 'Please enter a valid email address';
-            break;
-        }
-        
-        setFormError(errorMessage);
-      }
     } catch (error) {
       console.error('Login error:', error);
       setFormError('Network error. Please check your connection');
@@ -149,12 +117,10 @@ export default function SignInPage() {
 
   const handleGoogleSignIn = () => {
     setLoadingGoogle(true);
-    setLoadingGoogle(true);
     setShowGoogleAuth(true);
   };
 
   const handleAppleSignIn = () => {
-    setLoadingApple(true);
     setLoadingApple(true);
     setShowAppleAuth(true);
   };
@@ -198,14 +164,10 @@ export default function SignInPage() {
               onPress={handleGoogleSignIn}
               loading={loadingGoogle}
               disabled={loading}
-              loading={loadingGoogle}
-              disabled={loading}
             />
             
             <AppleSignInButton
               onPress={handleAppleSignIn}
-              loading={loadingApple}
-              disabled={loading}
               loading={loadingApple}
               disabled={loading}
             />
@@ -278,7 +240,6 @@ export default function SignInPage() {
         onClose={() => {
           setShowGoogleAuth(false);
           setLoadingGoogle(false);
-          setLoadingGoogle(false);
         }}
       />
       
@@ -287,7 +248,6 @@ export default function SignInPage() {
         provider="apple"
         onClose={() => {
           setShowAppleAuth(false);
-          setLoadingApple(false);
           setLoadingApple(false);
         }}
       />
