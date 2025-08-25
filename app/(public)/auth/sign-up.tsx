@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
 import TextField from '../../../components/auth/TextField';
 import FormButton from '../../../components/auth/FormButton';
 import DividerOr from '../../../components/auth/DividerOr';
@@ -21,19 +20,15 @@ import { validatePassword, validatePasswordConfirmation } from '../../../utils/v
 import { t } from '../../../lib/i18n';
 
 export default function SignUpPage() {
-  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [formError, setFormError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [loadingGoogle, setLoadingGoogle] = useState(false);
-  const [loadingApple, setLoadingApple] = useState(false);
   const [showGoogleAuth, setShowGoogleAuth] = useState(false);
   const [showAppleAuth, setShowAppleAuth] = useState(false);
 
-  const nameRef = useRef<any>(null);
   const emailRef = useRef<any>(null);
   const passwordRef = useRef<any>(null);
   const confirmPasswordRef = useRef<any>(null);
@@ -55,9 +50,7 @@ export default function SignUpPage() {
   };
 
   const focusFirstError = () => {
-    if (errors.name && nameRef.current) {
-      nameRef.current.focus();
-    } else if (errors.email && emailRef.current) {
+    if (errors.email && emailRef.current) {
       emailRef.current.focus();
     } else if (errors.password && passwordRef.current) {
       passwordRef.current.focus();
@@ -77,67 +70,31 @@ export default function SignUpPage() {
 
     setLoading(true);
 
-    try {
-      const response = await fetch('http://localhost:3000/auth/email/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email.trim(),
-          password,
-          name: name.trim() || undefined,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.ok && data.token) {
-        // Store JWT in SecureStore
-        await SecureStore.setItemAsync('auth_token', data.token);
-        
-        // Navigate to main app
-        router.replace('/(tabs)/history');
-      } else {
-        // Handle error codes
-        let errorMessage = 'Something went wrong, try again';
-        
-        switch (data.code) {
-          case 'EMAIL_TAKEN':
-            errorMessage = 'Email is already in use';
-            break;
-          case 'RATE_LIMITED':
-            errorMessage = 'Too many attempts. Please try again later';
-            break;
-          case 'MISSING_FIELDS':
-            errorMessage = 'Please fill in all required fields';
-            break;
-          case 'INVALID_EMAIL':
-            errorMessage = 'Please enter a valid email address';
-            break;
-          case 'PASSWORD_TOO_SHORT':
-            errorMessage = 'Password must be at least 8 characters long';
-            break;
-        }
-        
-        setFormError(errorMessage);
-      }
-    } catch (error) {
-      console.error('Registration error:', error);
-      setFormError('Network error. Please check your connection');
-    } finally {
+    // Simulate API call
+    setTimeout(() => {
+      console.log('Sign Up Form Data:', { email, password, confirmPassword });
       setLoading(false);
-    }
+      
+      // Mock success - show banner and navigate to sign in
+      Alert.alert(
+        'Account Created',
+        'Account created successfully. Please sign in.',
+        [
+          {
+            text: 'OK',
+            onPress: () => router.push('/(public)/auth/sign-in'),
+          },
+        ]
+      );
+    }, 800);
   };
 
   const handleGoogleSignUp = () => {
-    setLoadingGoogle(true);
     setLoadingGoogle(true);
     setShowGoogleAuth(true);
   };
 
   const handleAppleSignUp = () => {
-    setLoadingApple(true);
     setLoadingApple(true);
     setShowAppleAuth(true);
   };
@@ -177,14 +134,10 @@ export default function SignUpPage() {
               onPress={handleGoogleSignUp}
               loading={loadingGoogle}
               disabled={loading}
-              loading={loadingGoogle}
-              disabled={loading}
             />
             
             <AppleSignInButton
               onPress={handleAppleSignUp}
-              loading={loadingApple}
-              disabled={loading}
               loading={loadingApple}
               disabled={loading}
             />
@@ -193,18 +146,6 @@ export default function SignUpPage() {
           <DividerOr />
           
           {/* Email Form */}
-          <TextField
-            ref={nameRef}
-            label="Name (Optional)"
-            value={name}
-            onChangeText={setName}
-            testID="signUp-name"
-            autoCapitalize="words"
-            autoComplete="name"
-            returnKeyType="next"
-            onSubmitEditing={() => emailRef.current?.focus()}
-          />
-
           <TextField
             ref={emailRef}
             label="Email"
@@ -275,7 +216,6 @@ export default function SignUpPage() {
         onClose={() => {
           setShowGoogleAuth(false);
           setLoadingGoogle(false);
-          setLoadingGoogle(false);
         }}
       />
       
@@ -284,7 +224,6 @@ export default function SignUpPage() {
         provider="apple"
         onClose={() => {
           setShowAppleAuth(false);
-          setLoadingApple(false);
           setLoadingApple(false);
         }}
       />

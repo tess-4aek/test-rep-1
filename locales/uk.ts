@@ -173,10 +173,4 @@ export default {
   continueWithGoogle: 'Продовжити з Google',
   continueWithApple: 'Продовжити з Apple',
   signInWithGoogle: 'Увійти через Google',
-  // Error messages
-  emailTaken: 'Ця електронна пошта вже використовується',
-  invalidCredentials: 'Неправильна електронна пошта або пароль',
-  rateLimited: 'Забагато спроб. Спробуйте пізніше',
-  networkError: 'Помилка мережі. Перевірте з\'єднання',
-  somethingWentWrong: 'Щось пішло не так, спробуйте ще раз',
 };

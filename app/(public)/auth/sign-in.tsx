@@ -9,7 +9,6 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
 import TextField from '../../../components/auth/TextField';
 import FormButton from '../../../components/auth/FormButton';
 import DividerOr from '../../../components/auth/DividerOr';
@@ -26,8 +25,6 @@ export default function SignInPage() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [formError, setFormError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [loadingGoogle, setLoadingGoogle] = useState(false);
-  const [loadingApple, setLoadingApple] = useState(false);
   const [showGoogleAuth, setShowGoogleAuth] = useState(false);
   const [showAppleAuth, setShowAppleAuth] = useState(false);
 
@@ -66,63 +63,22 @@ export default function SignInPage() {
 
     setLoading(true);
 
-    try {
-      const response = await fetch('http://localhost:3000/auth/email/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email.trim(),
-          password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.ok && data.token) {
-        // Store JWT in SecureStore
-        await SecureStore.setItemAsync('auth_token', data.token);
-        
-        // Navigate to main app
-        router.replace('/(tabs)/history');
-      } else {
-        // Handle error codes
-        let errorMessage = 'Something went wrong, try again';
-        
-        switch (data.code) {
-          case 'INVALID_CREDENTIALS':
-            errorMessage = 'Invalid email or password';
-            break;
-          case 'RATE_LIMITED':
-            errorMessage = 'Too many attempts. Please try again later';
-            break;
-          case 'MISSING_FIELDS':
-            errorMessage = 'Please fill in all fields';
-            break;
-          case 'INVALID_EMAIL':
-            errorMessage = 'Please enter a valid email address';
-            break;
-        }
-        
-        setFormError(errorMessage);
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      setFormError('Network error. Please check your connection');
-    } finally {
+    // Simulate API call
+    setTimeout(() => {
+      console.log('Sign In Form Data:', { email, password });
       setLoading(false);
-    }
+      
+      // Mock success - navigate to protected route
+      router.replace('/(tabs)/history');
+    }, 800);
   };
 
   const handleGoogleSignIn = () => {
-    setLoadingGoogle(true);
     setLoadingGoogle(true);
     setShowGoogleAuth(true);
   };
 
   const handleAppleSignIn = () => {
-    setLoadingApple(true);
     setLoadingApple(true);
     setShowAppleAuth(true);
   };
@@ -166,14 +122,10 @@ export default function SignInPage() {
               onPress={handleGoogleSignIn}
               loading={loadingGoogle}
               disabled={loading}
-              loading={loadingGoogle}
-              disabled={loading}
             />
             
             <AppleSignInButton
               onPress={handleAppleSignIn}
-              loading={loadingApple}
-              disabled={loading}
               loading={loadingApple}
               disabled={loading}
             />
@@ -246,7 +198,6 @@ export default function SignInPage() {
         onClose={() => {
           setShowGoogleAuth(false);
           setLoadingGoogle(false);
-          setLoadingGoogle(false);
         }}
       />
       
@@ -255,7 +206,6 @@ export default function SignInPage() {
         provider="apple"
         onClose={() => {
           setShowAppleAuth(false);
-          setLoadingApple(false);
           setLoadingApple(false);
         }}
       />
