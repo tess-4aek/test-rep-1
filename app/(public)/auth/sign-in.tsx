@@ -5,21 +5,18 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Alert,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
-import { Platform } from 'react-native';
-import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
-import appleAuth from '@invertase/react-native-apple-authentication';
+import { Platform, Alert } from 'react-native';
 import TextField from '../../../components/auth/TextField';
 import FormButton from '../../../components/auth/FormButton';
 import SocialButton from '../../../components/auth/SocialButton';
 import DividerOr from '../../../components/auth/DividerOr';
+import OAuthWebView from '../../../components/auth/OAuthWebView';
 import { validateEmail } from '../../../utils/validation/email';
 import { validatePassword } from '../../../utils/validation/password';
-import { storeAuthToken, storeAuthUser, AuthUser } from '../../../utils/auth/tokenStorage';
-import { supabase } from '../../../lib/supabase';
+import { storeAuthToken, storeAuthUser } from '../../../utils/auth/tokenStorage';
 import { t } from '../../../lib/i18n';
 
 export default function SignInPage() {
@@ -30,17 +27,18 @@ export default function SignInPage() {
   const [loading, setLoading] = useState(false);
   const [loadingGoogle, setLoadingGoogle] = useState(false);
   const [loadingApple, setLoadingApple] = useState(false);
+  const [oauthWebView, setOauthWebView] = useState<{
+    visible: boolean;
+    url: string;
+    title: string;
+  }>({
+    visible: false,
+    url: '',
+    title: '',
+  });
 
   const emailRef = useRef<any>(null);
   const passwordRef = useRef<any>(null);
-
-  // Configure Google Sign-In
-  React.useEffect(() => {
-    GoogleSignin.configure({
-      webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
-      offlineAccess: true,
-    });
-  }, []);
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
@@ -85,194 +83,47 @@ export default function SignInPage() {
   };
 
   const handleGoogleSignIn = async () => {
-    if (Platform.OS === 'web') {
-      setFormError('Google Sign-In is not supported on web. Please use email/password.');
-      return;
-    }
-
-    setLoadingGoogle(true);
-    setFormError('');
-
-    try {
-      // Check if device supports Google Play Services
-      await GoogleSignin.hasPlayServices();
-      
-      // Sign in with Google
-      const userInfo = await GoogleSignin.signIn();
-      
-      if (!userInfo.user) {
-        throw new Error('No user information received from Google');
-      }
-
-      // Create or update user in Supabase
-      const { data: existingUser } = await supabase
-        .from('users')
-        .select('*')
-        .eq('google_id', userInfo.user.id)
-        .single();
-
-      let user;
-      if (existingUser) {
-        // Update existing user
-        const { data: updatedUser, error: updateError } = await supabase
-          .from('users')
-          .update({
-            first_name: userInfo.user.givenName,
-            last_name: userInfo.user.familyName,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('google_id', userInfo.user.id)
-          .select()
-          .single();
-
-        if (updateError) throw updateError;
-        user = updatedUser;
-      } else {
-        // Create new user
-        const { data: newUser, error: createError } = await supabase
-          .from('users')
-          .insert({
-            id: crypto.randomUUID(),
-            first_name: userInfo.user.givenName,
-            last_name: userInfo.user.familyName,
-            google_id: userInfo.user.id,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          })
-          .select()
-          .single();
-
-        if (createError) throw createError;
-        user = newUser;
-      }
-
-      // Store user data locally
-      const authUser: AuthUser = {
-        id: user.id,
-        email: userInfo.user.email || '',
-        name: `${userInfo.user.givenName || ''} ${userInfo.user.familyName || ''}`.trim(),
-        provider: 'google',
-      };
-
-      await storeAuthUser(authUser);
-      
-      console.log('Google sign-in successful:', authUser);
-      
-      // Navigate to protected route
-      router.replace('/(tabs)/history');
-      
-    } catch (error: any) {
-      console.error('Google sign-in error:', error);
-      
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        // User cancelled the sign-in flow
-        return;
-      } else if (error.code === statusCodes.IN_PROGRESS) {
-        setFormError('Sign-in already in progress. Please wait.');
-      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        setFormError('Google Play Services not available on this device.');
-      } else {
-        setFormError('Google sign-in failed. Please try again.');
-      }
-    } finally {
-      setLoadingGoogle(false);
-    }
+    setOauthWebView({
+      visible: true,
+      url: 'http://localhost:3000/auth/google/start',
+      title: t('signIn') + ' - Google',
+    });
   };
 
   const handleAppleSignIn = async () => {
-    if (Platform.OS !== 'ios') {
-      setFormError('Apple Sign-In is only available on iOS devices.');
-      return;
-    }
+    setOauthWebView({
+      visible: true,
+      url: 'http://localhost:3000/auth/apple/start',
+      title: t('signIn') + ' - Apple',
+    });
+  };
 
-    setLoadingApple(true);
-    setFormError('');
-
-    try {
-      // Perform Apple Sign-In request
-      const appleAuthRequestResponse = await appleAuth.performRequest({
-        requestedOperation: appleAuth.Operation.LOGIN,
-        requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
-      });
-
-      // Ensure Apple returned a user
-      if (!appleAuthRequestResponse.user) {
-        throw new Error('Apple Sign-In was cancelled or failed');
+  const handleOAuthMessage = async (data: any) => {
+    setOauthWebView({ visible: false, url: '', title: '' });
+    
+    if (data.type === 'AUTH_SUCCESS') {
+      try {
+        // Store token and user data
+        await storeAuthToken(data.token);
+        await storeAuthUser(data.user);
+        
+        console.log('OAuth success:', data.user);
+        
+        // Navigate to protected route
+        router.replace('/(tabs)/history');
+      } catch (error) {
+        console.error('Failed to store auth data:', error);
+        setFormError('Authentication failed. Please try again.');
       }
-
-      const { user: appleUser, email, fullName } = appleAuthRequestResponse;
-
-      // Create or update user in Supabase
-      const { data: existingUser } = await supabase
-        .from('users')
-        .select('*')
-        .eq('apple_id', appleUser)
-        .single();
-
-      let user;
-      if (existingUser) {
-        // Update existing user
-        const { data: updatedUser, error: updateError } = await supabase
-          .from('users')
-          .update({
-            first_name: fullName?.givenName || existingUser.first_name,
-            last_name: fullName?.familyName || existingUser.last_name,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('apple_id', appleUser)
-          .select()
-          .single();
-
-        if (updateError) throw updateError;
-        user = updatedUser;
-      } else {
-        // Create new user
-        const { data: newUser, error: createError } = await supabase
-          .from('users')
-          .insert({
-            id: crypto.randomUUID(),
-            first_name: fullName?.givenName || 'Apple',
-            last_name: fullName?.familyName || 'User',
-            apple_id: appleUser,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          })
-          .select()
-          .single();
-
-        if (createError) throw createError;
-        user = newUser;
-      }
-
-      // Store user data locally
-      const authUser: AuthUser = {
-        id: user.id,
-        email: email || '',
-        name: `${user.first_name || ''} ${user.last_name || ''}`.trim(),
-        provider: 'apple',
-      };
-
-      await storeAuthUser(authUser);
-      
-      console.log('Apple sign-in successful:', authUser);
-      
-      // Navigate to protected route
-      router.replace('/(tabs)/history');
-      
-    } catch (error: any) {
-      console.error('Apple sign-in error:', error);
-      
-      if (error.code === appleAuth.Error.CANCELED) {
-        // User cancelled the sign-in flow
-        return;
-      } else {
-        setFormError('Apple sign-in failed. Please try again.');
-      }
-    } finally {
-      setLoadingApple(false);
+    } else if (data.type === 'AUTH_ERROR') {
+      console.error('OAuth error:', data.error);
+      setFormError(data.error || 'Authentication failed. Please try again.');
     }
   };
 
+  const handleCloseWebView = () => {
+    setOauthWebView({ visible: false, url: '', title: '' });
+  };
 
   const handleForgotPassword = () => {
     router.push('/(public)/auth/forgot');
@@ -388,6 +239,14 @@ export default function SignInPage() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      
+      <OAuthWebView
+        visible={oauthWebView.visible}
+        url={oauthWebView.url}
+        title={oauthWebView.title}
+        onClose={handleCloseWebView}
+        onMessage={handleOAuthMessage}
+      />
     </View>
   );
 }

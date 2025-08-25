@@ -12,11 +12,7 @@
       "typedRoutes": false
     },
     "ios": {
-      "supportsTablet": true,
-      "googleServicesFile": "./GoogleService-Info.plist"
-    },
-    "android": {
-      "googleServicesFile": "./google-services.json"
+      "supportsTablet": true
     },
     "web": {
       "bundler": "metro",
