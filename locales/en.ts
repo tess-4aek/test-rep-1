@@ -1,173 +1,429 @@
-export default {
-  greeting: 'Welcome back!',
-  settings: 'Settings',
-  changeLanguage: 'Language',
-  home: 'Home',
-  history: 'History',
-  profile: 'Profile',
-  transactionHistory: 'Transaction History',
-  recentExchanges: 'Your recent crypto exchanges',
-  monthlyLimit: 'Monthly Transaction Limit',
-  limitRemaining: 'remaining',
-  limitResets: 'Your monthly limit resets in',
-  days: 'days',
-  exchangeRate: 'Exchange Rate',
-  exchange: 'Exchange',
-  youSend: 'You send',
-  youReceive: 'You receive',
-  fee: 'Fee',
-  createOrder: 'Create Order',
-  orderBankAccount: 'Order Bank Account Opening',
-  personalInfo: 'Personal Information',
-  updateProfile: 'Update your profile details',
-  appSettings: 'Settings',
-  appPreferences: 'App preferences and notifications',
-  helpSupport: 'Help & Support',
-  getHelp: 'Get help or contact us',
-  signOut: 'Sign Out',
-  verifiedAccount: 'Verified Account',
-  english: 'English',
-  ukrainian: 'Українська',
-  almostThere: 'Almost there!',
-  completeSteps: 'Complete the remaining steps to finish setting up your account.',
-  telegramAuth: 'Telegram authorization',
-  kycVerification: 'KYC verification',
-  bankDetailsSubmission: 'Bank details submission',
-  completed: 'Completed',
-  inProgress: 'In Progress',
-  notStarted: 'Not Started',
-  continueKyc: 'Continue KYC',
-  secureProcess: 'Secure verification process • Takes 2-3 minutes',
-  oneLastStep: 'One last step!',
-  almostReady: 'You\'re almost ready to start exchanging.',
-  addBankDetails: 'Add Bank Details',
-  enterBankDetails: 'Enter your bank details',
-  bankDetailsDescription: 'We need your banking information to process fiat transactions securely.',
-  bankRequirements: 'Bank Account Requirements',
-  bankRequirementsText: 'Please enter bank details that follow the European (SEPA/IBAN) standard.\nIf you don\'t have such an account, you can request one using the button below.',
-  fullName: 'Full Name',
-  iban: 'IBAN',
-  swiftBic: 'SWIFT/BIC',
-  bankName: 'Bank Name',
-  country: 'Country',
-  submit: 'Submit',
-  orderBankAccountOpening: 'Order Bank Account Opening',
-  informationSecure: 'Your information is encrypted and secure',
-  verificationInProgress: 'Verification in progress',
-  allStepsCompleted: 'All steps completed. Your data is being reviewed by our team.',
-  reviewingInfo: 'Reviewing your information...',
-  redirectingIn: 'Redirecting in',
-  seconds: 'seconds',
-  transactionLimits: 'Transaction Limits',
-  dailyLimit: 'One-time Limit',
-  resetsAtMidnight: 'Resets at midnight UTC',
-  resetsOn: 'Resets on',
-  howToIncrease: 'How to Increase Limits',
-  enhancedVerification: 'Complete Enhanced Verification',
-  enhancedVerificationDesc: 'Provide additional documentation for identity verification',
-  buildHistory: 'Build Transaction History',
-  buildHistoryDesc: 'Complete successful transactions to demonstrate account activity',
-  manualReview: 'Request Manual Review',
-  manualReviewDesc: 'Contact our support team for personalized limit assessment',
-  higherLimitsBenefits: 'Higher Limits Benefits',
-  largerAmounts: '• Access to larger exchange amounts',
-  prioritySupport: '• Priority customer support',
-  reducedProcessing: '• Reduced processing times',
-  advancedFeatures: '• Advanced trading features',
-  requestLimitIncrease: 'Request Limit Increase',
-  reviewWithin24h: 'Our team will review your request within 24 hours',
-  orderDetails: 'Order Details',
-  exchangeOrder: 'Exchange Order',
-  amount: 'Amount',
-  currency: 'Currency',
-  estimatedReceived: 'Estimated Received',
-  status: 'Status',
-  transactionInfo: 'Transaction Info',
-  orderProcessing: 'Your order is being processed. You will receive a notification once the exchange is complete.',
-  processingTime: 'Processing time: 2-5 minutes',
-  askQuestion: 'Ask a question about this order',
-  confirmExchange: 'Confirm Exchange',
-  rate: 'Rate',
-  cancel: 'Cancel',
-  confirm: 'Confirm',
-  faqTitle: 'Frequently Asked Questions',
-  contactSupport: 'Contact Support',
-  respondWithin1h: 'We typically respond within 1 hour',
-  increaseLimit: 'How to increase my transaction limit?',
-  increaseLimitAnswer: 'You can increase your transaction limit by completing enhanced verification, building transaction history, or requesting a manual review from our support team.',
-  exchangeFee: 'What is the exchange fee?',
-  exchangeFeeAnswer: 'Our exchange fee is approximately 0.5% of the transaction amount. This fee covers processing costs and ensures secure, fast transactions.',
-  verificationTime: 'How long does verification take?',
-  verificationTimeAnswer: 'KYC verification typically takes 2-5 minutes for automated approval. In some cases, manual review may take up to 24 hours.',
-  supportedCurrencies: 'What currencies do you support?',
-  supportedCurrenciesAnswer: 'We currently support USDC to EUR exchanges and vice versa. More currency pairs will be added in future updates.',
-  bought: 'Bought',
-  sold: 'Sold',
-  pending: 'pending',
-  processing: 'Processing',
-  kycVerificationTitle: 'KYC Verification',
-  loadingVerification: 'Loading verification page...',
-  failedToLoad: 'Failed to load verification page',
-  retry: 'Retry',
-  completeVerification: 'Complete the verification process and tap "Done" when finished',
-  done: 'Done',
-  goBack: 'Go Back',
-  noUrlProvided: 'No verification URL provided',
-  telegramAccount: 'Telegram Account',
-  username: 'Username',
-  bankAccountDetails: 'Bank Account Details',
-  updateInfoNote: 'To update your information, please contact our support team.',
-  instantExchange: 'Instant Crypto Exchange',
-  instantExchangeDesc: 'Convert between crypto and fiat currencies in seconds with real-time market rates',
-  bankGradeSecurity: 'Bank-Grade Security',
-  bankGradeSecurityDesc: 'Your funds are protected with enterprise-level encryption and regulatory compliance',
-  bestRates: 'Best Exchange Rates',
-  bestRatesDesc: 'Access competitive rates with transparent fees and no hidden charges',
-  signIn: 'Sign In',
-  secureAuth: 'Secure authentication via Telegram',
-  appName: 'CryptoExchange',
-  tagline: 'Your gateway to digital finance',
-  enterFullName: 'Enter your full legal name',
-  enterBankName: 'Enter your bank name',
-  enterCountry: 'United Kingdom',
-  bankDetails: 'Bank Details',
-  viewLimitDetails: 'View Limit Details',
-  readyToExchange: 'Ready to exchange crypto?',
-  personalInformation: 'Personal Information',
-  appSettings: 'App Settings',
-  helpAndSupport: 'Help & Support',
-  frequentlyAskedQuestions: 'Frequently Asked Questions',
-  waitingForTelegram: 'Waiting for Telegram confirmation...',
-  telegramInstructions: 'Please complete the authentication process in Telegram and return to this app.',
-  checkingStatus: 'Checking authentication status',
-  noAuthSession: 'No authentication session found',
-  authTimeout: 'Authentication timed out. Please try again.',
-  authError: 'Authentication error occurred. Please try again.',
-  submitting: 'Submitting...',
-  // Validation errors
-  fullNameRequired: 'Full name is required',
-  fullNameTooShort: 'Full name must be at least 2 characters',
-  fullNameInvalid: 'Full name can only contain letters, spaces, hyphens, and apostrophes',
-  ibanRequired: 'IBAN is required',
-  ibanInvalid: 'Invalid IBAN format. Please enter a valid IBAN (e.g., GB29 NWBK 6016 1331 9268 19)',
-  ibanTooShort: 'IBAN is too short. Please enter a complete IBAN',
-  swiftInvalid: 'Invalid SWIFT/BIC format. Should be 8-11 characters (e.g., NWBKGB2L)',
-  bankNameTooShort: 'Bank name must be at least 2 characters',
-  bankNameInvalid: 'Bank name contains invalid characters',
-  countryRequired: 'Country is required',
-  countryTooShort: 'Country name must be at least 2 characters',
-  countryInvalid: 'Country name can only contain letters, spaces, and hyphens',
-  consentCheckbox: 'I consent to the storage and processing of the personal data I have provided (full name, IBAN, SWIFT, and other details) for the purpose of processing bank transfers.',
-  consentRequired: 'You must consent to data processing to continue',
-  // Order creation
-  creatingOrder: 'Creating order...',
-  orderCreationFailed: 'Order Creation Failed',
-  orderCreationError: 'Failed to create your order. Please try again.',
-  retryOrder: 'Retry',
-  contactSupportOrder: 'Contact Support',
-  loading: 'Loading...',
-  noOrdersYet: 'No orders yet',
-  startExchanging: 'Start exchanging to see your transaction history here',
-  oneTimeLimitExceeded: 'Order amount {{amount}} exceeds your one-time limit of {{limit}}. Please reduce the amount or contact support to increase your limit.',
-  monthlyLimitExceeded: 'Order amount {{amount}} exceeds your remaining monthly limit of {{remaining}} ({{limit}} total). Please reduce the amount or wait for your limit to reset.',
-};
+import React, { useState, useRef } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+} from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { router } from 'expo-router';
+import { supabase } from '../../../lib/supabase';
+import * as SecureStore from 'expo-secure-store';
+import TextField from '../../../components/auth/TextField';
+import FormButton from '../../../components/auth/FormButton';
+import DividerOr from '../../../components/auth/DividerOr';
+import GoogleSignInButton from '../../../components/GoogleSignInButton';
+import AppleSignInButton from '../../../components/AppleSignInButton';
+import AuthWebView from '../../../components/AuthWebView';
+import { validateEmail } from '../../../utils/validation/email';
+import { validatePassword } from '../../../utils/validation/password';
+import { t } from '../../../lib/i18n';
+
+export default function SignInPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [magicLinkEmail, setMagicLinkEmail] = useState('');
+  const [magicLinkEmail, setMagicLinkEmail] = useState('');
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [formError, setFormError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [magicLinkLoading, setMagicLinkLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [appleLoading, setAppleLoading] = useState(false);
+  const [magicLinkLoading, setMagicLinkLoading] = useState(false);
+  const [loadingGoogle, setLoadingGoogle] = useState(false);
+  const [loadingApple, setLoadingApple] = useState(false);
+  const [showGoogleAuth, setShowGoogleAuth] = useState(false);
+  const [showAppleAuth, setShowAppleAuth] = useState(false);
+
+  const emailRef = useRef<any>(null);
+  const passwordRef = useRef<any>(null);
+  const magicLinkEmailRef = useRef<any>(null);
+  const magicLinkEmailRef = useRef<any>(null);
+
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+
+    const emailError = validateEmail(email);
+    if (emailError) newErrors.email = emailError;
+
+    const passwordError = validatePassword(password);
+    if (passwordError) newErrors.password = passwordError;
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const focusFirstError = () => {
+    if (errors.email && emailRef.current) {
+      emailRef.current.focus();
+    } else if (errors.password && passwordRef.current) {
+      passwordRef.current.focus();
+    }
+  };
+
+  const handleSubmit = async () => {
+    setFormError('');
+    
+    if (!validateForm()) {
+      setFormError('Please fix the errors above');
+      setTimeout(focusFirstError, 100);
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch('http://localhost:3000/auth/email/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.ok && data.token) {
+        // Store JWT in SecureStore
+        await SecureStore.setItemAsync('auth_token', data.token);
+        
+        // Navigate to main app
+        router.replace('/(tabs)/history');
+      } else {
+        // Handle error codes
+        let errorMessage = 'Something went wrong, try again';
+        
+        switch (data.code) {
+          case 'INVALID_CREDENTIALS':
+            errorMessage = 'Invalid email or password';
+            break;
+          case 'RATE_LIMITED':
+            errorMessage = 'Too many attempts. Please try again later';
+            break;
+          case 'MISSING_FIELDS':
+            errorMessage = 'Please fill in all fields';
+            break;
+          case 'INVALID_EMAIL':
+            errorMessage = 'Please enter a valid email address';
+            break;
+        }
+        
+        setFormError(errorMessage);
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setFormError('Network error. Please check your connection');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMagicLinkSubmit = async () => {
+    const emailError = validateEmail(magicLinkEmail);
+    if (emailError) {
+      Alert.alert('Invalid Email', emailError);
+      return;
+    }
+
+    setMagicLinkLoading(true);
+
+    try {
+      // Simulate magic link API call
+      console.log('Magic Link Email:', magicLinkEmail);
+      
+      // Mock success
+      setTimeout(() => {
+        setMagicLinkLoading(false);
+        Alert.alert(
+          'Check your email',
+          'We sent you a magic link to sign in. Please check your email and click the link to continue.',
+          [{ text: 'OK' }]
+        );
+        setMagicLinkEmail('');
+      }, 800);
+    } catch (error) {
+      console.error('Magic link error:', error);
+      setMagicLinkLoading(false);
+      Alert.alert('Error', 'Failed to send magic link. Please try again.');
+    }
+  };
+
+  const handleGoogleSignIn = () => {
+    setLoadingGoogle(true);
+    setShowGoogleAuth(true);
+  };
+
+  const handleAppleSignIn = () => {
+    setLoadingApple(true);
+    setShowAppleAuth(true);
+  };
+
+  const handleForgotPassword = () => {
+    router.push('/(public)/auth/forgot');
+  };
+
+  const handleCreateAccount = () => {
+    router.push('/(public)/auth/sign-up');
+  };
+
+  return (
+    <View style={styles.container}>
+      <StatusBar style="dark" />
+      
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.title}>Welcome Back</Text>
+          <Text style={styles.subtitle}>Sign in to your account</Text>
+        </View>
+
+        {/* Form Error */}
+        {formError && (
+          <View style={styles.errorContainer}>
+            <Text style={styles.errorText}>{formError}</Text>
+          </View>
+        )}
+
+        {/* Form */}
+        <View style={styles.form}>
+          {/* Social Sign In */}
+          <View style={styles.socialContainer}>
+            <GoogleSignInButton
+              onPress={handleGoogleSignIn}
+              loading={loadingGoogle}
+              disabled={loading}
+            />
+            
+            <AppleSignInButton
+              onPress={handleAppleSignIn}
+              loading={loadingApple}
+              disabled={loading}
+            />
+          </View>
+          
+          <DividerOr />
+          
+          {/* Email Form */}
+          <TextField
+            ref={emailRef}
+            label="Email"
+            value={email}
+            onChangeText={setEmail}
+            error={errors.email}
+            testID="signIn-email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+            returnKeyType="next"
+            onSubmitEditing={() => passwordRef.current?.focus()}
+          />
+
+          <TextField
+            ref={passwordRef}
+            label="Password"
+            value={password}
+            onChangeText={setPassword}
+            error={errors.password}
+            testID="signIn-password"
+            secureTextEntry
+            autoCapitalize="none"
+            autoComplete="password"
+            returnKeyType="done"
+            onSubmitEditing={handleSubmit}
+          />
+
+          <TouchableOpacity 
+            style={styles.forgotPasswordButton}
+            onPress={handleForgotPassword}
+            testID="signIn-forgotPassword"
+          >
+            <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+          </TouchableOpacity>
+
+          <FormButton
+            title="Sign In"
+            loadingTitle="Signing in..."
+            onPress={handleSubmit}
+            loading={loading}
+            testID="signIn-submit"
+          />
+
+          {/* Magic Link Section */}
+          <View style={styles.magicLinkSection}>
+            <DividerOr />
+            
+            <Text style={styles.magicLinkTitle}>Or sign in with magic link</Text>
+            <Text style={styles.magicLinkSubtitle}>
+              Enter your email and we'll send you a secure link to sign in
+            </Text>
+            
+            <TextField
+              ref={magicLinkEmailRef}
+              label="Email for magic link"
+              value={magicLinkEmail}
+              onChangeText={setMagicLinkEmail}
+              testID="signIn-magicLinkEmail"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoComplete="email"
+              returnKeyType="done"
+              onSubmitEditing={handleMagicLinkSubmit}
+              placeholder="Enter your email address"
+            />
+            
+            <FormButton
+              title="Send Magic Link"
+              loadingTitle="Sending magic link..."
+              onPress={handleMagicLinkSubmit}
+              loading={magicLinkLoading}
+              variant="secondary"
+              testID="signIn-magicLink"
+            />
+          </View>
+        </View>
+
+        {/* Footer */}
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>Don't have an account? </Text>
+          <TouchableOpacity 
+            onPress={handleCreateAccount}
+            testID="signIn-createAccount"
+          >
+            <Text style={styles.footerLink}>Create account</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+      
+      {/* OAuth WebViews */}
+      <AuthWebView
+        visible={showGoogleAuth}
+        provider="google"
+        onClose={() => {
+          setShowGoogleAuth(false);
+          setLoadingGoogle(false);
+        }}
+      />
+      
+      <AuthWebView
+        visible={showAppleAuth}
+        provider="apple"
+        onClose={() => {
+          setShowAppleAuth(false);
+          setLoadingApple(false);
+        }}
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F4F6F9',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 32,
+    paddingTop: 80,
+    paddingBottom: 40,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 40,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#0C1E3C',
+    marginBottom: 8,
+    lineHeight: 38,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 16,
+    fontWeight: '400',
+    color: '#6B7280',
+    lineHeight: 22,
+    textAlign: 'center',
+  },
+  errorContainer: {
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FECACA',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 24,
+  },
+  errorText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#DC2626',
+    textAlign: 'center',
+  },
+  form: {
+    marginBottom: 32,
+  },
+  socialContainer: {
+    gap: 12,
+    marginBottom: 8,
+  },
+  forgotPasswordButton: {
+    alignSelf: 'flex-end',
+    marginBottom: 24,
+  },
+  forgotPasswordText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#3D8BFF',
+  },
+  magicLinkSection: {
+    marginTop: 8,
+  },
+  magicLinkTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#0C1E3C',
+    textAlign: 'center',
+    marginBottom: 8,
+    lineHeight: 22,
+  },
+  magicLinkSubtitle: {
+    fontSize: 14,
+    fontWeight: '400',
+    color: '#6B7280',
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 20,
+    paddingHorizontal: 16,
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 'auto',
+  },
+  footerText: {
+    fontSize: 16,
+    fontWeight: '400',
+    color: '#6B7280',
+  },
+  footerLink: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#3D8BFF',
+  },
+});
