@@ -1,429 +1,173 @@
-import React, { useState, useRef } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-} from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import { router } from 'expo-router';
-import { supabase } from '../../../lib/supabase';
-import * as SecureStore from 'expo-secure-store';
-import TextField from '../../../components/auth/TextField';
-import FormButton from '../../../components/auth/FormButton';
-import DividerOr from '../../../components/auth/DividerOr';
-import GoogleSignInButton from '../../../components/GoogleSignInButton';
-import AppleSignInButton from '../../../components/AppleSignInButton';
-import AuthWebView from '../../../components/AuthWebView';
-import { validateEmail } from '../../../utils/validation/email';
-import { validatePassword } from '../../../utils/validation/password';
-import { t } from '../../../lib/i18n';
-
-export default function SignInPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [magicLinkEmail, setMagicLinkEmail] = useState('');
-  const [magicLinkEmail, setMagicLinkEmail] = useState('');
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [formError, setFormError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [magicLinkLoading, setMagicLinkLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const [appleLoading, setAppleLoading] = useState(false);
-  const [magicLinkLoading, setMagicLinkLoading] = useState(false);
-  const [loadingGoogle, setLoadingGoogle] = useState(false);
-  const [loadingApple, setLoadingApple] = useState(false);
-  const [showGoogleAuth, setShowGoogleAuth] = useState(false);
-  const [showAppleAuth, setShowAppleAuth] = useState(false);
-
-  const emailRef = useRef<any>(null);
-  const passwordRef = useRef<any>(null);
-  const magicLinkEmailRef = useRef<any>(null);
-  const magicLinkEmailRef = useRef<any>(null);
-
-  const validateForm = () => {
-    const newErrors: { [key: string]: string } = {};
-
-    const emailError = validateEmail(email);
-    if (emailError) newErrors.email = emailError;
-
-    const passwordError = validatePassword(password);
-    if (passwordError) newErrors.password = passwordError;
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const focusFirstError = () => {
-    if (errors.email && emailRef.current) {
-      emailRef.current.focus();
-    } else if (errors.password && passwordRef.current) {
-      passwordRef.current.focus();
-    }
-  };
-
-  const handleSubmit = async () => {
-    setFormError('');
-    
-    if (!validateForm()) {
-      setFormError('Please fix the errors above');
-      setTimeout(focusFirstError, 100);
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const response = await fetch('http://localhost:3000/auth/email/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email.trim(),
-          password,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.ok && data.token) {
-        // Store JWT in SecureStore
-        await SecureStore.setItemAsync('auth_token', data.token);
-        
-        // Navigate to main app
-        router.replace('/(tabs)/history');
-      } else {
-        // Handle error codes
-        let errorMessage = 'Something went wrong, try again';
-        
-        switch (data.code) {
-          case 'INVALID_CREDENTIALS':
-            errorMessage = 'Invalid email or password';
-            break;
-          case 'RATE_LIMITED':
-            errorMessage = 'Too many attempts. Please try again later';
-            break;
-          case 'MISSING_FIELDS':
-            errorMessage = 'Please fill in all fields';
-            break;
-          case 'INVALID_EMAIL':
-            errorMessage = 'Please enter a valid email address';
-            break;
-        }
-        
-        setFormError(errorMessage);
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      setFormError('Network error. Please check your connection');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleMagicLinkSubmit = async () => {
-    const emailError = validateEmail(magicLinkEmail);
-    if (emailError) {
-      Alert.alert('Invalid Email', emailError);
-      return;
-    }
-
-    setMagicLinkLoading(true);
-
-    try {
-      // Simulate magic link API call
-      console.log('Magic Link Email:', magicLinkEmail);
-      
-      // Mock success
-      setTimeout(() => {
-        setMagicLinkLoading(false);
-        Alert.alert(
-          'Check your email',
-          'We sent you a magic link to sign in. Please check your email and click the link to continue.',
-          [{ text: 'OK' }]
-        );
-        setMagicLinkEmail('');
-      }, 800);
-    } catch (error) {
-      console.error('Magic link error:', error);
-      setMagicLinkLoading(false);
-      Alert.alert('Error', 'Failed to send magic link. Please try again.');
-    }
-  };
-
-  const handleGoogleSignIn = () => {
-    setLoadingGoogle(true);
-    setShowGoogleAuth(true);
-  };
-
-  const handleAppleSignIn = () => {
-    setLoadingApple(true);
-    setShowAppleAuth(true);
-  };
-
-  const handleForgotPassword = () => {
-    router.push('/(public)/auth/forgot');
-  };
-
-  const handleCreateAccount = () => {
-    router.push('/(public)/auth/sign-up');
-  };
-
-  return (
-    <View style={styles.container}>
-      <StatusBar style="dark" />
-      
-      <ScrollView 
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>Welcome Back</Text>
-          <Text style={styles.subtitle}>Sign in to your account</Text>
-        </View>
-
-        {/* Form Error */}
-        {formError && (
-          <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>{formError}</Text>
-          </View>
-        )}
-
-        {/* Form */}
-        <View style={styles.form}>
-          {/* Social Sign In */}
-          <View style={styles.socialContainer}>
-            <GoogleSignInButton
-              onPress={handleGoogleSignIn}
-              loading={loadingGoogle}
-              disabled={loading}
-            />
-            
-            <AppleSignInButton
-              onPress={handleAppleSignIn}
-              loading={loadingApple}
-              disabled={loading}
-            />
-          </View>
-          
-          <DividerOr />
-          
-          {/* Email Form */}
-          <TextField
-            ref={emailRef}
-            label="Email"
-            value={email}
-            onChangeText={setEmail}
-            error={errors.email}
-            testID="signIn-email"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoComplete="email"
-            returnKeyType="next"
-            onSubmitEditing={() => passwordRef.current?.focus()}
-          />
-
-          <TextField
-            ref={passwordRef}
-            label="Password"
-            value={password}
-            onChangeText={setPassword}
-            error={errors.password}
-            testID="signIn-password"
-            secureTextEntry
-            autoCapitalize="none"
-            autoComplete="password"
-            returnKeyType="done"
-            onSubmitEditing={handleSubmit}
-          />
-
-          <TouchableOpacity 
-            style={styles.forgotPasswordButton}
-            onPress={handleForgotPassword}
-            testID="signIn-forgotPassword"
-          >
-            <Text style={styles.forgotPasswordText}>Forgot password?</Text>
-          </TouchableOpacity>
-
-          <FormButton
-            title="Sign In"
-            loadingTitle="Signing in..."
-            onPress={handleSubmit}
-            loading={loading}
-            testID="signIn-submit"
-          />
-
-          {/* Magic Link Section */}
-          <View style={styles.magicLinkSection}>
-            <DividerOr />
-            
-            <Text style={styles.magicLinkTitle}>Or sign in with magic link</Text>
-            <Text style={styles.magicLinkSubtitle}>
-              Enter your email and we'll send you a secure link to sign in
-            </Text>
-            
-            <TextField
-              ref={magicLinkEmailRef}
-              label="Email for magic link"
-              value={magicLinkEmail}
-              onChangeText={setMagicLinkEmail}
-              testID="signIn-magicLinkEmail"
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-              returnKeyType="done"
-              onSubmitEditing={handleMagicLinkSubmit}
-              placeholder="Enter your email address"
-            />
-            
-            <FormButton
-              title="Send Magic Link"
-              loadingTitle="Sending magic link..."
-              onPress={handleMagicLinkSubmit}
-              loading={magicLinkLoading}
-              variant="secondary"
-              testID="signIn-magicLink"
-            />
-          </View>
-        </View>
-
-        {/* Footer */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Don't have an account? </Text>
-          <TouchableOpacity 
-            onPress={handleCreateAccount}
-            testID="signIn-createAccount"
-          >
-            <Text style={styles.footerLink}>Create account</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-      
-      {/* OAuth WebViews */}
-      <AuthWebView
-        visible={showGoogleAuth}
-        provider="google"
-        onClose={() => {
-          setShowGoogleAuth(false);
-          setLoadingGoogle(false);
-        }}
-      />
-      
-      <AuthWebView
-        visible={showAppleAuth}
-        provider="apple"
-        onClose={() => {
-          setShowAppleAuth(false);
-          setLoadingApple(false);
-        }}
-      />
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F4F6F9',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: 32,
-    paddingTop: 80,
-    paddingBottom: 40,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#0C1E3C',
-    marginBottom: 8,
-    lineHeight: 38,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 16,
-    fontWeight: '400',
-    color: '#6B7280',
-    lineHeight: 22,
-    textAlign: 'center',
-  },
-  errorContainer: {
-    backgroundColor: '#FEF2F2',
-    borderWidth: 1,
-    borderColor: '#FECACA',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 24,
-  },
-  errorText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#DC2626',
-    textAlign: 'center',
-  },
-  form: {
-    marginBottom: 32,
-  },
-  socialContainer: {
-    gap: 12,
-    marginBottom: 8,
-  },
-  forgotPasswordButton: {
-    alignSelf: 'flex-end',
-    marginBottom: 24,
-  },
-  forgotPasswordText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#3D8BFF',
-  },
-  magicLinkSection: {
-    marginTop: 8,
-  },
-  magicLinkTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#0C1E3C',
-    textAlign: 'center',
-    marginBottom: 8,
-    lineHeight: 22,
-  },
-  magicLinkSubtitle: {
-    fontSize: 14,
-    fontWeight: '400',
-    color: '#6B7280',
-    textAlign: 'center',
-    marginBottom: 24,
-    lineHeight: 20,
-    paddingHorizontal: 16,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 'auto',
-  },
-  footerText: {
-    fontSize: 16,
-    fontWeight: '400',
-    color: '#6B7280',
-  },
-  footerLink: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#3D8BFF',
-  },
-});
+export default {
+  greeting: 'З поверненням!',
+  settings: 'Налаштування',
+  changeLanguage: 'Мова',
+  home: 'Головна',
+  history: 'Історія',
+  profile: 'Профіль',
+  transactionHistory: 'Історія транзакцій',
+  recentExchanges: 'Ваші останні обміни криптовалют',
+  monthlyLimit: 'Місячний ліміт транзакцій',
+  limitRemaining: 'залишилось',
+  limitResets: 'Ваш місячний ліміт оновиться через',
+  days: 'днів',
+  exchangeRate: 'Курс обміну',
+  exchange: 'Обмін',
+  youSend: 'Ви відправляєте',
+  youReceive: 'Ви отримуєте',
+  fee: 'Комісія',
+  createOrder: 'Створити ордер',
+  orderBankAccount: 'Замовити відкриття рахунку',
+  personalInfo: 'Особиста інформація',
+  updateProfile: 'Оновити дані профілю',
+  appSettings: 'Налаштування',
+  appPreferences: 'Налаштування додатку та сповіщення',
+  helpSupport: 'Допомога та підтримка',
+  getHelp: 'Отримати допомогу або зв\'язатися з нами',
+  signOut: 'Вийти',
+  verifiedAccount: 'Верифікований акаунт',
+  english: 'English',
+  ukrainian: 'Українська',
+  almostThere: 'Майже готово!',
+  completeSteps: 'Завершіть залишкові кроки для налаштування вашого акаунту.',
+  telegramAuth: 'Авторизація через Telegram',
+  kycVerification: 'KYC верифікація',
+  bankDetailsSubmission: 'Подання банківських даних',
+  completed: 'Завершено',
+  inProgress: 'В процесі',
+  notStarted: 'Не розпочато',
+  continueKyc: 'Продовжити KYC',
+  secureProcess: 'Безпечний процес верифікації • Займає 2-3 хвилини',
+  oneLastStep: 'Останній крок!',
+  almostReady: 'Ви майже готові почати обмін.',
+  addBankDetails: 'Додати банківські дані',
+  enterBankDetails: 'Введіть ваші банківські дані',
+  bankDetailsDescription: 'Нам потрібна ваша банківська інформація для безпечної обробки фіатних транзакцій.',
+  bankRequirements: 'Вимоги до банківського рахунку',
+  bankRequirementsText: 'Будь ласка, введіть банківські дані, які відповідають європейському (SEPA/IBAN) стандарту.\nЯкщо у вас немає такого рахунку, ви можете замовити його, використовуючи кнопку нижче.',
+  fullName: 'Повне ім\'я',
+  iban: 'IBAN',
+  swiftBic: 'SWIFT/BIC',
+  bankName: 'Назва банку',
+  country: 'Країна',
+  submit: 'Відправити',
+  orderBankAccountOpening: 'Замовити відкриття банківського рахунку',
+  informationSecure: 'Ваша інформація зашифрована та захищена',
+  verificationInProgress: 'Верифікація в процесі',
+  allStepsCompleted: 'Всі кроки завершені. Ваші дані розглядаються нашою командою.',
+  reviewingInfo: 'Розглядаємо вашу інформацію...',
+  redirectingIn: 'Перенаправлення через',
+  seconds: 'секунд',
+  transactionLimits: 'Ліміти транзакцій',
+  dailyLimit: 'Разовий ліміт',
+  resetsAtMidnight: 'Оновлюється о півночі UTC',
+  resetsOn: 'Оновлюється',
+  howToIncrease: 'Як збільшити ліміти',
+  enhancedVerification: 'Завершити розширену верифікацію',
+  enhancedVerificationDesc: 'Надати додаткові документи для підтвердження особи',
+  buildHistory: 'Створити історію транзакцій',
+  buildHistoryDesc: 'Завершити успішні транзакції для демонстрації активності акаунту',
+  manualReview: 'Запросити ручний розгляд',
+  manualReviewDesc: 'Зв\'язатися з нашою командою підтримки для персональної оцінки ліміту',
+  higherLimitsBenefits: 'Переваги вищих лімітів',
+  largerAmounts: '• Доступ до більших сум обміну',
+  prioritySupport: '• Пріоритетна підтримка клієнтів',
+  reducedProcessing: '• Скорочений час обробки',
+  advancedFeatures: '• Розширені функції торгівлі',
+  requestLimitIncrease: 'Запросити збільшення ліміту',
+  reviewWithin24h: 'Наша команда розгляне ваш запит протягом 24 годин',
+  orderDetails: 'Деталі ордеру',
+  exchangeOrder: 'Ордер на обмін',
+  amount: 'Сума',
+  currency: 'Валюта',
+  estimatedReceived: 'Очікувана сума',
+  status: 'Статус',
+  transactionInfo: 'Інформація про транзакцію',
+  orderProcessing: 'Ваш ордер обробляється. Ви отримаєте сповіщення після завершення обміну.',
+  processingTime: 'Час обробки: 2-5 хвилин',
+  askQuestion: 'Поставити питання про цей ордер',
+  confirmExchange: 'Підтвердити обмін',
+  rate: 'Курс',
+  cancel: 'Скасувати',
+  confirm: 'Підтвердити',
+  faqTitle: 'Часті питання',
+  contactSupport: 'Зв\'язатися з підтримкою',
+  respondWithin1h: 'Ми зазвичай відповідаємо протягом 1 години',
+  increaseLimit: 'Як збільшити мій ліміт транзакцій?',
+  increaseLimitAnswer: 'Ви можете збільшити свій ліміт транзакцій, завершивши розширену верифікацію, створивши історію транзакцій або запросивши ручний розгляд від нашої команди підтримки.',
+  exchangeFee: 'Яка комісія за обмін?',
+  exchangeFeeAnswer: 'Наша комісія за обмін становить приблизно 0,5% від суми транзакції. Ця комісія покриває витрати на обробку та забезпечує безпечні, швидкі транзакції.',
+  verificationTime: 'Скільки часу займає верифікація?',
+  verificationTimeAnswer: 'KYC верифікація зазвичай займає 2-5 хвилин для автоматичного схвалення. У деяких випадках ручний розгляд може зайняти до 24 годин.',
+  supportedCurrencies: 'Які валюти ви підтримуєте?',
+  supportedCurrenciesAnswer: 'Наразі ми підтримуємо обмін USDC на EUR і навпаки. Більше валютних пар буде додано в майбутніх оновленнях.',
+  bought: 'Купив',
+  sold: 'Продав',
+  pending: 'очікує',
+  processing: 'Обробляється',
+  kycVerificationTitle: 'KYC Верифікація',
+  loadingVerification: 'Завантаження сторінки верифікації...',
+  failedToLoad: 'Не вдалося завантажити сторінку верифікації',
+  retry: 'Спробувати знову',
+  completeVerification: 'Завершіть процес верифікації та натисніть "Готово" після завершення',
+  done: 'Готово',
+  goBack: 'Повернутися',
+  noUrlProvided: 'URL верифікації не надано',
+  telegramAccount: 'Telegram акаунт',
+  username: 'Ім\'я користувача',
+  bankAccountDetails: 'Деталі банківського рахунку',
+  updateInfoNote: 'Для оновлення вашої інформації, будь ласка, зв\'яжіться з нашою командою підтримки.',
+  instantExchange: 'Миттєвий обмін криптовалют',
+  instantExchangeDesc: 'Конвертуйте між криптовалютами та фіатними валютами за секунди з курсами в реальному часі',
+  bankGradeSecurity: 'Безпека банківського рівня',
+  bankGradeSecurityDesc: 'Ваші кошти захищені шифруванням корпоративного рівня та відповідають регулятивним вимогам',
+  bestRates: 'Найкращі курси обміну',
+  bestRatesDesc: 'Доступ до конкурентних курсів з прозорими комісіями та без прихованих платежів',
+  signIn: 'Увійти',
+  secureAuth: 'Безпечна автентифікація через Telegram',
+  appName: 'CryptoExchange',
+  tagline: 'Ваш шлюз до цифрових фінансів',
+  enterFullName: 'Введіть ваше повне юридичне ім\'я',
+  enterBankName: 'Введіть назву вашого банку',
+  enterCountry: 'Україна',
+  bankDetails: 'Банківські дані',
+  viewLimitDetails: 'Переглянути деталі ліміту',
+  readyToExchange: 'Готові обмінювати криптовалюту?',
+  personalInformation: 'Особиста інформація',
+  appSettings: 'Налаштування додатку',
+  helpAndSupport: 'Допомога та підтримка',
+  frequentlyAskedQuestions: 'Часті питання',
+  waitingForTelegram: 'Очікування підтвердження з Telegram...',
+  telegramInstructions: 'Будь ласка, завершіть процес автентифікації в Telegram і поверніться до цього додатку.',
+  checkingStatus: 'Перевірка статусу автентифікації',
+  noAuthSession: 'Сесія автентифікації не знайдена',
+  authTimeout: 'Час автентифікації вичерпано. Спробуйте ще раз.',
+  authError: 'Сталася помилка автентифікації. Спробуйте ще раз.',
+  submitting: 'Відправляємо...',
+  // Validation errors
+  fullNameRequired: 'Повне ім\'я обов\'язкове',
+  fullNameTooShort: 'Повне ім\'я повинно містити принаймні 2 символи',
+  fullNameInvalid: 'Повне ім\'я може містити лише літери, пробіли, дефіси та апострофи',
+  ibanRequired: 'IBAN обов\'язковий',
+  ibanInvalid: 'Неправильний формат IBAN. Введіть дійсний IBAN (наприклад, GB29 NWBK 6016 1331 9268 19)',
+  ibanTooShort: 'IBAN занадто короткий. Введіть повний IBAN',
+  swiftInvalid: 'Неправильний формат SWIFT/BIC. Повинен містити 8-11 символів (наприклад, NWBKGB2L)',
+  bankNameTooShort: 'Назва банку повинна містити принаймні 2 символи',
+  bankNameInvalid: 'Назва банку містить недопустимі символи',
+  countryRequired: 'Країна обов\'язкова',
+  countryTooShort: 'Назва країни повинна містити принаймні 2 символи',
+  countryInvalid: 'Назва країни може містити лише літери, пробіли та дефіси',
+  consentCheckbox: 'Я надаю згоду на збереження та обробку наданих мною персональних даних (ПІБ, IBAN, SWIFT та інші реквізити) для здійснення банківських переказів.',
+  consentRequired: 'Ви повинні надати згоду на обробку даних для продовження',
+  // Order creation
+  creatingOrder: 'Створення ордеру...',
+  orderCreationFailed: 'Помилка створення ордеру',
+  orderCreationError: 'Не вдалося створити ваш ордер. Спробуйте ще раз.',
+  retryOrder: 'Спробувати знову',
+  contactSupportOrder: 'Зв\'язатися з підтримкою',
+  loading: 'Завантаження...',
+  noOrdersYet: 'Поки що немає ордерів',
+  startExchanging: 'Почніть обмінювати, щоб побачити історію транзакцій тут',
+  oneTimeLimitExceeded: 'Сума ордеру {{amount}} перевищує ваш разовий ліміт {{limit}}. Будь ласка, зменшіть суму або зв\'яжіться з підтримкою для збільшення ліміту.',
+  monthlyLimitExceeded: 'Сума ордеру {{amount}} перевищує ваш залишковий місячний ліміт {{remaining}} ({{limit}} загалом). Будь ласка, зменшіть суму або дочекайтеся оновлення ліміту.',
+};
