@@ -114,7 +114,7 @@ Deno.serve(async (req: Request) => {
       .select('id')
       .single();
 
-    // Find user by email only
+    // Find user by email
     const { data: user } = await supabase
       .from('users')
       .select('id, email, name, password_hash')

@@ -5,7 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  Platform,
+  Alert,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
@@ -18,15 +18,7 @@ import AppleSignInButton from '../../../components/AppleSignInButton';
 import AuthWebView from '../../../components/AuthWebView';
 import { validateEmail } from '../../../utils/validation/email';
 import { validatePassword, validatePasswordConfirmation } from '../../../utils/validation/password';
-// import { t } from '../../../lib/i18n'; // вернёшь при локализации
-
-function getBaseUrl() {
-  if (__DEV__) {
-    if (Platform.OS === 'android') return 'http://10.0.2.2:3000';
-    return 'http://localhost:3000';
-  }
-  return process.env.EXPO_PUBLIC_API_BASE_URL || 'https://xpaid.org';
-}
+import { t } from '../../../lib/i18n';
 
 export default function SignUpPage() {
   const [name, setName] = useState('');
@@ -59,51 +51,58 @@ export default function SignUpPage() {
     if (confirmPasswordError) newErrors.confirmPassword = confirmPasswordError;
 
     setErrors(newErrors);
-    return { valid: Object.keys(newErrors).length === 0, newErrors };
+    return Object.keys(newErrors).length === 0;
   };
 
-  const focusFirstError = (errs: { [key: string]: string }) => {
-    if (errs.name && nameRef.current) {
+  const focusFirstError = () => {
+    if (errors.name && nameRef.current) {
       nameRef.current.focus();
-    } else if (errs.email && emailRef.current) {
+    } else if (errors.email && emailRef.current) {
       emailRef.current.focus();
-    } else if (errs.password && passwordRef.current) {
+    } else if (errors.password && passwordRef.current) {
       passwordRef.current.focus();
-    } else if (errs.confirmPassword && confirmPasswordRef.current) {
+    } else if (errors.confirmPassword && confirmPasswordRef.current) {
       confirmPasswordRef.current.focus();
     }
   };
 
   const handleSubmit = async () => {
     setFormError('');
-
-    const { valid, newErrors } = validateForm();
-    if (!valid) {
+    
+    if (!validateForm()) {
       setFormError('Please fix the errors above');
-      focusFirstError(newErrors);
+      setTimeout(focusFirstError, 100);
       return;
     }
 
     setLoading(true);
+
     try {
-      const res = await fetch(`${getBaseUrl()}/auth/email/register`, {
+      const response = await fetch('http://localhost:3000/auth/email/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Accept: 'application/json',
         },
         body: JSON.stringify({
-          email: email.trim().toLowerCase(),
+          email: email.trim(),
           password,
           name: name.trim() || undefined,
         }),
       });
 
-      const data = await res.json().catch(() => ({} as any));
+      const data = await response.json();
 
-      if (!res.ok || !data?.ok || !data?.token) {
+      if (data.ok && data.token) {
+        // Store JWT in SecureStore
+        await SecureStore.setItemAsync('auth_token', data.token);
+        
+        // Navigate to main app
+        router.replace('/(tabs)/history');
+      } else {
+        // Handle error codes
         let errorMessage = 'Something went wrong, try again';
-        switch (data?.code) {
+        
+        switch (data.code) {
           case 'EMAIL_TAKEN':
             errorMessage = 'Email is already in use';
             break;
@@ -120,14 +119,12 @@ export default function SignUpPage() {
             errorMessage = 'Password must be at least 8 characters long';
             break;
         }
-        throw new Error(errorMessage);
+        
+        setFormError(errorMessage);
       }
-
-      await SecureStore.setItemAsync('auth_token', data.token);
-      router.replace('/(tabs)/history');
-    } catch (err: any) {
-      console.error('Registration error:', err);
-      setFormError(err?.message || 'Network error. Please check your connection');
+    } catch (error) {
+      console.error('Registration error:', error);
+      setFormError('Network error. Please check your connection');
     } finally {
       setLoading(false);
     }
@@ -135,10 +132,12 @@ export default function SignUpPage() {
 
   const handleGoogleSignUp = () => {
     setLoadingGoogle(true);
+    setLoadingGoogle(true);
     setShowGoogleAuth(true);
   };
 
   const handleAppleSignUp = () => {
+    setLoadingApple(true);
     setLoadingApple(true);
     setShowAppleAuth(true);
   };
@@ -150,8 +149,8 @@ export default function SignUpPage() {
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
-
-      <ScrollView
+      
+      <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -164,11 +163,11 @@ export default function SignUpPage() {
         </View>
 
         {/* Form Error */}
-        {formError ? (
+        {formError && (
           <View style={styles.errorContainer}>
             <Text style={styles.errorText}>{formError}</Text>
           </View>
-        ) : null}
+        )}
 
         {/* Form */}
         <View style={styles.form}>
@@ -178,16 +177,21 @@ export default function SignUpPage() {
               onPress={handleGoogleSignUp}
               loading={loadingGoogle}
               disabled={loading}
+              loading={loadingGoogle}
+              disabled={loading}
             />
+            
             <AppleSignInButton
               onPress={handleAppleSignUp}
               loading={loadingApple}
               disabled={loading}
+              loading={loadingApple}
+              disabled={loading}
             />
           </View>
-
+          
           <DividerOr />
-
+          
           {/* Email Form */}
           <TextField
             ref={nameRef}
@@ -255,12 +259,15 @@ export default function SignUpPage() {
         {/* Footer */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>Already have an account? </Text>
-          <TouchableOpacity onPress={handleSignIn} testID="signUp-signIn">
+          <TouchableOpacity 
+            onPress={handleSignIn}
+            testID="signUp-signIn"
+          >
             <Text style={styles.footerLink}>Sign in</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
-
+      
       {/* OAuth WebViews */}
       <AuthWebView
         visible={showGoogleAuth}
@@ -268,13 +275,16 @@ export default function SignUpPage() {
         onClose={() => {
           setShowGoogleAuth(false);
           setLoadingGoogle(false);
+          setLoadingGoogle(false);
         }}
       />
+      
       <AuthWebView
         visible={showAppleAuth}
         provider="apple"
         onClose={() => {
           setShowAppleAuth(false);
+          setLoadingApple(false);
           setLoadingApple(false);
         }}
       />
@@ -283,17 +293,73 @@ export default function SignUpPage() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F4F6F9' },
-  scrollView: { flex: 1 },
-  scrollContent: { flexGrow: 1, paddingHorizontal: 32, paddingTop: 80, paddingBottom: 40 },
-  header: { alignItems: 'center', marginBottom: 40 },
-  title: { fontSize: 32, fontWeight: '700', color: '#0C1E3C', marginBottom: 8, lineHeight: 38, textAlign: 'center' },
-  subtitle: { fontSize: 16, fontWeight: '400', color: '#6B7280', lineHeight: 22, textAlign: 'center' },
-  errorContainer: { backgroundColor: '#FEF2F2', borderWidth: 1, borderColor: '#FECACA', borderRadius: 12, padding: 16, marginBottom: 24 },
-  errorText: { fontSize: 14, fontWeight: '500', color: '#DC2626', textAlign: 'center' },
-  form: { marginBottom: 32 },
-  socialContainer: { gap: 12, marginBottom: 8 },
-  footer: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 'auto' },
-  footerText: { fontSize: 16, fontWeight: '400', color: '#6B7280' },
-  footerLink: { fontSize: 16, fontWeight: '600', color: '#3D8BFF' },
+  container: {
+    flex: 1,
+    backgroundColor: '#F4F6F9',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 32,
+    paddingTop: 80,
+    paddingBottom: 40,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 40,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#0C1E3C',
+    marginBottom: 8,
+    lineHeight: 38,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 16,
+    fontWeight: '400',
+    color: '#6B7280',
+    lineHeight: 22,
+    textAlign: 'center',
+  },
+  errorContainer: {
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FECACA',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 24,
+  },
+  errorText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#DC2626',
+    textAlign: 'center',
+  },
+  form: {
+    marginBottom: 32,
+  },
+  socialContainer: {
+    gap: 12,
+    marginBottom: 8,
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 'auto',
+  },
+  footerText: {
+    fontSize: 16,
+    fontWeight: '400',
+    color: '#6B7280',
+  },
+  footerLink: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#3D8BFF',
+  },
 });

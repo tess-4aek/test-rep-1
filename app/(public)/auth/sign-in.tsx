@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
-  Platform,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
@@ -19,16 +18,7 @@ import AppleSignInButton from '../../../components/AppleSignInButton';
 import AuthWebView from '../../../components/AuthWebView';
 import { validateEmail } from '../../../utils/validation/email';
 import { validatePassword } from '../../../utils/validation/password';
-// import { t } from '../../../lib/i18n'; // вернёшь, когда подключишь ключи
-
-function getBaseUrl() {
-  // dev: iOS симулятор -> localhost; Android эмулятор -> 10.0.2.2; девайсы -> поставь свой LAN в .env
-  if (__DEV__) {
-    if (Platform.OS === 'android') return 'http://10.0.2.2:3000';
-    return 'http://localhost:3000';
-  }
-  return process.env.EXPO_PUBLIC_API_BASE_URL || 'https://xpaid.org';
-}
+import { t } from '../../../lib/i18n';
 
 export default function SignInPage() {
   const [email, setEmail] = useState('');
@@ -46,51 +36,61 @@ export default function SignInPage() {
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
+
     const emailError = validateEmail(email);
     if (emailError) newErrors.email = emailError;
+
     const passwordError = validatePassword(password);
     if (passwordError) newErrors.password = passwordError;
+
     setErrors(newErrors);
-    return { valid: Object.keys(newErrors).length === 0, newErrors };
+    return Object.keys(newErrors).length === 0;
   };
 
-  const focusFirstError = (errs: { [key: string]: string }) => {
-    if (errs.email && emailRef.current) {
+  const focusFirstError = () => {
+    if (errors.email && emailRef.current) {
       emailRef.current.focus();
-    } else if (errs.password && passwordRef.current) {
+    } else if (errors.password && passwordRef.current) {
       passwordRef.current.focus();
     }
   };
 
   const handleSubmit = async () => {
     setFormError('');
-
-    const { valid, newErrors } = validateForm();
-    if (!valid) {
+    
+    if (!validateForm()) {
       setFormError('Please fix the errors above');
-      focusFirstError(newErrors);
+      setTimeout(focusFirstError, 100);
       return;
     }
 
     setLoading(true);
+
     try {
-      const res = await fetch(`${getBaseUrl()}/auth/email/login`, {
+      const response = await fetch('http://localhost:3000/auth/email/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Accept: 'application/json',
         },
         body: JSON.stringify({
-          email: email.trim().toLowerCase(),
+          email: email.trim(),
           password,
         }),
       });
 
-      const data = await res.json().catch(() => ({} as any));
+      const data = await response.json();
 
-      if (!res.ok || !data?.ok || !data?.token) {
+      if (data.ok && data.token) {
+        // Store JWT in SecureStore
+        await SecureStore.setItemAsync('auth_token', data.token);
+        
+        // Navigate to main app
+        router.replace('/(tabs)/history');
+      } else {
+        // Handle error codes
         let errorMessage = 'Something went wrong, try again';
-        switch (data?.code) {
+        
+        switch (data.code) {
           case 'INVALID_CREDENTIALS':
             errorMessage = 'Invalid email or password';
             break;
@@ -104,14 +104,12 @@ export default function SignInPage() {
             errorMessage = 'Please enter a valid email address';
             break;
         }
-        throw new Error(errorMessage);
+        
+        setFormError(errorMessage);
       }
-
-      await SecureStore.setItemAsync('auth_token', data.token);
-      router.replace('/(tabs)/history');
-    } catch (err: any) {
-      console.error('Login error:', err);
-      setFormError(err?.message || 'Network error. Please check your connection');
+    } catch (error) {
+      console.error('Login error:', error);
+      setFormError('Network error. Please check your connection');
     } finally {
       setLoading(false);
     }
@@ -119,10 +117,12 @@ export default function SignInPage() {
 
   const handleGoogleSignIn = () => {
     setLoadingGoogle(true);
+    setLoadingGoogle(true);
     setShowGoogleAuth(true);
   };
 
   const handleAppleSignIn = () => {
+    setLoadingApple(true);
     setLoadingApple(true);
     setShowAppleAuth(true);
   };
@@ -138,8 +138,8 @@ export default function SignInPage() {
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
-
-      <ScrollView
+      
+      <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
@@ -152,11 +152,11 @@ export default function SignInPage() {
         </View>
 
         {/* Form Error */}
-        {formError ? (
+        {formError && (
           <View style={styles.errorContainer}>
             <Text style={styles.errorText}>{formError}</Text>
           </View>
-        ) : null}
+        )}
 
         {/* Form */}
         <View style={styles.form}>
@@ -166,16 +166,21 @@ export default function SignInPage() {
               onPress={handleGoogleSignIn}
               loading={loadingGoogle}
               disabled={loading}
+              loading={loadingGoogle}
+              disabled={loading}
             />
+            
             <AppleSignInButton
               onPress={handleAppleSignIn}
               loading={loadingApple}
               disabled={loading}
+              loading={loadingApple}
+              disabled={loading}
             />
           </View>
-
+          
           <DividerOr />
-
+          
           {/* Email Form */}
           <TextField
             ref={emailRef}
@@ -205,7 +210,7 @@ export default function SignInPage() {
             onSubmitEditing={handleSubmit}
           />
 
-          <TouchableOpacity
+          <TouchableOpacity 
             style={styles.forgotPasswordButton}
             onPress={handleForgotPassword}
             testID="signIn-forgotPassword"
@@ -225,12 +230,15 @@ export default function SignInPage() {
         {/* Footer */}
         <View style={styles.footer}>
           <Text style={styles.footerText}>Don't have an account? </Text>
-          <TouchableOpacity onPress={handleCreateAccount} testID="signIn-createAccount">
+          <TouchableOpacity 
+            onPress={handleCreateAccount}
+            testID="signIn-createAccount"
+          >
             <Text style={styles.footerLink}>Create account</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
-
+      
       {/* OAuth WebViews */}
       <AuthWebView
         visible={showGoogleAuth}
@@ -238,13 +246,16 @@ export default function SignInPage() {
         onClose={() => {
           setShowGoogleAuth(false);
           setLoadingGoogle(false);
+          setLoadingGoogle(false);
         }}
       />
+      
       <AuthWebView
         visible={showAppleAuth}
         provider="apple"
         onClose={() => {
           setShowAppleAuth(false);
+          setLoadingApple(false);
           setLoadingApple(false);
         }}
       />
@@ -253,19 +264,82 @@ export default function SignInPage() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F4F6F9' },
-  scrollView: { flex: 1 },
-  scrollContent: { flexGrow: 1, paddingHorizontal: 32, paddingTop: 80, paddingBottom: 40 },
-  header: { alignItems: 'center', marginBottom: 40 },
-  title: { fontSize: 32, fontWeight: '700', color: '#0C1E3C', marginBottom: 8, lineHeight: 38, textAlign: 'center' },
-  subtitle: { fontSize: 16, fontWeight: '400', color: '#6B7280', lineHeight: 22, textAlign: 'center' },
-  errorContainer: { backgroundColor: '#FEF2F2', borderWidth: 1, borderColor: '#FECACA', borderRadius: 12, padding: 16, marginBottom: 24 },
-  errorText: { fontSize: 14, fontWeight: '500', color: '#DC2626', textAlign: 'center' },
-  form: { marginBottom: 32 },
-  socialContainer: { gap: 12, marginBottom: 8 },
-  forgotPasswordButton: { alignSelf: 'flex-end', marginBottom: 24 },
-  forgotPasswordText: { fontSize: 14, fontWeight: '500', color: '#3D8BFF' },
-  footer: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginTop: 'auto' },
-  footerText: { fontSize: 16, fontWeight: '400', color: '#6B7280' },
-  footerLink: { fontSize: 16, fontWeight: '600', color: '#3D8BFF' },
+  container: {
+    flex: 1,
+    backgroundColor: '#F4F6F9',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 32,
+    paddingTop: 80,
+    paddingBottom: 40,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 40,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#0C1E3C',
+    marginBottom: 8,
+    lineHeight: 38,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: 16,
+    fontWeight: '400',
+    color: '#6B7280',
+    lineHeight: 22,
+    textAlign: 'center',
+  },
+  errorContainer: {
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FECACA',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 24,
+  },
+  errorText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#DC2626',
+    textAlign: 'center',
+  },
+  form: {
+    marginBottom: 32,
+  },
+  socialContainer: {
+    gap: 12,
+    marginBottom: 8,
+  },
+  forgotPasswordButton: {
+    alignSelf: 'flex-end',
+    marginBottom: 24,
+  },
+  forgotPasswordText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#3D8BFF',
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 'auto',
+  },
+  footerText: {
+    fontSize: 16,
+    fontWeight: '400',
+    color: '#6B7280',
+  },
+  footerLink: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#3D8BFF',
+  },
 });

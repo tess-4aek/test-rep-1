@@ -133,10 +133,10 @@ Deno.serve(async (req: Request) => {
         success: false
       });
 
-    // Check if user exists by email only
+    // Check if user exists
     const { data: existingUser } = await supabase
       .from('users')
-      .select('id, email, name, password_hash, google_id, apple_id')
+      .select('id, password_hash, google_id, apple_id')
       .ilike('email', normalizedEmail)
       .single();
 
@@ -156,7 +156,8 @@ Deno.serve(async (req: Request) => {
         .from('users')
         .update({ 
           password_hash: passwordHash,
-          name: name || existingUser.name
+          name: name || null,
+          updated_at: new Date().toISOString()
         })
         .eq('id', existingUser.id)
         .select('id, email, name')
@@ -207,7 +208,8 @@ Deno.serve(async (req: Request) => {
       .insert({
         email: normalizedEmail,
         name: name || null,
-        password_hash: passwordHash
+        password_hash: passwordHash,
+        created_at: new Date().toISOString()
       })
       .select('id, email, name')
       .single();

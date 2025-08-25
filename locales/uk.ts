@@ -179,10 +179,4 @@ export default {
   rateLimited: 'Забагато спроб. Спробуйте пізніше',
   networkError: 'Помилка мережі. Перевірте з\'єднання',
   somethingWentWrong: 'Щось пішло не так, спробуйте ще раз',
-  // Error messages
-  emailTaken: 'Ця електронна пошта вже використовується',
-  invalidCredentials: 'Неправильна електронна пошта або пароль',
-  rateLimited: 'Забагато спроб. Спробуйте пізніше',
-  networkError: 'Помилка мережі. Перевірте з\'єднання',
-  somethingWentWrong: 'Щось пішло не так, спробуйте ще раз',
 };
