@@ -23,9 +23,11 @@ import { t } from '../../../lib/i18n';
 export default function SignInPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [magicLinkEmail, setMagicLinkEmail] = useState('');
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [formError, setFormError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [magicLinkLoading, setMagicLinkLoading] = useState(false);
   const [loadingGoogle, setLoadingGoogle] = useState(false);
   const [loadingApple, setLoadingApple] = useState(false);
   const [showGoogleAuth, setShowGoogleAuth] = useState(false);
@@ -33,6 +35,7 @@ export default function SignInPage() {
 
   const emailRef = useRef<any>(null);
   const passwordRef = useRef<any>(null);
+  const magicLinkEmailRef = useRef<any>(null);
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
@@ -112,6 +115,36 @@ export default function SignInPage() {
       setFormError('Network error. Please check your connection');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleMagicLinkSubmit = async () => {
+    const emailError = validateEmail(magicLinkEmail);
+    if (emailError) {
+      Alert.alert('Invalid Email', emailError);
+      return;
+    }
+
+    setMagicLinkLoading(true);
+
+    try {
+      // Simulate magic link API call
+      console.log('Magic Link Email:', magicLinkEmail);
+      
+      // Mock success
+      setTimeout(() => {
+        setMagicLinkLoading(false);
+        Alert.alert(
+          'Check your email',
+          'We sent you a magic link to sign in. Please check your email and click the link to continue.',
+          [{ text: 'OK' }]
+        );
+        setMagicLinkEmail('');
+      }, 800);
+    } catch (error) {
+      console.error('Magic link error:', error);
+      setMagicLinkLoading(false);
+      Alert.alert('Error', 'Failed to send magic link. Please try again.');
     }
   };
 
@@ -219,6 +252,39 @@ export default function SignInPage() {
             loading={loading}
             testID="signIn-submit"
           />
+
+          {/* Magic Link Section */}
+          <View style={styles.magicLinkSection}>
+            <DividerOr />
+            
+            <Text style={styles.magicLinkTitle}>Or sign in with magic link</Text>
+            <Text style={styles.magicLinkSubtitle}>
+              Enter your email and we'll send you a secure link to sign in
+            </Text>
+            
+            <TextField
+              ref={magicLinkEmailRef}
+              label="Email for magic link"
+              value={magicLinkEmail}
+              onChangeText={setMagicLinkEmail}
+              testID="signIn-magicLinkEmail"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoComplete="email"
+              returnKeyType="done"
+              onSubmitEditing={handleMagicLinkSubmit}
+              placeholder="Enter your email address"
+            />
+            
+            <FormButton
+              title="Send Magic Link"
+              loadingTitle="Sending magic link..."
+              onPress={handleMagicLinkSubmit}
+              loading={magicLinkLoading}
+              variant="secondary"
+              testID="signIn-magicLink"
+            />
+          </View>
         </View>
 
         {/* Footer */}
@@ -317,6 +383,26 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     color: '#3D8BFF',
+  },
+  magicLinkSection: {
+    marginTop: 8,
+  },
+  magicLinkTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#0C1E3C',
+    textAlign: 'center',
+    marginBottom: 8,
+    lineHeight: 22,
+  },
+  magicLinkSubtitle: {
+    fontSize: 14,
+    fontWeight: '400',
+    color: '#6B7280',
+    textAlign: 'center',
+    marginBottom: 24,
+    lineHeight: 20,
+    paddingHorizontal: 16,
   },
   footer: {
     flexDirection: 'row',
