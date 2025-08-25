@@ -88,11 +88,12 @@ serve(async (req: Request) => {
       .upsert({
         id: crypto.randomUUID(),
         email: payload.email,
-        name: userData?.name ? `${userData.name.firstName} ${userData.name.lastName}` : 'Apple User',
+        first_name: userData?.name?.firstName || 'Apple',
+        last_name: userData?.name?.lastName || 'User',
         apple_id: payload.sub,
-        created_at: new Date().toISOString()
+        updated_at: new Date().toISOString()
       }, {
-        onConflict: 'apple_id',
+        onConflict: 'email',
         ignoreDuplicates: false
       })
       .select()
@@ -116,7 +117,7 @@ serve(async (req: Request) => {
     const jwtPayload = {
       sub: dbUser.id,
       email: payload.email,
-      name: dbUser.name,
+      name: `${userData?.name?.firstName || 'Apple'} ${userData?.name?.lastName || 'User'}`,
       provider: 'apple',
       exp: Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60) // 7 days
     }
@@ -141,29 +142,27 @@ serve(async (req: Request) => {
           <script>
             if (window.ReactNativeWebView) {
               window.ReactNativeWebView.postMessage(JSON.stringify({
-                ok: true,
+                type: 'AUTH_SUCCESS',
                 token: '${jwt}',
                 user: {
                   id: '${dbUser.id}',
                   email: '${payload.email}',
-                  name: '${dbUser.name}',
+                  name: '${userData?.name?.firstName || 'Apple'} ${userData?.name?.lastName || 'User'}',
                   provider: 'apple'
                 }
               }));
             } else {
               // Fallback for testing in browser
               console.log('Auth success:', {
-                ok: true,
                 token: '${jwt}',
                 user: {
                   id: '${dbUser.id}',
                   email: '${payload.email}',
-                  name: '${dbUser.name}',
+                  name: '${userData?.name?.firstName || 'Apple'} ${userData?.name?.lastName || 'User'}',
                   provider: 'apple'
                 }
               });
             }
-            setTimeout(() => { window.close?.(); }, 300);
           </script>
         </body>
       </html>
@@ -196,11 +195,10 @@ serve(async (req: Request) => {
           <script>
             if (window.ReactNativeWebView) {
               window.ReactNativeWebView.postMessage(JSON.stringify({
-                ok: false,
+                type: 'AUTH_ERROR',
                 error: '${error.message}'
               }));
             }
-            setTimeout(() => { window.close?.(); }, 300);
           </script>
         </body>
       </html>
