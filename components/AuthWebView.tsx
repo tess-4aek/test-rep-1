@@ -10,12 +10,12 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
-import TextField from '../../../components/auth/TextField';
-import FormButton from '../../../components/auth/FormButton';
-import DividerOr from '../../../components/auth/DividerOr';
-import GoogleSignInButton from '../../../components/GoogleSignInButton';
-import AppleSignInButton from '../../../components/AppleSignInButton';
-import AuthWebView from '../../../components/AuthWebView';
+import TextField from './auth/TextField';
+import FormButton from './auth/FormButton';
+import DividerOr from './auth/DividerOr';
+import GoogleSignInButton from './GoogleSignInButton';
+import AppleSignInButton from './AppleSignInButton';
+import AuthWebView from './AuthWebView';
 import { validateEmail } from '../../../utils/validation/email';
 import { validatePassword } from '../../../utils/validation/password';
 import { t } from '../../../lib/i18n';
