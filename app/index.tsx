@@ -53,9 +53,22 @@ export default function SignInPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSignIn = () => {
-    router.push('/(public)/auth/sign-in');
-  };
+  const handleSubmit = async () => {
+    if (!validateForm()) return;
+
+    setLoading(true);
+    setFormError('');
+
+    try {
+      const response = await fetch('/api/auth/signin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
       });
 
       const data = await response.json();
@@ -158,7 +171,7 @@ export default function SignInPage() {
           {/* Email Form */}
           <TextField
             ref={emailRef}
-          {t('multipleAuthOptions')}
+            label="Email"
             value={email}
             onChangeText={setEmail}
             error={errors.email}
