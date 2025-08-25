@@ -31,7 +31,6 @@ export default function SignInPage() {
   const [magicLinkLoading, setMagicLinkLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [appleLoading, setAppleLoading] = useState(false);
-  const [magicLinkLoading, setMagicLinkLoading] = useState(false);
   const [loadingGoogle, setLoadingGoogle] = useState(false);
   const [loadingApple, setLoadingApple] = useState(false);
   const [showGoogleAuth, setShowGoogleAuth] = useState(false);
