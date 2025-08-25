@@ -40,7 +40,6 @@ export default function SignInPage() {
   const emailRef = useRef<any>(null);
   const passwordRef = useRef<any>(null);
   const magicLinkEmailRef = useRef<any>(null);
-  const magicLinkEmailRef = useRef<any>(null);
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
