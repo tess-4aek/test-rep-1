@@ -5,10 +5,12 @@ import {
   StyleSheet,
   ActivityIndicator,
   View,
+  Image,
+  ImageSourcePropType,
 } from 'react-native';
 
 interface SocialButtonProps {
-  badgeText?: string;
+  icon: ImageSourcePropType;
   label: string;
   onPress: () => void;
   loading?: boolean;
@@ -17,7 +19,7 @@ interface SocialButtonProps {
 }
 
 export default function SocialButton({
-  badgeText,
+  icon,
   label,
   onPress,
   loading = false,
@@ -25,9 +27,6 @@ export default function SocialButton({
   testID,
 }: SocialButtonProps) {
   const isDisabled = loading || disabled;
-
-  // Fallback for Apple symbol if it doesn't render properly
-  const displayBadgeText = badgeText === '' ? 'A' : badgeText;
 
   return (
     <TouchableOpacity
@@ -46,13 +45,11 @@ export default function SocialButton({
           <ActivityIndicator 
             size="small" 
             color="#6B7280" 
-            style={styles.badge} 
+            style={styles.icon} 
           />
-        ) : badgeText ? (
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{displayBadgeText}</Text>
-          </View>
-        ) : null}
+        ) : (
+          <Image source={icon} style={styles.icon} />
+        )}
         <Text style={[
           styles.label,
           isDisabled && styles.disabledLabel,
@@ -89,22 +86,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 16,
   },
-  badge: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-    backgroundColor: '#F9FAFB',
-    justifyContent: 'center',
-    alignItems: 'center',
+  icon: {
+    width: 20,
+    height: 20,
     marginRight: 12,
-  },
-  badgeText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#374151',
-    textAlign: 'center',
   },
   label: {
     fontSize: 16,
