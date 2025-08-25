@@ -117,10 +117,12 @@ export default function SignInPage() {
 
   const handleGoogleSignIn = () => {
     setLoadingGoogle(true);
+    setLoadingGoogle(true);
     setShowGoogleAuth(true);
   };
 
   const handleAppleSignIn = () => {
+    setLoadingApple(true);
     setLoadingApple(true);
     setShowAppleAuth(true);
   };
@@ -164,10 +166,14 @@ export default function SignInPage() {
               onPress={handleGoogleSignIn}
               loading={loadingGoogle}
               disabled={loading}
+              loading={loadingGoogle}
+              disabled={loading}
             />
             
             <AppleSignInButton
               onPress={handleAppleSignIn}
+              loading={loadingApple}
+              disabled={loading}
               loading={loadingApple}
               disabled={loading}
             />
@@ -240,6 +246,7 @@ export default function SignInPage() {
         onClose={() => {
           setShowGoogleAuth(false);
           setLoadingGoogle(false);
+          setLoadingGoogle(false);
         }}
       />
       
@@ -248,6 +255,7 @@ export default function SignInPage() {
         provider="apple"
         onClose={() => {
           setShowAppleAuth(false);
+          setLoadingApple(false);
           setLoadingApple(false);
         }}
       />
