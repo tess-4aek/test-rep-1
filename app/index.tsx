@@ -28,6 +28,7 @@ export default function SignInPage() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [formError, setFormError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [magicLinkLoading, setMagicLinkLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [appleLoading, setAppleLoading] = useState(false);
   const [loadingGoogle, setLoadingGoogle] = useState(false);
@@ -37,7 +38,6 @@ export default function SignInPage() {
 
   const emailRef = useRef<any>(null);
   const passwordRef = useRef<any>(null);
-  const magicLinkEmailRef = useRef<any>(null);
   const magicLinkEmailRef = useRef<any>(null);
 
   const validateForm = () => {
