@@ -45,7 +45,6 @@ export default function SignInPage() {
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
-import { t } from '../lib/i18n';
 
     const emailError = validateEmail(email);
     if (emailError) newErrors.email = emailError;
