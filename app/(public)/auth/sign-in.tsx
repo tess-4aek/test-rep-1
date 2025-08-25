@@ -9,10 +9,16 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { router } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
 import TextField from '../../../components/auth/TextField';
 import FormButton from '../../../components/auth/FormButton';
+import DividerOr from '../../../components/auth/DividerOr';
+import GoogleSignInButton from '../../../components/GoogleSignInButton';
+import AppleSignInButton from '../../../components/AppleSignInButton';
+import AuthWebView from '../../../components/AuthWebView';
 import { validateEmail } from '../../../utils/validation/email';
 import { validatePassword } from '../../../utils/validation/password';
+import { t } from '../../../lib/i18n';
 
 export default function SignInPage() {
   const [email, setEmail] = useState('');
@@ -20,6 +26,10 @@ export default function SignInPage() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [formError, setFormError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [loadingGoogle, setLoadingGoogle] = useState(false);
+  const [loadingApple, setLoadingApple] = useState(false);
+  const [showGoogleAuth, setShowGoogleAuth] = useState(false);
+  const [showAppleAuth, setShowAppleAuth] = useState(false);
 
   const emailRef = useRef<any>(null);
   const passwordRef = useRef<any>(null);
@@ -56,14 +66,63 @@ export default function SignInPage() {
 
     setLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Sign In Form Data:', { email, password });
+    try {
+      const response = await fetch('http://localhost:3000/auth/email/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.ok && data.token) {
+        // Store JWT in SecureStore
+        await SecureStore.setItemAsync('auth_token', data.token);
+        
+        // Navigate to main app
+        router.replace('/(tabs)/history');
+      } else {
+        // Handle error codes
+        let errorMessage = 'Something went wrong, try again';
+        
+        switch (data.code) {
+          case 'INVALID_CREDENTIALS':
+            errorMessage = 'Invalid email or password';
+            break;
+          case 'RATE_LIMITED':
+            errorMessage = 'Too many attempts. Please try again later';
+            break;
+          case 'MISSING_FIELDS':
+            errorMessage = 'Please fill in all fields';
+            break;
+          case 'INVALID_EMAIL':
+            errorMessage = 'Please enter a valid email address';
+            break;
+        }
+        
+        setFormError(errorMessage);
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setFormError('Network error. Please check your connection');
+    } finally {
       setLoading(false);
-      
-      // Mock success - navigate to protected route
-      router.replace('/(tabs)/history');
-    }, 800);
+    }
+  };
+
+  const handleGoogleSignIn = () => {
+    setLoadingGoogle(true);
+    setShowGoogleAuth(true);
+  };
+
+  const handleAppleSignIn = () => {
+    setLoadingApple(true);
+    setShowAppleAuth(true);
   };
 
   const handleForgotPassword = () => {
@@ -99,6 +158,24 @@ export default function SignInPage() {
 
         {/* Form */}
         <View style={styles.form}>
+          {/* Social Sign In */}
+          <View style={styles.socialContainer}>
+            <GoogleSignInButton
+              onPress={handleGoogleSignIn}
+              loading={loadingGoogle}
+              disabled={loading}
+            />
+            
+            <AppleSignInButton
+              onPress={handleAppleSignIn}
+              loading={loadingApple}
+              disabled={loading}
+            />
+          </View>
+          
+          <DividerOr />
+          
+          {/* Email Form */}
           <TextField
             ref={emailRef}
             label="Email"
@@ -155,6 +232,25 @@ export default function SignInPage() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      
+      {/* OAuth WebViews */}
+      <AuthWebView
+        visible={showGoogleAuth}
+        provider="google"
+        onClose={() => {
+          setShowGoogleAuth(false);
+          setLoadingGoogle(false);
+        }}
+      />
+      
+      <AuthWebView
+        visible={showAppleAuth}
+        provider="apple"
+        onClose={() => {
+          setShowAppleAuth(false);
+          setLoadingApple(false);
+        }}
+      />
     </View>
   );
 }
@@ -208,6 +304,10 @@ const styles = StyleSheet.create({
   },
   form: {
     marginBottom: 32,
+  },
+  socialContainer: {
+    gap: 12,
+    marginBottom: 8,
   },
   forgotPasswordButton: {
     alignSelf: 'flex-end',
