@@ -25,7 +25,6 @@ export default function SignInPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [magicLinkEmail, setMagicLinkEmail] = useState('');
-  const [magicLinkEmail, setMagicLinkEmail] = useState('');
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [formError, setFormError] = useState('');
   const [loading, setLoading] = useState(false);
