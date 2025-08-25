@@ -58,6 +58,8 @@ export default function SignInPage() {
 
   const focusFirstError = () => {
     if (errors.email && emailRef.current) {
+    }
+  }
 
   const handleMagicLinkSubmit = async () => {
     const emailError = validateEmail(magicLinkEmail);
