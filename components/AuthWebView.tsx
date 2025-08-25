@@ -16,9 +16,9 @@ import DividerOr from './auth/DividerOr';
 import GoogleSignInButton from './GoogleSignInButton';
 import AppleSignInButton from './AppleSignInButton';
 import AuthWebView from './AuthWebView';
-import { validateEmail } from '../../../utils/validation/email';
-import { validatePassword } from '../../../utils/validation/password';
-import { t } from '../../../lib/i18n';
+import { validateEmail } from '../utils/validation/email';
+import { validatePassword } from '../utils/validation/password';
+import { t } from '../lib/i18n';
 
 export default function SignInPage() {
   const [email, setEmail] = useState('');
