@@ -11,9 +11,9 @@ export default function AuthGate() {
       try {
         console.log('🔍 Checking authentication status...');
         
-        // Check if user is authenticated
-        const isAuthenticated = await getAuthStatus();
-        console.log('Auth status:', isAuthenticated);
+        // FOR TESTING: Always set auth status to true
+        const isAuthenticated = true;
+        console.log('Auth status (TEST MODE):', isAuthenticated);
         
         if (isAuthenticated) {
           // User is authenticated, get user data to determine next screen
@@ -25,9 +25,9 @@ export default function AuthGate() {
             console.log('🏠 User authenticated, navigating to:', nextScreen);
             router.replace(nextScreen as any);
           } else {
-            // User marked as authenticated but no user data found
-            console.log('⚠️ Auth status true but no user data, going to intro');
-            router.replace('/');
+            // FOR TESTING: Navigate to main app even without user data
+            console.log('⚠️ Auth status true but no user data, going to main app for testing');
+            router.replace('/(tabs)');
           }
         } else {
           // User not authenticated, go to intro
@@ -36,8 +36,8 @@ export default function AuthGate() {
         }
       } catch (error) {
         console.error('❌ Error during auth check:', error);
-        // On error, default to sign-in screen
-        router.replace('/');
+        // FOR TESTING: On error, go to main app
+        router.replace('/(tabs)');
       } finally {
         setIsLoading(false);
       }
