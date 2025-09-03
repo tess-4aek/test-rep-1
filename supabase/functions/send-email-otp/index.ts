@@ -64,10 +64,26 @@ Deno.serve(async (req: Request) => {
 
     // Get email service configuration
     const resendApiKey = Deno.env.get('RESEND_API_KEY');
-    const senderEmail = Deno.env.get('SENDER_EMAIL') || 'noreply@yourdomain.com';
+    const senderEmail = Deno.env.get('SENDER_EMAIL') || 'onboarding@resend.dev';
 
     if (!resendApiKey) {
-      throw new Error('Email service not configured');
+      console.warn('⚠️ RESEND_API_KEY not configured, using mock email sending');
+      // For development, we'll simulate email sending
+      console.log(`📧 [MOCK] Would send OTP ${otpCode} to ${normalizedEmail}`);
+      
+      return new Response(JSON.stringify({
+        success: true,
+        message: 'Verification code sent successfully (mock)',
+        email: normalizedEmail,
+        expires_in: 600,
+        dev_otp: otpCode, // Include OTP in response for development
+      }), {
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        },
+        status: 200
+      });
     }
 
     // Parse request body

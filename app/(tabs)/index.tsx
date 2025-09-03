@@ -288,10 +288,10 @@ export default function HomePage() {
           <Text style={styles.limitUsageText}>
             {userData?.monthly_limit && userData?.monthly_limit_used 
               ? formatCurrency(userData.monthly_limit - userData.monthly_limit_used) 
-              : userData?.monthly_limit ? formatCurrency(userData.monthly_limit) : '€5,000'} / {userData?.monthly_limit ? formatCurrency(userData.monthly_limit) : '€5,000'} {t('limitRemaining')}
+              : userData?.monthly_limit ? formatCurrency(userData.monthly_limit) : '€5,000'}<Text> / </Text>{userData?.monthly_limit ? formatCurrency(userData.monthly_limit) : '€5,000'}<Text> </Text>{t('limitRemaining')}
           </Text>
           <Text style={styles.limitResetText}>
-            {t('limitResets')} {getDaysUntilReset()} {t('days')}
+            {t('limitResets')}<Text> </Text>{getDaysUntilReset()}<Text> </Text>{t('days')}
           </Text>
           
           <TouchableOpacity 
@@ -363,7 +363,7 @@ export default function HomePage() {
 
           {/* Exchange Fee */}
           <View style={styles.feeContainer}>
-            <Text style={styles.feeText}>{t('fee')}: ~0.5%</Text>
+            <Text style={styles.feeText}>{t('fee')}<Text>: ~0.5%</Text></Text>
           </View>
 
           {/* Create Exchange Button */}
@@ -432,7 +432,7 @@ export default function HomePage() {
               </View>
               
               <Text style={styles.rateInfo}>
-                <Text adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('rate')}: {getCurrentRate()}</Text>
+                <Text adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('rate')}<Text>: </Text>{getCurrentRate()}</Text>
               </Text>
             </View>
             
