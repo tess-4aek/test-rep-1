@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { Chrome as Home, FileText, User } from 'lucide-react-native';
+import { Home, User, History } from 'lucide-react-native';
 import { t } from '@/lib/i18n';
 
 export default function TabLayout() {
@@ -33,7 +33,7 @@ export default function TabLayout() {
         options={{
           title: t('history'),
           tabBarIcon: ({ size, color }) => (
-            <FileText size={size} color={color} />
+            <History size={size} color={color} />
           ),
         }}
       />

@@ -11,7 +11,6 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { 
-  Eye, 
   ArrowUpDown, 
   X,
   TrendingUp 
@@ -19,8 +18,27 @@ import {
 import { router } from 'expo-router';
 import { t } from '@/lib/i18n';
 import { getUserData, User } from '@/utils/auth';
-import { createOrder, CreateOrderData } from '@/lib/supabase';
+import { createOrder, CreateOrderData, fetchUserOrders, CreatedOrder } from '@/lib/supabase';
 import { Linking } from 'react-native';
+
+// Helper function to format order data for display
+const formatOrderForDisplay = (order: CreatedOrder) => {
+  const isUsdcToEur = order.direction === 'usdc-eur';
+  const fromAmount = isUsdcToEur ? order.usdc_amount : order.eur_amount;
+  const toAmount = isUsdcToEur ? order.eur_amount : order.usdc_amount;
+  const fromCurrency = isUsdcToEur ? 'USDC' : 'EUR';
+  const toCurrency = isUsdcToEur ? 'EUR' : 'USDC';
+  
+  return {
+    id: order.id,
+    title: `${fromCurrency} → ${toCurrency}`,
+    crypto: `${fromAmount} ${fromCurrency}`,
+    amount: `${toAmount} ${toCurrency}`,
+    time: new Date(order.created_at).toLocaleDateString(),
+    status: order.status,
+    type: isUsdcToEur ? 'sell' : 'buy',
+  };
+};
 
 export default function HomePage() {
   const [exchangeAmount, setExchangeAmount] = useState('');
@@ -31,6 +49,8 @@ export default function HomePage() {
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [userData, setUserData] = useState<User | null>(null);
+  const [orders, setOrders] = useState<CreatedOrder[]>([]);
+  const [isLoadingOrders, setIsLoadingOrders] = useState(true);
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -40,12 +60,36 @@ export default function HomePage() {
     loadUserData();
   }, []);
 
+  useEffect(() => {
+    const loadUserOrders = async () => {
+      try {
+        setIsLoadingOrders(true);
+        
+        const userData = await getUserData();
+        if (!userData?.telegram_id) {
+          console.error('No user data or telegram_id found');
+          return;
+        }
+
+        const userOrders = await fetchUserOrders(userData.telegram_id);
+        setOrders(userOrders);
+        
+      } catch (error) {
+        console.error('Error loading user orders:', error);
+      } finally {
+        setIsLoadingOrders(false);
+      }
+    };
+
+    loadUserOrders();
+  }, []);
+
   const getProgressColor = () => {
     if (!userData?.monthly_limit || !userData?.monthly_limit_used) return '#10B981';
     const percentage = (userData.monthly_limit_used / userData.monthly_limit) * 100;
-    if (percentage < 70) return '#10B981'; // Green
-    if (percentage < 90) return '#F59E0B'; // Yellow
-    return '#EF4444'; // Red
+    if (percentage < 70) return '#10B981';
+    if (percentage < 90) return '#F59E0B';
+    return '#EF4444';
   };
 
   const getProgressPercentage = () => {
@@ -70,6 +114,7 @@ export default function HomePage() {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return Math.max(0, diffDays);
   };
+
   const handleViewLimitDetails = () => {
     router.push('/limit-details');
   };
@@ -98,16 +143,13 @@ export default function HomePage() {
   };
 
   const formatDecimalInput = (value: string): string => {
-    // Remove any non-numeric characters except decimal point
     let cleaned = value.replace(/[^0-9.]/g, '');
     
-    // Ensure only one decimal point
     const parts = cleaned.split('.');
     if (parts.length > 2) {
       cleaned = parts[0] + '.' + parts.slice(1).join('');
     }
     
-    // Limit to 2 decimal places
     if (parts.length === 2 && parts[1].length > 2) {
       cleaned = parts[0] + '.' + parts[1].substring(0, 2);
     }
@@ -124,7 +166,6 @@ export default function HomePage() {
     const newDirection = exchangeDirection === 'usdc-eur' ? 'eur-usdc' : 'usdc-eur';
     setExchangeDirection(newDirection);
     
-    // Swap the amounts: what we were receiving becomes what we're sending
     const currentReceiveAmount = calculateReceiveAmount();
     if (currentReceiveAmount && !isNaN(Number(currentReceiveAmount))) {
       setExchangeAmount(currentReceiveAmount);
@@ -152,12 +193,10 @@ export default function HomePage() {
       return;
     }
 
-    // Calculate EUR amount for limit validation
     const amount = Number(exchangeAmount);
     const receiveAmount = Number(calculateReceiveAmount());
     const eurAmount = exchangeDirection === 'usdc-eur' ? receiveAmount : amount;
 
-    // Check one-time limit first
     const oneTimeLimit = userData?.daily_limit || 0;
     if (oneTimeLimit > 0 && eurAmount > oneTimeLimit) {
       setErrorMessage(t('oneTimeLimitExceeded', { 
@@ -168,7 +207,6 @@ export default function HomePage() {
       return;
     }
 
-    // Check monthly limit
     const monthlyLimit = userData?.monthly_limit || 0;
     const monthlyUsed = userData?.monthly_limit_used || 0;
     const remainingMonthlyLimit = monthlyLimit - monthlyUsed;
@@ -182,6 +220,7 @@ export default function HomePage() {
       setShowErrorModal(true);
       return;
     }
+
     setIsCreatingOrder(true);
     
     try {
@@ -201,11 +240,12 @@ export default function HomePage() {
       if (createdOrder) {
         console.log('Order created successfully:', createdOrder.id);
         setShowConfirmModal(false);
-        
-        // Clear exchange input fields after successful order creation
         setExchangeAmount('');
         
-        // Navigate to order details with the new order ID
+        // Refresh orders list
+        const userOrders = await fetchUserOrders(userData.telegram_id);
+        setOrders(userOrders);
+        
         router.push({
           pathname: '/order-details',
           params: {
@@ -243,18 +283,27 @@ export default function HomePage() {
     }
   };
 
+  const handleOrderPress = (order: CreatedOrder) => {
+    router.push({
+      pathname: '/order-details',
+      params: {
+        orderId: order.id,
+        isExistingOrder: 'true'
+      }
+    });
+  };
+
   const getFromCurrency = () => exchangeDirection === 'usdc-eur' ? 'USDC' : 'EUR';
   const getToCurrency = () => exchangeDirection === 'usdc-eur' ? 'EUR' : 'USDC';
 
-  const handleOrderBankAccount = async () => {
-    const message = encodeURIComponent(t('orderBankAccount'));
-    const telegramUrl = `https://t.me/xpaid_manager?text=${message}`;
-    
-    try {
-      await Linking.openURL(telegramUrl);
-    } catch (error) {
-      console.error('Error opening Telegram:', error);
-    }
+  const getTransactionIcon = (type: string, status: string) => {
+    return type === 'buy' 
+      ? <ArrowUpDown color="#10B981" size={20} />
+      : <ArrowUpDown color="#EF4444" size={20} />;
+  };
+
+  const getIconBackgroundColor = (type: string, status: string) => {
+    return type === 'buy' ? '#10B981' + '20' : '#EF4444' + '20';
   };
 
   return (
@@ -268,13 +317,13 @@ export default function HomePage() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.greeting} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('greeting')}</Text>
-          <Text style={styles.subtitle} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{t('readyToExchange')}</Text>
+          <Text style={styles.greeting}>{t('greeting')}</Text>
+          <Text style={styles.subtitle}>{t('readyToExchange')}</Text>
         </View>
 
         {/* Monthly Transaction Limit Block */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('monthlyLimit')}</Text>
+          <Text style={styles.cardTitle}>{t('monthlyLimit')}</Text>
           
           <View style={styles.progressBarContainer}>
             <View style={styles.progressBarBackground}>
@@ -287,11 +336,11 @@ export default function HomePage() {
           
           <Text style={styles.limitUsageText}>
             {userData?.monthly_limit && userData?.monthly_limit_used 
-              ? formatCurrency(userData.monthly_limit - userData.monthly_limit_used) 
-              : userData?.monthly_limit ? formatCurrency(userData.monthly_limit) : '€5,000'}{' / '}{userData?.monthly_limit ? formatCurrency(userData.monthly_limit) : '€5,000'}{' '}{t('limitRemaining')}
+              ? `${formatCurrency(userData.monthly_limit - userData.monthly_limit_used)} / ${formatCurrency(userData.monthly_limit)} ${t('limitRemaining')}`
+              : `${userData?.monthly_limit ? formatCurrency(userData.monthly_limit) : '€5,000'} / ${userData?.monthly_limit ? formatCurrency(userData.monthly_limit) : '€5,000'} ${t('limitRemaining')}`}
           </Text>
           <Text style={styles.limitResetText}>
-            {t('limitResets')}{' '}{getDaysUntilReset()}{' '}{t('days')}
+            {`${t('limitResets')} ${getDaysUntilReset()} ${t('days')}`}
           </Text>
           
           <TouchableOpacity 
@@ -305,14 +354,14 @@ export default function HomePage() {
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
             >
-              <Text style={styles.viewDetailsText} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('viewLimitDetails')}</Text>
+              <Text style={styles.viewDetailsText}>{t('viewLimitDetails')}</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
 
         {/* Exchange Rate Block */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('exchangeRate')}</Text>
+          <Text style={styles.cardTitle}>{t('exchangeRate')}</Text>
           <View style={styles.rateContainer}>
             <TrendingUp color="#10B981" size={20} />
             <Text style={styles.rateText}>{getCurrentRate()}</Text>
@@ -321,11 +370,11 @@ export default function HomePage() {
 
         {/* Exchange Block */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('exchange')}</Text>
+          <Text style={styles.cardTitle}>{t('exchange')}</Text>
           
           {/* From Input */}
           <View style={styles.exchangeInputContainer}>
-            <Text style={styles.inputLabel} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('youSend')}</Text>
+            <Text style={styles.inputLabel}>{t('youSend')}</Text>
             <View style={styles.inputWrapper}>
               <TextInput
                 style={styles.amountInput}
@@ -348,7 +397,7 @@ export default function HomePage() {
 
           {/* To Input */}
           <View style={styles.exchangeInputContainer}>
-            <Text style={styles.inputLabel} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('youReceive')}</Text>
+            <Text style={styles.inputLabel}>{t('youReceive')}</Text>
             <View style={styles.inputWrapper}>
               <TextInput
                 style={[styles.amountInput, styles.readOnlyInput]}
@@ -363,7 +412,7 @@ export default function HomePage() {
 
           {/* Exchange Fee */}
           <View style={styles.feeContainer}>
-            <Text style={styles.feeText}>{t('fee')}: ~0.5%</Text>
+            <Text style={styles.feeText}>{`${t('fee')}: ~0.5%`}</Text>
           </View>
 
           {/* Create Exchange Button */}
@@ -386,11 +435,74 @@ export default function HomePage() {
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
             >
-              <Text style={styles.createExchangeButtonText} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('createOrder')}</Text>
+              <Text style={styles.createExchangeButtonText}>{t('createOrder')}</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
-        
+
+        {/* Transaction History */}
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>{t('transactionHistory')}</Text>
+          
+          {isLoadingOrders ? (
+            <View style={styles.loadingContainer}>
+              <Text style={styles.loadingText}>{t('loading')}</Text>
+            </View>
+          ) : orders.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>{t('noOrdersYet')}</Text>
+              <Text style={styles.emptySubtext}>{t('startExchanging')}</Text>
+            </View>
+          ) : (
+            <View style={styles.transactionsContainer}>
+              {orders.slice(0, 3).map((order) => {
+                const displayOrder = formatOrderForDisplay(order);
+                return (
+                  <TouchableOpacity 
+                    key={order.id} 
+                    style={styles.transactionItem}
+                    onPress={() => handleOrderPress(order)}
+                    activeOpacity={0.7}
+                  >
+                    <View style={[
+                      styles.transactionIcon, 
+                      { backgroundColor: getIconBackgroundColor(displayOrder.type, displayOrder.status) }
+                    ]}>
+                      {getTransactionIcon(displayOrder.type, displayOrder.status)}
+                    </View>
+                    
+                    <View style={styles.transactionDetails}>
+                      <Text style={styles.transactionTitle}>{displayOrder.title}</Text>
+                      <Text style={styles.transactionCrypto}>{displayOrder.crypto}</Text>
+                      <Text style={styles.transactionTime}>{displayOrder.time}</Text>
+                    </View>
+                    
+                    <View style={styles.transactionAmountContainer}>
+                      <Text style={[
+                        styles.transactionAmount,
+                        { color: displayOrder.type === 'buy' ? '#10B981' : '#EF4444' }
+                      ]}>
+                        {displayOrder.amount}
+                      </Text>
+                      <Text style={[
+                        styles.transactionStatus,
+                        { 
+                          color: displayOrder.status === 'completed' ? '#10B981' : 
+                                 displayOrder.status === 'pending' ? '#F59E0B' : '#6B7280',
+                          textTransform: 'capitalize'
+                        }
+                      ]}>
+                        {displayOrder.status === 'pending' ? t('pending') : 
+                         displayOrder.status === 'processing' ? t('processing') : 
+                         t('completed')}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          )}
+        </View>
       </ScrollView>
 
       {/* Confirmation Modal */}
@@ -403,7 +515,7 @@ export default function HomePage() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('confirmExchange')}</Text>
+              <Text style={styles.modalTitle}>{t('confirmExchange')}</Text>
               <TouchableOpacity
                 style={styles.closeButton}
                 onPress={() => setShowConfirmModal(false)}
@@ -414,9 +526,9 @@ export default function HomePage() {
             
             <View style={styles.modalBody}>
               <View style={styles.exchangeSummary}>
-                <Text style={styles.summaryLabel} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('youSend')}</Text>
+                <Text style={styles.summaryLabel}>{t('youSend')}</Text>
                 <Text style={styles.summaryAmount}>
-                  {exchangeAmount} {getFromCurrency()}
+                  {`${exchangeAmount} ${getFromCurrency()}`}
                 </Text>
               </View>
               
@@ -425,14 +537,14 @@ export default function HomePage() {
               </View>
               
               <View style={styles.exchangeSummary}>
-                <Text style={styles.summaryLabel} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('youReceive')}</Text>
+                <Text style={styles.summaryLabel}>{t('youReceive')}</Text>
                 <Text style={styles.summaryAmount}>
-                  {calculateReceiveAmount()} {getToCurrency()}
+                  {`${calculateReceiveAmount()} ${getToCurrency()}`}
                 </Text>
               </View>
               
               <Text style={styles.rateInfo}>
-                <Text adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('rate')}: {getCurrentRate()}</Text>
+                {`${t('rate')}: ${getCurrentRate()}`}
               </Text>
             </View>
             
@@ -441,7 +553,7 @@ export default function HomePage() {
                 style={styles.cancelButton}
                 onPress={() => setShowConfirmModal(false)}
               >
-                <Text style={styles.cancelButtonText} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('cancel')}</Text>
+                <Text style={styles.cancelButtonText}>{t('cancel')}</Text>
               </TouchableOpacity>
               
               <TouchableOpacity
@@ -455,7 +567,7 @@ export default function HomePage() {
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                 >
-                  <Text style={styles.confirmButtonText} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>
+                  <Text style={styles.confirmButtonText}>
                     {isCreatingOrder ? t('creatingOrder') : t('confirm')}
                   </Text>
                 </LinearGradient>
@@ -475,7 +587,7 @@ export default function HomePage() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{t('orderCreationFailed')}</Text>
+              <Text style={styles.modalTitle}>{t('orderCreationFailed')}</Text>
               <TouchableOpacity
                 style={styles.closeButton}
                 onPress={() => setShowErrorModal(false)}
@@ -485,7 +597,7 @@ export default function HomePage() {
             </View>
             
             <View style={styles.modalBody}>
-              <Text style={styles.errorText} adjustsFontSizeToFit numberOfLines={3} minimumFontScale={0.7}>{errorMessage}</Text>
+              <Text style={styles.errorText}>{errorMessage}</Text>
             </View>
             
             <View style={styles.modalActions}>
@@ -493,7 +605,7 @@ export default function HomePage() {
                 style={styles.cancelButton}
                 onPress={handleContactSupport}
               >
-                <Text style={styles.cancelButtonText} adjustsFontSizeToFit numberOfLines={2} minimumFontScale={0.7}>{t('contactSupportOrder')}</Text>
+                <Text style={styles.cancelButtonText}>{t('contactSupportOrder')}</Text>
               </TouchableOpacity>
               
               <TouchableOpacity
@@ -506,7 +618,7 @@ export default function HomePage() {
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
                 >
-                  <Text style={styles.confirmButtonText} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('retryOrder')}</Text>
+                  <Text style={styles.confirmButtonText}>{t('retryOrder')}</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </View>
@@ -568,9 +680,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     lineHeight: 22,
   },
-  limitContainer: {
-    marginBottom: 16,
-  },
   limitUsageText: {
     fontSize: 20,
     fontWeight: '700',
@@ -623,18 +732,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
-    lineHeight: 20,
-  },
-  detailsButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingVertical: 8,
-  },
-  detailsButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#3D8BFF',
     lineHeight: 20,
   },
   rateContainer: {
@@ -747,6 +844,88 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     letterSpacing: 0.5,
+  },
+  transactionsContainer: {
+    gap: 12,
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  loadingText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#6B7280',
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  emptyText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#0C1E3C',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  emptySubtext: {
+    fontSize: 14,
+    fontWeight: '400',
+    color: '#6B7280',
+    textAlign: 'center',
+  },
+  transactionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F9FAFB',
+    padding: 12,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  transactionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  transactionDetails: {
+    flex: 1,
+  },
+  transactionTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#0C1E3C',
+    marginBottom: 2,
+    lineHeight: 18,
+  },
+  transactionCrypto: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#6B7280',
+    marginBottom: 2,
+    lineHeight: 16,
+  },
+  transactionTime: {
+    fontSize: 10,
+    fontWeight: '400',
+    color: '#9CA3AF',
+    lineHeight: 14,
+  },
+  transactionAmountContainer: {
+    alignItems: 'flex-end',
+  },
+  transactionAmount: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 2,
+    lineHeight: 18,
+  },
+  transactionStatus: {
+    fontSize: 10,
+    fontWeight: '500',
+    lineHeight: 14,
   },
   modalOverlay: {
     flex: 1,
@@ -865,25 +1044,5 @@ const styles = StyleSheet.create({
     color: '#EF4444',
     textAlign: 'center',
     lineHeight: 22,
-  },
-  bankAccountContainer: {
-    paddingHorizontal: 32,
-    marginBottom: 24,
-  },
-  bankAccountButton: {
-    width: '100%',
-    height: 56,
-    borderRadius: 16,
-    backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: '#3D8BFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  bankAccountButtonText: {
-    color: '#3D8BFF',
-    fontSize: 16,
-    fontWeight: '600',
-    letterSpacing: 0.5,
   },
 });
