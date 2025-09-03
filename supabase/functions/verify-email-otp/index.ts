@@ -80,20 +80,38 @@ Deno.serve(async (req: Request) => {
     const normalizedEmail = email.trim().toLowerCase();
     console.log(`🔍 Verifying OTP for email: ${normalizedEmail}`);
 
-    // For now, we'll use a simple mock verification since we don't have OTP storage in auth_attempts table
-    // In a real implementation, you would:
-    // 1. Query auth_attempts table for the latest OTP for this email
-    // 2. Check if it matches and hasn't expired
-    // 3. Mark it as used
-    
-    // Mock verification - accept any 6-digit code for development
-    console.log(`🔢 Received OTP code: ${otp_code}`);
-    
-    // For development, accept any 6-digit code
-    // In production, replace this with actual database verification
-    const isValidOtp = /^\d{6}$/.test(otp_code);
-    
-    if (!isValidOtp) {
+    // Get the latest unused OTP for this email
+    const { data: otpRecord, error: otpError } = await supabase
+      .from('auth_attempts')
+      .select('*')
+      .eq('email', normalizedEmail)
+      .eq('attempt_type', 'email_otp')
+      .eq('otp_used', false)
+      .not('otp_code', 'is', null)
+      .gte('otp_expires_at', new Date().toISOString())
+      .order('attempted_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (otpError || !otpRecord) {
+      console.log('No valid OTP found for email:', normalizedEmail);
+      // Log failed attempt
+      await supabase
+        .from('auth_attempts')
+        .insert({
+          email: normalizedEmail,
+          attempt_type: 'email_otp_verify',
+          attempted_at: new Date().toISOString(),
+          success: false,
+        });
+
+      throw new Error('Invalid or expired verification code');
+    }
+
+    // Verify the OTP code
+    if (otpRecord.otp_code !== otp_code) {
+      console.log(`❌ OTP mismatch for ${normalizedEmail}: expected ${otpRecord.otp_code}, got ${otp_code}`);
+      
       // Log failed attempt
       await supabase
         .from('auth_attempts')
@@ -106,6 +124,12 @@ Deno.serve(async (req: Request) => {
 
       throw new Error('Invalid verification code');
     }
+
+    // Mark OTP as used
+    await supabase
+      .from('auth_attempts')
+      .update({ otp_used: true })
+      .eq('id', otpRecord.id);
 
     // Check if user exists in our users table
     let { data: existingUser } = await supabase
