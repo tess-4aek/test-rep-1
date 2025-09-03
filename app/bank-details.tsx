@@ -335,7 +335,7 @@ export default function BankDetailsFormPage() {
           <View style={styles.infoBlock}>
             <Text style={styles.infoBlockTitle} adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('bankRequirements')}</Text>
             <Text style={styles.infoBlockText} adjustsFontSizeToFit numberOfLines={4} minimumFontScale={0.7}>
-              <Text adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('country')}</Text><Text> </Text><Text style={styles.required}>*</Text>
+              <Text adjustsFontSizeToFit numberOfLines={1} minimumFontScale={0.7}>{t('country')} </Text><Text style={styles.required}>*</Text>
             </Text>
           </View>
 

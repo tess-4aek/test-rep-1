@@ -56,10 +56,6 @@ Deno.serve(async (req: Request) => {
     }
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: false
-      }
     });
 
     // Get email service configuration
@@ -106,6 +102,10 @@ Deno.serve(async (req: Request) => {
 
     const normalizedEmail = email.trim().toLowerCase();
     console.log(`📧 Processing OTP request for email: ${normalizedEmail}`);
+
+    // Generate OTP and expiration time
+    const otpCode = generateOTP();
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
 
     // Rate limiting: Check recent attempts
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
