@@ -1,114 +1,118 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { supabase } from '@/lib/supabase';
-import { User } from '@/lib/supabase';
+import * as SecureStore from 'expo-secure-store';
+import { User as SupabaseUser } from '@/lib/supabase';
 
-// Storage keys
-const USER_DATA_KEY = 'user_data';
-const USER_UUID_KEY = 'user_uuid';
+// Re-export User type for convenience
+export type User = SupabaseUser;
 
-// Get user data from storage
-export async function getUserData(): Promise<User | null> {
+const USER_STORAGE_KEY = 'authenticated_user';
+const USER_UUID_KEY = 'userUUID';
+const AUTH_STATUS_KEY = 'is_auth';
+
+/**
+ * Set authentication status
+ */
+export async function setAuthStatus(isAuthenticated: boolean): Promise<void> {
   try {
-    const userData = await AsyncStorage.getItem(USER_DATA_KEY);
-    if (userData) {
-      return JSON.parse(userData) as User;
-    }
-    return null;
+    await AsyncStorage.setItem(AUTH_STATUS_KEY, isAuthenticated ? 'true' : 'false');
+    console.log('Auth status set to:', isAuthenticated);
   } catch (error) {
-    console.error('Error getting user data:', error);
-    return null;
+    console.error('Error setting auth status:', error);
   }
 }
 
-// Save user data to storage
-export async function saveUserData(user: User): Promise<void> {
+/**
+ * Get authentication status
+ */
+export async function getAuthStatus(): Promise<boolean> {
   try {
-    await AsyncStorage.setItem(USER_DATA_KEY, JSON.stringify(user));
-    console.log('User data saved successfully');
+    const status = await AsyncStorage.getItem(AUTH_STATUS_KEY);
+    return status === 'true';
   } catch (error) {
-    console.error('Error saving user data:', error);
-    throw error;
-  }
-}
-
-// Clear user data from storage
-export async function clearUserData(): Promise<void> {
-  try {
-    await AsyncStorage.removeItem(USER_DATA_KEY);
-    console.log('User data cleared successfully');
-  } catch (error) {
-    console.error('Error clearing user data:', error);
-    throw error;
-  }
-}
-
-// Get user UUID from storage
-export async function getUserUUID(): Promise<string | null> {
-  try {
-    const uuid = await AsyncStorage.getItem(USER_UUID_KEY);
-    return uuid;
-  } catch (error) {
-    console.error('Error getting user UUID:', error);
-    return null;
-  }
-}
-
-// Save user UUID to storage
-export async function saveUserUUID(uuid: string): Promise<void> {
-  try {
-    await AsyncStorage.setItem(USER_UUID_KEY, uuid);
-    console.log('User UUID saved successfully');
-  } catch (error) {
-    console.error('Error saving user UUID:', error);
-    throw error;
-  }
-}
-
-// Clear user UUID from storage
-export async function clearUserUUID(): Promise<void> {
-  try {
-    await AsyncStorage.removeItem(USER_UUID_KEY);
-    console.log('User UUID cleared successfully');
-  } catch (error) {
-    console.error('Error clearing user UUID:', error);
-    throw error;
-  }
-}
-
-// Check if user is authenticated
-export async function isUserAuthenticated(): Promise<boolean> {
-  try {
-    // Check Supabase session first
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session?.user) {
-      return true;
-    }
-
-    // Fallback to local storage
-    const userData = await getUserData();
-    return userData !== null;
-  } catch (error) {
-    console.error('Error checking authentication:', error);
+    console.error('Error getting auth status:', error);
     return false;
   }
 }
 
-// Sign out user
-export async function signOut(): Promise<void> {
+/**
+ * Save user UUID to secure storage
+ */
+export async function saveUserUUID(uuid: string): Promise<void> {
   try {
-    // Sign out from Supabase
-    await supabase.auth.signOut();
-    
-    // Clear local storage
-    await clearUserData();
-    await clearUserUUID();
-    
-    console.log('✅ User signed out successfully');
+    await SecureStore.setItemAsync(USER_UUID_KEY, uuid);
+    console.log('User UUID saved to secure storage');
   } catch (error) {
-    console.error('❌ Error signing out:', error);
-    throw error;
+    console.error('Error saving user UUID:', error);
   }
 }
 
-// Export User type for convenience
-export type { User };
+/**
+ * Get user UUID from secure storage
+ */
+export async function getUserUUID(): Promise<string | null> {
+  try {
+    return await SecureStore.getItemAsync(USER_UUID_KEY);
+  } catch (error) {
+    console.error('Error loading user UUID:', error);
+    return null;
+  }
+}
+
+/**
+ * Clear user UUID from secure storage
+ */
+export async function clearUserUUID(): Promise<void> {
+  try {
+    await SecureStore.deleteItemAsync(USER_UUID_KEY);
+    console.log('User UUID cleared from secure storage');
+  } catch (error) {
+    console.error('Error clearing user UUID:', error);
+  }
+}
+export async function saveUserData(user: SupabaseUser): Promise<void> {
+  try {
+    await AsyncStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
+    await setAuthStatus(true);
+    console.log('User data saved to storage');
+  } catch (error) {
+    console.error('Error saving user data:', error);
+  }
+}
+
+export async function getUserData(): Promise<SupabaseUser | null> {
+  try {
+    const userData = await AsyncStorage.getItem(USER_STORAGE_KEY);
+    if (userData) {
+      return JSON.parse(userData) as SupabaseUser;
+    }
+    return null;
+  } catch (error) {
+    console.error('Error loading user data:', error);
+    return null;
+  }
+}
+
+export async function clearUserData(): Promise<void> {
+  try {
+    await AsyncStorage.removeItem(USER_STORAGE_KEY);
+    await setAuthStatus(false);
+    console.log('User data cleared from storage');
+  } catch (error) {
+    console.error('Error clearing user data:', error);
+  }
+}
+
+export function determineNextScreen(user: SupabaseUser): string {
+  // Check KYC status first
+  if (!user.kyc_status || user.kyc_status === false) {
+    return '/auth-progress';
+  }
+  
+  // Then check bank details status
+  if (!user.bank_details_status || user.bank_details_status === false) {
+    return '/bank-details';
+  }
+  
+  // If both are complete, go to main app
+  return '/(tabs)';
+}

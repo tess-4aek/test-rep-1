@@ -7,8 +7,7 @@ export const supabase = createClient(supabaseUrl, supabaseKey);
 
 export interface User {
   id: string;
-  email?: string;
-  username?: string;
+  telegram_id?: string;
   username?: string; // Telegram username
   first_name?: string;
   last_name?: string;
@@ -55,7 +54,7 @@ export async function checkUserExists(userId: string): Promise<User | null> {
   }
 }
 
-export async function updateUserBankDetailsStatus(userId: string, bankDetails: {
+export async function updateUserBankDetailsStatus(telegramId: string, bankDetails: {
   fullName: string;
   iban: string;
   swiftBic?: string;
@@ -74,25 +73,26 @@ export async function updateUserBankDetailsStatus(userId: string, bankDetails: {
         bank_country: bankDetails.country,
         updated_at: new Date().toISOString()
       })
-      .eq('id', userId)
+      .eq('telegram_id', telegramId)
       .select()
       .single();
 
     if (error) {
-      console.error('Error updating bank details status for user_id:', userId, error);
+      console.error('Error updating bank details status for telegram_id:', telegramId, error);
       throw error;
     }
 
-    console.log('Successfully updated bank details status for user_id:', userId);
+    console.log('Successfully updated bank details status for telegram_id:', telegramId);
     return data as User;
   } catch (error) {
-    console.error('Error updating bank details status for user_id:', userId, error);
+    console.error('Error updating bank details status for telegram_id:', telegramId, error);
     return null;
   }
 }
 
 export interface CreateOrderData {
   user_id?: string;
+  telegram_id: string;
   usdc_amount: number;
   eur_amount: number;
   direction: 'usdc-eur' | 'eur-usdc';
@@ -103,6 +103,7 @@ export interface CreateOrderData {
 export interface CreatedOrder {
   id: string;
   user_id?: string;
+  telegram_id: string;
   usdc_amount: number;
   eur_amount: number;
   direction: 'usdc-eur' | 'eur-usdc';
@@ -120,7 +121,7 @@ export async function createOrder(orderData: CreateOrderData): Promise<CreatedOr
     const { data, error } = await supabase
       .from('orders')
       .insert({
-        user_id: orderData.user_id,
+        user_id: orderData.telegram_id,
         usdc_amount: orderData.usdc_amount,
         eur_amount: orderData.eur_amount,
         direction: orderData.direction,
@@ -168,14 +169,14 @@ export async function getOrderById(orderId: string): Promise<CreatedOrder | null
   }
 }
 
-export async function fetchUserOrders(userId: string): Promise<CreatedOrder[]> {
+export async function fetchUserOrders(telegramId: string): Promise<CreatedOrder[]> {
   try {
-    console.log('Fetching orders for user_id:', userId);
+    console.log('Fetching orders for telegram_id:', telegramId);
     
     const { data, error } = await supabase
       .from('orders')
       .select('*')
-      .eq('user_id', userId)
+      .eq('user_id', telegramId)
       .order('created_at', { ascending: false });
 
     if (error) {

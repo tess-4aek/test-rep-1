@@ -1,70 +1,55 @@
 import { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { initializeLanguage } from '@/lib/i18n';
-import AppPreloader from '@/components/AppPreloader';
+import AuthGate from '@/components/AuthGate';
 
 export default function RootLayout() {
   useFrameworkReady();
-  const [isReady, setIsReady] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [isLanguageReady, setIsLanguageReady] = useState(false);
 
   useEffect(() => {
     const initializeApp = async () => {
       try {
-        setProgress(20);
-        
-        // Initialize language
+        // Initialize language first
         await initializeLanguage();
-        setProgress(60);
-        
-        // Small delay to show progress
-        await new Promise(resolve => setTimeout(resolve, 300));
-        setProgress(100);
-        
-        // Mark as ready
-        setIsReady(true);
+        setIsLanguageReady(true);
       } catch (error) {
         console.error('❌ Error during app initialization:', error);
-        // Still mark as ready even on error
-        setIsReady(true);
+        setIsLanguageReady(true);
       }
     };
     
     initializeApp();
   }, []);
 
-  // Show preloader while initializing
-  if (!isReady) {
+  // Show loading screen until language and auth check are complete
+  if (!isLanguageReady) {
     return (
-      <AppPreloader 
-        progress={progress} 
-        message={
-          progress < 40 ? 'Initializing app...' :
-          progress < 80 ? 'Loading language settings...' :
-          'Almost ready...'
-        }
-      />
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#3D8BFF" />
+      </View>
     );
   }
 
   return (
     <>
+      <AuthGate />
       <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="auth" options={{ headerShown: false }} />
-        <Stack.Screen name="ramp" options={{ headerShown: false, presentation: 'modal' }} />
-        <Stack.Screen name="order-confirmation" options={{ headerShown: false }} />
-        <Stack.Screen name="order-details" options={{ headerShown: false }} />
-        <Stack.Screen name="limit-details" options={{ headerShown: false }} />
-        <Stack.Screen name="transaction-history" options={{ headerShown: false }} />
-        <Stack.Screen name="settings" options={{ headerShown: false }} />
-        <Stack.Screen name="help-support" options={{ headerShown: false }} />
-        <Stack.Screen name="personal-information" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="auto" />
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F4F6F9',
+  },
+});
